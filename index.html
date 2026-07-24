@@ -6,7 +6,7 @@
   <meta name="color-scheme" content="light dark" />
   <title>Вырезание акций</title>
   <script>
-    window.APP_STORAGE_NAME = 'cutout-onboarding-v5'; // Измените это название, чтобы сбросить/разделить сохранённые данные.
+    window.APP_STORAGE_NAME = 'cutout-onboarding-v10'; // Измените это название, чтобы сбросить/разделить сохранённые данные.
     try {
       const saved = JSON.parse(localStorage.getItem(window.APP_STORAGE_NAME) || 'null');
       if (!saved || !saved.completed) document.documentElement.classList.add('onboarding-pending');
@@ -449,14 +449,60 @@
       font-weight: 700;
       letter-spacing: .04em;
       cursor: pointer;
-      transition: color .22s ease, background-color .22s ease, border-color .22s ease, transform .22s ease;
+      transition: none;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    .background-option:hover { color: var(--accent); transform: translateY(-1px); }
+    .background-option:hover { color: var(--accent); }
+    .background-option:active { transform: none; }
     .background-option.is-selected {
+      color: #ffffff;
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+    .background-option.is-dragover {
       color: var(--accent);
-      background: var(--panel);
-      border-color: var(--stroke);
+      border-color: var(--accent);
+      background: color-mix(in srgb, var(--accent) 12%, transparent);
+    }
+
+    .site-drop-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      pointer-events: none;
+      opacity: 0;
+      visibility: hidden;
+      background: color-mix(in srgb, var(--accent) 18%, transparent);
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
+      transition: opacity .18s ease, visibility .18s ease;
+    }
+
+    .site-drop-overlay::before {
+      content: "Отпустите изображение";
+      display: grid;
+      place-items: center;
+      width: min(420px, calc(100vw - 48px));
+      min-height: 120px;
+      padding: 24px;
+      border: 2px dashed var(--accent);
+      border-radius: 28px;
+      background: color-mix(in srgb, var(--page-bg) 88%, transparent);
+      color: var(--accent);
+      font-size: clamp(19px, 4vw, 27px);
+      font-weight: 700;
+      letter-spacing: .025em;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(42, 164, 232, .18);
+    }
+
+    body.is-file-dragging .site-drop-overlay {
+      opacity: 1;
+      visibility: visible;
     }
 
     .onboarding-or {
@@ -486,6 +532,56 @@
       transition: border-color .2s ease, box-shadow .2s ease;
     }
 
+    .nickname-field {
+      position: relative;
+      width: 250px;
+      margin-top: 20px;
+    }
+
+    .nickname-field .nickname-input {
+      width: 100%;
+      margin-top: 0;
+      padding-right: 52px;
+    }
+
+    .nickname-case-button {
+      position: absolute;
+      top: 50%;
+      right: 5px;
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      border: 0;
+      border-radius: 10px;
+      background: color-mix(in srgb, var(--page-bg) 72%, transparent);
+      color: var(--text);
+      font-size: 21px;
+      font-weight: 700;
+      line-height: 1;
+      cursor: pointer;
+      transform: translateY(-50%);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity .18s ease, visibility .18s ease, color .18s ease, background-color .18s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .nickname-case-button.is-visible {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .nickname-case-button:hover {
+      color: var(--accent);
+      background: color-mix(in srgb, var(--accent) 12%, var(--page-bg));
+    }
+
+    .nickname-case-button:active { transform: translateY(-50%); }
+
     .nickname-input::placeholder { color: var(--accent); opacity: 1; }
     .nickname-input:focus { border-color: color-mix(in srgb, var(--accent) 48%, transparent); }
 
@@ -507,7 +603,7 @@
 
     .onboarding-action:hover { transform: translateY(-2px); }
     .onboarding-action:active { transform: translateY(0) scale(.985); }
-    .onboarding-action:disabled { opacity: .45; cursor: default; transform: none; }
+    .onboarding-action:disabled { opacity: .35; cursor: default; transform: none; box-shadow: none; }
 
     .page { transition: opacity .7s ease, filter .7s ease, transform .7s cubic-bezier(.2,.75,.2,1); }
     .onboarding-pending .page { opacity: 0; filter: blur(18px); transform: scale(.975); pointer-events: none; }
@@ -527,6 +623,195 @@
       .nickname-input { width: min(250px, 100%); }
     }
 
+
+
+    /* Окно выбора фона Fankit */
+    .fankit-picker {
+      position: fixed;
+      inset: 0;
+      z-index: 1200;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      background: rgba(8, 17, 28, .38);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity .28s ease, visibility .28s ease;
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+    }
+
+    .fankit-picker.is-open {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .fankit-sheet {
+      width: min(100%, 460px);
+      height: min(94dvh, 760px);
+      overflow: hidden;
+      border-radius: 24px 24px 0 0;
+      background: var(--panel-2);
+      color: var(--text);
+      box-shadow: 0 -18px 60px rgba(0,0,0,.18);
+      transform: translateY(34px);
+      transition: transform .34s cubic-bezier(.2,.8,.2,1), background-color .28s ease;
+    }
+
+    .fankit-picker.is-open .fankit-sheet { transform: translateY(0); }
+
+    .fankit-sheet-handle {
+      width: 38px;
+      height: 5px;
+      margin: 9px auto 0;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--muted) 72%, transparent);
+    }
+
+    .fankit-sheet-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px 20px 12px;
+    }
+
+    .fankit-sheet-title {
+      margin: 0;
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.2;
+      font-weight: 400;
+      letter-spacing: .01em;
+    }
+
+    .fankit-close {
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
+      color: var(--muted);
+      font-size: 24px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .fankit-content {
+      height: calc(100% - 73px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 0 12px 28px;
+      scrollbar-width: none;
+      overscroll-behavior: contain;
+      touch-action: pan-y;
+      -webkit-overflow-scrolling: touch;
+    }
+    .fankit-content::-webkit-scrollbar { display: none; }
+
+    .fankit-recommended {
+      padding: 13px 9px 12px;
+      border-radius: 16px;
+      background: var(--page-bg);
+    }
+
+    .fankit-section-label {
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 400;
+      letter-spacing: .055em;
+    }
+
+    .fankit-recommended-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .fankit-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+      margin-top: 0;
+    }
+
+    .fankit-bg {
+      position: relative;
+      width: 100%;
+      padding: 0;
+      overflow: hidden;
+      border: 2px solid transparent;
+      border-radius: 13px;
+      background: var(--card);
+      cursor: pointer;
+      aspect-ratio: 16 / 9;
+      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .fankit-bg:hover { transform: translateY(-1px); }
+    .fankit-bg:active { transform: scale(.985); }
+    .fankit-bg.is-selected {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 18%, transparent);
+    }
+
+    .fankit-bg img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      pointer-events: none;
+    }
+
+    .fankit-bg-label {
+      position: absolute;
+      right: 7px;
+      bottom: 5px;
+      color: white;
+      font-size: 10px;
+      line-height: 1;
+      font-weight: 700;
+      text-shadow: 0 1px 4px rgba(0,0,0,.65);
+    }
+
+    .fankit-bg-check {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 20px;
+      height: 20px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--accent);
+      color: white;
+      font-size: 13px;
+      font-weight: 700;
+      opacity: 0;
+      transform: scale(.7);
+      transition: opacity .18s ease, transform .18s ease;
+    }
+    .fankit-bg-check img {
+      width: 11px;
+      height: 11px;
+      display: block;
+      filter: brightness(0) invert(1);
+    }
+    .fankit-bg.is-selected .fankit-bg-check { opacity: 1; transform: scale(1); }
+
+    @media (max-width: 470px) {
+      .fankit-sheet { width: 100%; height: 96dvh; border-radius: 22px 22px 0 0; }
+      .fankit-sheet-header { padding: 16px 20px 12px; }
+      .fankit-sheet-title { font-size: 18px; }
+      .fankit-content { padding-inline: 12px; }
+    }
 
 
     ::view-transition-old(root),
@@ -579,19 +864,60 @@
         <h2 class="onboarding-title">Выберите фон</h2>
         <p class="onboarding-description">Выберите или загрузите свой<br>фон, который будет использоваться<br>в дальнейших Ваших работах.</p>
         <div class="background-options">
-          <button class="background-option is-selected" type="button" data-background="fankit">Фон с Fankit</button>
+          <button class="background-option" type="button" data-background="fankit">Фон с Fankit</button>
           <div class="onboarding-or">ИЛИ</div>
           <button class="background-option" type="button" data-background="upload">Загрузить фон</button>
+          <input id="backgroundUploadInput" type="file" accept="image/*" hidden>
         </div>
-        <button class="onboarding-action" type="button" id="nextOnboarding">Далее</button>
+        <button class="onboarding-action" type="button" id="nextOnboarding" disabled>Далее</button>
       </div>
 
       <div class="onboarding-step" data-step="2">
         <div class="step-number">2</div>
         <h2 class="onboarding-title">Введите ник</h2>
         <p class="onboarding-description">Введите свой ник, который будет<br>использоваться при создание работ.</p>
-        <input class="nickname-input" id="nicknameInput" type="text" maxlength="24" placeholder="Введите текст" autocomplete="nickname" spellcheck="false">
+        <div class="nickname-field">
+          <input class="nickname-input" id="nicknameInput" type="text" maxlength="24" placeholder="Введите текст" autocomplete="nickname" spellcheck="false">
+          <button class="nickname-case-button" id="nicknameCaseButton" type="button" aria-label="Изменить регистр ника" title="Изменить регистр">a</button>
+        </div>
         <button class="onboarding-action" type="button" id="saveOnboarding" disabled>Сохранить</button>
+      </div>
+    </div>
+  </section>
+
+
+  <div class="site-drop-overlay" id="siteDropOverlay" aria-hidden="true"></div>
+
+  <section class="fankit-picker" id="fankitPicker" aria-label="Выбор фона Fankit" aria-hidden="true">
+    <div class="fankit-sheet" role="dialog" aria-modal="true" aria-labelledby="fankitPickerTitle">
+      <div class="fankit-sheet-handle" aria-hidden="true"></div>
+      <header class="fankit-sheet-header">
+        <h2 class="fankit-sheet-title" id="fankitPickerTitle">Выберите фон из Fankit</h2>
+        <button class="fankit-close" id="closeFankitPicker" type="button" aria-label="Закрыть">×</button>
+      </header>
+      <div class="fankit-content">
+        <div class="fankit-grid"><button class="fankit-bg" type="button" data-bg-file="bg/bg1.jpg" aria-label="Выбрать фон 1"><img src="bg/bg1.jpg" alt="" loading="lazy"><span class="fankit-bg-check"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/Pgo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDIwMDEwOTA0Ly9FTiIKICJodHRwOi8vd3d3LnczLm9yZy9UUi8yMDAxL1JFQy1TVkctMjAwMTA5MDQvRFREL3N2ZzEwLmR0ZCI+CjxzdmcgdmVyc2lvbj0iMS4wIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiB3aWR0aD0iNTEyLjAwMDAwMHB0IiBoZWlnaHQ9IjUxMi4wMDAwMDBwdCIgdmlld0JveD0iMCAwIDUxMi4wMDAwMDAgNTEyLjAwMDAwMCIKIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaWRZTWlkIG1lZXQiPgoKPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMC4wMDAwMDAsNTEyLjAwMDAwMCkgc2NhbGUoMC4xMDAwMDAsLTAuMTAwMDAwKSIKZmlsbD0iIzAwMDAwMCIgc3Ryb2tlPSJub25lIj4KPHBhdGggZD0iTTQ2MDUgNDM4NiBjLTEwNSAtMzMgLTEwOSAtMzYgLTE0NDUgLTEzNzIgbC0xMzE1IC0xMzE0IC01OTUgNTk1CmMtNTUzIDU1MSAtNjAwIDU5NiAtNjYyIDYyNSAtMTU5IDc0IC0zMjggNTEgLTQ1NCAtNjMgLTEwMCAtOTAgLTE0OSAtMjM0Ci0xMjUgLTM2NCAyNSAtMTM0IDkgLTExNyA4MzkgLTk0NCA3MjYgLTcyNCA3NzEgLTc2NyA4MzIgLTc5NCA3OCAtMzQgMTg1IC00NAoyNTcgLTI1IDEyMiAzMyA3MCAtMTYgMTYyOSAxNTQzIDE2MTQgMTYxNiAxNTIyIDE1MTcgMTU0NyAxNjYwIDM0IDE5OSAtOTEKMzkyIC0yOTIgNDUzIC01NiAxNyAtMTYyIDE3IC0yMTYgMHoiLz4KPC9nPgo8L3N2Zz4K" alt=""></span></button>
+<button class="fankit-bg" type="button" data-bg-file="bg/bg2.jpg" aria-label="Выбрать фон 2"><img src="bg/bg2.jpg" alt="" loading="lazy"><span class="fankit-bg-check"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/Pgo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDIwMDEwOTA0Ly9FTiIKICJodHRwOi8vd3d3LnczLm9yZy9UUi8yMDAxL1JFQy1TVkctMjAwMTA5MDQvRFREL3N2ZzEwLmR0ZCI+CjxzdmcgdmVyc2lvbj0iMS4wIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiB3aWR0aD0iNTEyLjAwMDAwMHB0IiBoZWlnaHQ9IjUxMi4wMDAwMDBwdCIgdmlld0JveD0iMCAwIDUxMi4wMDAwMDAgNTEyLjAwMDAwMCIKIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaWRZTWlkIG1lZXQiPgoKPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMC4wMDAwMDAsNTEyLjAwMDAwMCkgc2NhbGUoMC4xMDAwMDAsLTAuMTAwMDAwKSIKZmlsbD0iIzAwMDAwMCIgc3Ryb2tlPSJub25lIj4KPHBhdGggZD0iTTQ2MDUgNDM4NiBjLTEwNSAtMzMgLTEwOSAtMzYgLTE0NDUgLTEzNzIgbC0xMzE1IC0xMzE0IC01OTUgNTk1CmMtNTUzIDU1MSAtNjAwIDU5NiAtNjYyIDYyNSAtMTU5IDc0IC0zMjggNTEgLTQ1NCAtNjMgLTEwMCAtOTAgLTE0OSAtMjM0Ci0xMjUgLTM2NCAyNSAtMTM0IDkgLTExNyA4MzkgLTk0NCA3MjYgLTcyNCA3NzEgLTc2NyA4MzIgLTc5NCA3OCAtMzQgMTg1IC00NAoyNTcgLTI1IDEyMiAzMyA3MCAtMTYgMTYyOSAxNTQzIDE2MTQgMTYxNiAxNTIyIDE1MTcgMTU0NyAxNjYwIDM0IDE5OSAtOTEKMzkyIC0yOTIgNDUzIC01NiAxNyAtMTYyIDE3IC0yMTYgMHoiLz4KPC9nPgo8L3N2Zz4K" alt=""></span></button>
+<button class="fankit-bg" type="button" data-bg-file="bg/bg3.jpg" aria-label="Выбрать фон 3"><img src="bg/bg3.jpg" alt="" loading="lazy"><span class="fankit-bg-check"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/Pgo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDIwMDEwOTA0Ly9FTiIKICJodHRwOi8vd3d3LnczLm9yZy9UUi8yMDAxL1JFQy1TVkctMjAwMTA5MDQvRFREL3N2ZzEwLmR0ZCI+CjxzdmcgdmVyc2lvbj0iMS4wIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiB3aWR0aD0iNTEyLjAwMDAwMHB0IiBoZWlnaHQ9IjUxMi4wMDAwMDBwdCIgdmlld0JveD0iMCAwIDUxMi4wMDAwMDAgNTEyLjAwMDAwMCIKIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaWRZTWlkIG1lZXQiPgoKPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMC4wMDAwMDAsNTEyLjAwMDAwMCkgc2NhbGUoMC4xMDAwMDAsLTAuMTAwMDAwKSIKZmlsbD0iIzAwMDAwMCIgc3Ryb2tlPSJub25lIj4KPHBhdGggZD0iTTQ2MDUgNDM4NiBjLTEwNSAtMzMgLTEwOSAtMzYgLTE0NDUgLTEzNzIgbC0xMzE1IC0xMzE0IC01OTUgNTk1CmMtNTUzIDU1MSAtNjAwIDU5NiAtNjYyIDYyNSAtMTU5IDc0IC0zMjggNTEgLTQ1NCAtNjMgLTEwMCAtOTAgLTE0OSAtMjM0Ci0xMjUgLTM2NCAyNSAtMTM0IDkgLTExNyA4MzkgLTk0NCA3MjYgLTcyNCA3NzEgLTc2NyA4MzIgLTc5NCA3OCAtMzQgMTg1IC00NAoyNTcgLTI1IDEyMiAzMyA3MCAtMTYgMTYyOSAxNTQzIDE2MTQgMTYxNiAxNTIyIDE1MTcgMTU0NyAxNjYwIDM0IDE5OSAtOTEKMzkyIC0yOTIgNDUzIC01NiAxNyAtMTYyIDE3IC0yMTYgMHoiLz4KPC9nPgo8L3N2Zz4K" alt=""></span></button><button class="fankit-bg" type="button" data-bg-file="bg/bg4.jpg" aria-label="Выбрать фон 4"><img src="bg/bg4.jpg" alt="" loading="lazy"><span class="fankit-bg-check"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/Pgo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDIwMDEwOTA0Ly9FTiIKICJodHRwOi8vd3d3LnczLm9yZy9UUi8yMDAxL1JFQy1TVkctMjAwMTA5MDQvRFREL3N2ZzEwLmR0ZCI+CjxzdmcgdmVyc2lvbj0iMS4wIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiB3aWR0aD0iNTEyLjAwMDAwMHB0IiBoZWlnaHQ9IjUxMi4wMDAwMDBwdCIgdmlld0JveD0iMCAwIDUxMi4wMDAwMDAgNTEyLjAwMDAwMCIKIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaWRZTWlkIG1lZXQiPgoKPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMC4wMDAwMDAsNTEyLjAwMDAwMCkgc2NhbGUoMC4xMDAwMDAsLTAuMTAwMDAwKSIKZmlsbD0iIzAwMDAwMCIgc3Ryb2tlPSJub25lIj4KPHBhdGggZD0iTTQ2MDUgNDM4NiBjLTEwNSAtMzMgLTEwOSAtMzYgLTE0NDUgLTEzNzIgbC0xMzE1IC0xMzE0IC01OTUgNTk1CmMtNTUzIDU1MSAtNjAwIDU5NiAtNjYyIDYyNSAtMTU5IDc0IC0zMjggNTEgLTQ1NCAtNjMgLTEwMCAtOTAgLTE0OSAtMjM0Ci0xMjUgLTM2NCAyNSAtMTM0IDkgLTExNyA4MzkgLTk0NCA3MjYgLTcyNCA3NzEgLTc2NyA4MzIgLTc5NCA3OCAtMzQgMTg1IC00NAoyNTcgLTI1IDEyMiAzMyA3MCAtMTYgMTYyOSAxNTQzIDE2MTQgMTYxNiAxNTIyIDE1MTcgMTU0NyAxNjYwIDM0IDE5OSAtOTEKMzkyIC0yOTIgNDUzIC01NiAxNyAtMTYyIDE3IC0yMTYgMHoiLz4KPC9nPgo8L3N2Zz4K" alt=""></span></button>
+<button class="fankit-bg" type="button" data-bg-file="bg/bg5.jpg" aria-label="Выбрать фон 5"><img src="bg/bg5.jpg" alt="" loading="lazy"><span class="fankit-bg-check"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/Pgo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDIwMDEwOTA0Ly9FTiIKICJodHRwOi8vd3d3LnczLm9yZy9UUi8yMDAxL1JFQy1TVkctMjAwMTA5MDQvRFREL3N2ZzEwLmR0ZCI+CjxzdmcgdmVyc2lvbj0iMS4wIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiB3aWR0aD0iNTEyLjAwMDAwMHB0IiBoZWlnaHQ9IjUxMi4wMDAwMDBwdCIgdmlld0JveD0iMCAwIDUxMi4wMDAwMDAgNTEyLjAwMDAwMCIKIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaWRZTWlkIG1lZXQiPgoKPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMC4wMDAwMDAsNTEyLjAwMDAwMCkgc2NhbGUoMC4xMDAwMDAsLTAuMTAwMDAwKSIKZmlsbD0iIzAwMDAwMCIgc3Ryb2tlPSJub25lIj4KPHBhdGggZD0iTTQ2MDUgNDM4NiBjLTEwNSAtMzMgLTEwOSAtMzYgLTE0NDUgLTEzNzIgbC0xMzE1IC0xMzE0IC01OTUgNTk1CmMtNTUzIDU1MSAtNjAwIDU5NiAtNjYyIDYyNSAtMTU5IDc0IC0zMjggNTEgLTQ1NCAtNjMgLTEwMCAtOTAgLTE0OSAtMjM0Ci0xMjUgLTM2NCAyNSAtMTM0IDkgLTExNyA4MzkgLTk0NCA3MjYgLTcyNCA3NzEgLTc2NyA4MzIgLTc5NCA3OCAtMzQgMTg1IC00NAoyNTcgLTI1IDEyMiAzMyA3MCAtMTYgMTYyOSAxNTQzIDE2MTQgMTYxNiAxNTIyIDE1MTcgMTU0NyAxNjYwIDM0IDE5OSAtOTEKMzkyIC0yOTIgNDUzIC01NiAxNyAtMTYyIDE3IC0yMTYgMHoiLz4KPC9nPgo8L3N2Zz4K" alt=""></span></button>
+<button class="fankit-bg" type="button" data-bg-file="bg/bg6.jpg" aria-label="Выбрать фон 6"><img src="bg/bg6.jpg" alt="" loading="lazy"><span class="fankit-bg-check"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/Pgo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDIwMDEwOTA0Ly9FTiIKICJodHRwOi8vd3d3LnczLm9yZy9UUi8yMDAxL1JFQy1TVkctMjAwMTA5MDQvRFREL3N2ZzEwLmR0ZCI+CjxzdmcgdmVyc2lvbj0iMS4wIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiB3aWR0aD0iNTEyLjAwMDAwMHB0IiBoZWlnaHQ9IjUxMi4wMDAwMDBwdCIgdmlld0JveD0iMCAwIDUxMi4wMDAwMDAgNTEyLjAwMDAwMCIKIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaWRZTWlkIG1lZXQiPgoKPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMC4wMDAwMDAsNTEyLjAwMDAwMCkgc2NhbGUoMC4xMDAwMDAsLTAuMTAwMDAwKSIKZmlsbD0iIzAwMDAwMCIgc3Ryb2tlPSJub25lIj4KPHBhdGggZD0iTTQ2MDUgNDM4NiBjLTEwNSAtMzMgLTEwOSAtMzYgLTE0NDUgLTEzNzIgbC0xMzE1IC0xMzE0IC01OTUgNTk1CmMtNTUzIDU1MSAtNjAwIDU5NiAtNjYyIDYyNSAtMTU5IDc0IC0zMjggNTEgLTQ1NCAtNjMgLTEwMCAtOTAgLTE0OSAtMjM0Ci0xMjUgLTM2NCAyNSAtMTM0IDkgLTExNyA4MzkgLTk0NCA3MjYgLTcyNCA3NzEgLTc2NyA4MzIgLTc5NCA3OCAtMzQgMTg1IC00NAoyNTcgLTI1IDEyMiAzMyA3MCAtMTYgMTYyOSAxNTQzIDE2MTQgMTYxNiAxNTIyIDE1MTcgMTU0NyAxNjYwIDM0IDE5OSAtOTEKMzkyIC0yOTIgNDUzIC01NiAxNyAtMTYyIDE3IC0yMTYgMHoiLz4KPC9nPgo8L3N2Zz4K" alt=""></span></button>
+<button class="fankit-bg" type="button" data-bg-file="bg/bg7.jpg" aria-label="Выбрать фон 7"><img src="bg/bg7.jpg" alt="" loading="lazy"><span class="fankit-bg-check"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/Pgo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDIwMDEwOTA0Ly9FTiIKICJodHRwOi8vd3d3LnczLm9yZy9UUi8yMDAxL1JFQy1TVkctMjAwMTA5MDQvRFREL3N2ZzEwLmR0ZCI+CjxzdmcgdmVyc2lvbj0iMS4wIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiB3aWR0aD0iNTEyLjAwMDAwMHB0IiBoZWlnaHQ9IjUxMi4wMDAwMDBwdCIgdmlld0JveD0iMCAwIDUxMi4wMDAwMDAgNTEyLjAwMDAwMCIKIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaWRZTWlkIG1lZXQiPgoKPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMC4wMDAwMDAsNTEyLjAwMDAwMCkgc2NhbGUoMC4xMDAwMDAsLTAuMTAwMDAwKSIKZmlsbD0iIzAwMDAwMCIgc3Ryb2tlPSJub25lIj4KPHBhdGggZD0iTTQ2MDUgNDM4NiBjLTEwNSAtMzMgLTEwOSAtMzYgLTE0NDUgLTEzNzIgbC0xMzE1IC0xMzE0IC01OTUgNTk1CmMtNTUzIDU1MSAtNjAwIDU5NiAtNjYyIDYyNSAtMTU5IDc0IC0zMjggNTEgLTQ1NCAtNjMgLTEwMCAtOTAgLTE0OSAtMjM0Ci0xMjUgLTM2NCAyNSAtMTM0IDkgLTExNyA4MzkgLTk0NCA3MjYgLTcyNCA3NzEgLTc2NyA4MzIgLTc5NCA3OCAtMzQgMTg1IC00NAoyNTcgLTI1IDEyMiAzMyA3MCAtMTYgMTYyOSAxNTQzIDE2MTQgMTYxNiAxNTIyIDE1MTcgMTU0NyAxNjYwIDM0IDE5OSAtOTEKMzkyIC0yOTIgNDUzIC01NiAxNyAtMTYyIDE3IC0yMTYgMHoiLz4KPC9nPgo8L3N2Zz4K" alt=""></span></button>
+<button class="fankit-bg" type="button" data-bg-file="bg/bg8.jpg" aria-label="Выбрать фон 8"><img src="bg/bg8.jpg" alt="" loading="lazy"><span class="fankit-bg-check"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/Pgo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDIwMDEwOTA0Ly9FTiIKICJodHRwOi8vd3d3LnczLm9yZy9UUi8yMDAxL1JFQy1TVkctMjAwMTA5MDQvRFREL3N2ZzEwLmR0ZCI+CjxzdmcgdmVyc2lvbj0iMS4wIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiB3aWR0aD0iNTEyLjAwMDAwMHB0IiBoZWlnaHQ9IjUxMi4wMDAwMDBwdCIgdmlld0JveD0iMCAwIDUxMi4wMDAwMDAgNTEyLjAwMDAwMCIKIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaWRZTWlkIG1lZXQiPgoKPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMC4wMDAwMDAsNTEyLjAwMDAwMCkgc2NhbGUoMC4xMDAwMDAsLTAuMTAwMDAwKSIKZmlsbD0iIzAwMDAwMCIgc3Ryb2tlPSJub25lIj4KPHBhdGggZD0iTTQ2MDUgNDM4NiBjLTEwNSAtMzMgLTEwOSAtMzYgLTE0NDUgLTEzNzIgbC0xMzE1IC0xMzE0IC01OTUgNTk1CmMtNTUzIDU1MSAtNjAwIDU5NiAtNjYyIDYyNSAtMTU5IDc0IC0zMjggNTEgLTQ1NCAtNjMgLTEwMCAtOTAgLTE0OSAtMjM0Ci0xMjUgLTM2NCAyNSAtMTM0IDkgLTExNyA4MzkgLTk0NCA3MjYgLTcyNCA3NzEgLTc2NyA4MzIgLTc5NCA3OCAtMzQgMTg1IC00NAoyNTcgLTI1IDEyMiAzMyA3MCAtMTYgMTYyOSAxNTQzIDE2MTQgMTYxNiAxNTIyIDE1MTcgMTU0NyAxNjYwIDM0IDE5OSAtOTEKMzkyIC0yOTIgNDUzIC01NiAxNyAtMTYyIDE3IC0yMTYgMHoiLz4KPC9nPgo8L3N2Zz4K" alt=""></span></button>
+<button class="fankit-bg" type="button" data-bg-file="bg/bg9.jpg" aria-label="Выбрать фон 9"><img src="bg/bg9.jpg" alt="" loading="lazy"><span class="fankit-bg-check"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/Pgo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDIwMDEwOTA0Ly9FTiIKICJodHRwOi8vd3d3LnczLm9yZy9UUi8yMDAxL1JFQy1TVkctMjAwMTA5MDQvRFREL3N2ZzEwLmR0ZCI+CjxzdmcgdmVyc2lvbj0iMS4wIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiB3aWR0aD0iNTEyLjAwMDAwMHB0IiBoZWlnaHQ9IjUxMi4wMDAwMDBwdCIgdmlld0JveD0iMCAwIDUxMi4wMDAwMDAgNTEyLjAwMDAwMCIKIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaWRZTWlkIG1lZXQiPgoKPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMC4wMDAwMDAsNTEyLjAwMDAwMCkgc2NhbGUoMC4xMDAwMDAsLTAuMTAwMDAwKSIKZmlsbD0iIzAwMDAwMCIgc3Ryb2tlPSJub25lIj4KPHBhdGggZD0iTTQ2MDUgNDM4NiBjLTEwNSAtMzMgLTEwOSAtMzYgLTE0NDUgLTEzNzIgbC0xMzE1IC0xMzE0IC01OTUgNTk1CmMtNTUzIDU1MSAtNjAwIDU5NiAtNjYyIDYyNSAtMTU5IDc0IC0zMjggNTEgLTQ1NCAtNjMgLTEwMCAtOTAgLTE0OSAtMjM0Ci0xMjUgLTM2NCAyNSAtMTM0IDkgLTExNyA4MzkgLTk0NCA3MjYgLTcyNCA3NzEgLTc2NyA4MzIgLTc5NCA3OCAtMzQgMTg1IC00NAoyNTcgLTI1IDEyMiAzMyA3MCAtMTYgMTYyOSAxNTQzIDE2MTQgMTYxNiAxNTIyIDE1MTcgMTU0NyAxNjYwIDM0IDE5OSAtOTEKMzkyIC0yOTIgNDUzIC01NiAxNyAtMTYyIDE3IC0yMTYgMHoiLz4KPC9nPgo8L3N2Zz4K" alt=""></span></button>
+<button class="fankit-bg" type="button" data-bg-file="bg/bg10.jpg" aria-label="Выбрать фон 10"><img src="bg/bg10.jpg" alt="" loading="lazy"><span class="fankit-bg-check"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/Pgo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDIwMDEwOTA0Ly9FTiIKICJodHRwOi8vd3d3LnczLm9yZy9UUi8yMDAxL1JFQy1TVkctMjAwMTA5MDQvRFREL3N2ZzEwLmR0ZCI+CjxzdmcgdmVyc2lvbj0iMS4wIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiB3aWR0aD0iNTEyLjAwMDAwMHB0IiBoZWlnaHQ9IjUxMi4wMDAwMDBwdCIgdmlld0JveD0iMCAwIDUxMi4wMDAwMDAgNTEyLjAwMDAwMCIKIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaWRZTWlkIG1lZXQiPgoKPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMC4wMDAwMDAsNTEyLjAwMDAwMCkgc2NhbGUoMC4xMDAwMDAsLTAuMTAwMDAwKSIKZmlsbD0iIzAwMDAwMCIgc3Ryb2tlPSJub25lIj4KPHBhdGggZD0iTTQ2MDUgNDM4NiBjLTEwNSAtMzMgLTEwOSAtMzYgLTE0NDUgLTEzNzIgbC0xMzE1IC0xMzE0IC01OTUgNTk1CmMtNTUzIDU1MSAtNjAwIDU5NiAtNjYyIDYyNSAtMTU5IDc0IC0zMjggNTEgLTQ1NCAtNjMgLTEwMCAtOTAgLTE0OSAtMjM0Ci0xMjUgLTM2NCAyNSAtMTM0IDkgLTExNyA4MzkgLTk0NCA3MjYgLTcyNCA3NzEgLTc2NyA4MzIgLTc5NCA3OCAtMzQgMTg1IC00NAoyNTcgLTI1IDEyMiAzMyA3MCAtMTYgMTYyOSAxNTQzIDE2MTQgMTYxNiAxNTIyIDE1MTcgMTU0NyAxNjYwIDM0IDE5OSAtOTEKMzkyIC0yOTIgNDUzIC01NiAxNyAtMTYyIDE3IC0yMTYgMHoiLz4KPC9nPgo8L3N2Zz4K" alt=""></span></button>
+<button class="fankit-bg" type="button" data-bg-file="bg/bg11.jpg" aria-label="Выбрать фон 11"><img src="bg/bg11.jpg" alt="" loading="lazy"><span class="fankit-bg-check"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/Pgo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDIwMDEwOTA0Ly9FTiIKICJodHRwOi8vd3d3LnczLm9yZy9UUi8yMDAxL1JFQy1TVkctMjAwMTA5MDQvRFREL3N2ZzEwLmR0ZCI+CjxzdmcgdmVyc2lvbj0iMS4wIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiB3aWR0aD0iNTEyLjAwMDAwMHB0IiBoZWlnaHQ9IjUxMi4wMDAwMDBwdCIgdmlld0JveD0iMCAwIDUxMi4wMDAwMDAgNTEyLjAwMDAwMCIKIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaWRZTWlkIG1lZXQiPgoKPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMC4wMDAwMDAsNTEyLjAwMDAwMCkgc2NhbGUoMC4xMDAwMDAsLTAuMTAwMDAwKSIKZmlsbD0iIzAwMDAwMCIgc3Ryb2tlPSJub25lIj4KPHBhdGggZD0iTTQ2MDUgNDM4NiBjLTEwNSAtMzMgLTEwOSAtMzYgLTE0NDUgLTEzNzIgbC0xMzE1IC0xMzE0IC01OTUgNTk1CmMtNTUzIDU1MSAtNjAwIDU5NiAtNjYyIDYyNSAtMTU5IDc0IC0zMjggNTEgLTQ1NCAtNjMgLTEwMCAtOTAgLTE0OSAtMjM0Ci0xMjUgLTM2NCAyNSAtMTM0IDkgLTExNyA4MzkgLTk0NCA3MjYgLTcyNCA3NzEgLTc2NyA4MzIgLTc5NCA3OCAtMzQgMTg1IC00NAoyNTcgLTI1IDEyMiAzMyA3MCAtMTYgMTYyOSAxNTQzIDE2MTQgMTYxNiAxNTIyIDE1MTcgMTU0NyAxNjYwIDM0IDE5OSAtOTEKMzkyIC0yOTIgNDUzIC01NiAxNyAtMTYyIDE3IC0yMTYgMHoiLz4KPC9nPgo8L3N2Zz4K" alt=""></span></button>
+<button class="fankit-bg" type="button" data-bg-file="bg/bg12.jpg" aria-label="Выбрать фон 12"><img src="bg/bg12.jpg" alt="" loading="lazy"><span class="fankit-bg-check"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/Pgo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDIwMDEwOTA0Ly9FTiIKICJodHRwOi8vd3d3LnczLm9yZy9UUi8yMDAxL1JFQy1TVkctMjAwMTA5MDQvRFREL3N2ZzEwLmR0ZCI+CjxzdmcgdmVyc2lvbj0iMS4wIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiB3aWR0aD0iNTEyLjAwMDAwMHB0IiBoZWlnaHQ9IjUxMi4wMDAwMDBwdCIgdmlld0JveD0iMCAwIDUxMi4wMDAwMDAgNTEyLjAwMDAwMCIKIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaWRZTWlkIG1lZXQiPgoKPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMC4wMDAwMDAsNTEyLjAwMDAwMCkgc2NhbGUoMC4xMDAwMDAsLTAuMTAwMDAwKSIKZmlsbD0iIzAwMDAwMCIgc3Ryb2tlPSJub25lIj4KPHBhdGggZD0iTTQ2MDUgNDM4NiBjLTEwNSAtMzMgLTEwOSAtMzYgLTE0NDUgLTEzNzIgbC0xMzE1IC0xMzE0IC01OTUgNTk1CmMtNTUzIDU1MSAtNjAwIDU5NiAtNjYyIDYyNSAtMTU5IDc0IC0zMjggNTEgLTQ1NCAtNjMgLTEwMCAtOTAgLTE0OSAtMjM0Ci0xMjUgLTM2NCAyNSAtMTM0IDkgLTExNyA4MzkgLTk0NCA3MjYgLTcyNCA3NzEgLTc2NyA4MzIgLTc5NCA3OCAtMzQgMTg1IC00NAoyNTcgLTI1IDEyMiAzMyA3MCAtMTYgMTYyOSAxNTQzIDE2MTQgMTYxNiAxNTIyIDE1MTcgMTU0NyAxNjYwIDM0IDE5OSAtOTEKMzkyIC0yOTIgNDUzIC01NiAxNyAtMTYyIDE3IC0yMTYgMHoiLz4KPC9nPgo8L3N2Zz4K" alt=""></span></button>
+<button class="fankit-bg" type="button" data-bg-file="bg/bg13.jpg" aria-label="Выбрать фон 13"><img src="bg/bg13.jpg" alt="" loading="lazy"><span class="fankit-bg-check"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/Pgo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDIwMDEwOTA0Ly9FTiIKICJodHRwOi8vd3d3LnczLm9yZy9UUi8yMDAxL1JFQy1TVkctMjAwMTA5MDQvRFREL3N2ZzEwLmR0ZCI+CjxzdmcgdmVyc2lvbj0iMS4wIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiB3aWR0aD0iNTEyLjAwMDAwMHB0IiBoZWlnaHQ9IjUxMi4wMDAwMDBwdCIgdmlld0JveD0iMCAwIDUxMi4wMDAwMDAgNTEyLjAwMDAwMCIKIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaWRZTWlkIG1lZXQiPgoKPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMC4wMDAwMDAsNTEyLjAwMDAwMCkgc2NhbGUoMC4xMDAwMDAsLTAuMTAwMDAwKSIKZmlsbD0iIzAwMDAwMCIgc3Ryb2tlPSJub25lIj4KPHBhdGggZD0iTTQ2MDUgNDM4NiBjLTEwNSAtMzMgLTEwOSAtMzYgLTE0NDUgLTEzNzIgbC0xMzE1IC0xMzE0IC01OTUgNTk1CmMtNTUzIDU1MSAtNjAwIDU5NiAtNjYyIDYyNSAtMTU5IDc0IC0zMjggNTEgLTQ1NCAtNjMgLTEwMCAtOTAgLTE0OSAtMjM0Ci0xMjUgLTM2NCAyNSAtMTM0IDkgLTExNyA4MzkgLTk0NCA3MjYgLTcyNCA3NzEgLTc2NyA4MzIgLTc5NCA3OCAtMzQgMTg1IC00NAoyNTcgLTI1IDEyMiAzMyA3MCAtMTYgMTYyOSAxNTQzIDE2MTQgMTYxNiAxNTIyIDE1MTcgMTU0NyAxNjYwIDM0IDE5OSAtOTEKMzkyIC0yOTIgNDUzIC01NiAxNyAtMTYyIDE3IC0yMTYgMHoiLz4KPC9nPgo8L3N2Zz4K" alt=""></span></button>
+<button class="fankit-bg" type="button" data-bg-file="bg/bg14.jpg" aria-label="Выбрать фон 14"><img src="bg/bg14.jpg" alt="" loading="lazy"><span class="fankit-bg-check"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/Pgo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDIwMDEwOTA0Ly9FTiIKICJodHRwOi8vd3d3LnczLm9yZy9UUi8yMDAxL1JFQy1TVkctMjAwMTA5MDQvRFREL3N2ZzEwLmR0ZCI+CjxzdmcgdmVyc2lvbj0iMS4wIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiB3aWR0aD0iNTEyLjAwMDAwMHB0IiBoZWlnaHQ9IjUxMi4wMDAwMDBwdCIgdmlld0JveD0iMCAwIDUxMi4wMDAwMDAgNTEyLjAwMDAwMCIKIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaWRZTWlkIG1lZXQiPgoKPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMC4wMDAwMDAsNTEyLjAwMDAwMCkgc2NhbGUoMC4xMDAwMDAsLTAuMTAwMDAwKSIKZmlsbD0iIzAwMDAwMCIgc3Ryb2tlPSJub25lIj4KPHBhdGggZD0iTTQ2MDUgNDM4NiBjLTEwNSAtMzMgLTEwOSAtMzYgLTE0NDUgLTEzNzIgbC0xMzE1IC0xMzE0IC01OTUgNTk1CmMtNTUzIDU1MSAtNjAwIDU5NiAtNjYyIDYyNSAtMTU5IDc0IC0zMjggNTEgLTQ1NCAtNjMgLTEwMCAtOTAgLTE0OSAtMjM0Ci0xMjUgLTM2NCAyNSAtMTM0IDkgLTExNyA4MzkgLTk0NCA3MjYgLTcyNCA3NzEgLTc2NyA4MzIgLTc5NCA3OCAtMzQgMTg1IC00NAoyNTcgLTI1IDEyMiAzMyA3MCAtMTYgMTYyOSAxNTQzIDE2MTQgMTYxNiAxNTIyIDE1MTcgMTU0NyAxNjYwIDM0IDE5OSAtOTEKMzkyIC0yOTIgNDUzIC01NiAxNyAtMTYyIDE3IC0yMTYgMHoiLz4KPC9nPgo8L3N2Zz4K" alt=""></span></button>
+<button class="fankit-bg" type="button" data-bg-file="bg/bg15.jpg" aria-label="Выбрать фон 15"><img src="bg/bg15.jpg" alt="" loading="lazy"><span class="fankit-bg-check"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/Pgo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDIwMDEwOTA0Ly9FTiIKICJodHRwOi8vd3d3LnczLm9yZy9UUi8yMDAxL1JFQy1TVkctMjAwMTA5MDQvRFREL3N2ZzEwLmR0ZCI+CjxzdmcgdmVyc2lvbj0iMS4wIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiB3aWR0aD0iNTEyLjAwMDAwMHB0IiBoZWlnaHQ9IjUxMi4wMDAwMDBwdCIgdmlld0JveD0iMCAwIDUxMi4wMDAwMDAgNTEyLjAwMDAwMCIKIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaWRZTWlkIG1lZXQiPgoKPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMC4wMDAwMDAsNTEyLjAwMDAwMCkgc2NhbGUoMC4xMDAwMDAsLTAuMTAwMDAwKSIKZmlsbD0iIzAwMDAwMCIgc3Ryb2tlPSJub25lIj4KPHBhdGggZD0iTTQ2MDUgNDM4NiBjLTEwNSAtMzMgLTEwOSAtMzYgLTE0NDUgLTEzNzIgbC0xMzE1IC0xMzE0IC01OTUgNTk1CmMtNTUzIDU1MSAtNjAwIDU5NiAtNjYyIDYyNSAtMTU5IDc0IC0zMjggNTEgLTQ1NCAtNjMgLTEwMCAtOTAgLTE0OSAtMjM0Ci0xMjUgLTM2NCAyNSAtMTM0IDkgLTExNyA4MzkgLTk0NCA3MjYgLTcyNCA3NzEgLTc2NyA4MzIgLTc5NCA3OCAtMzQgMTg1IC00NAoyNTcgLTI1IDEyMiAzMyA3MCAtMTYgMTYyOSAxNTQzIDE2MTQgMTYxNiAxNTIyIDE1MTcgMTU0NyAxNjYwIDM0IDE5OSAtOTEKMzkyIC0yOTIgNDUzIC01NiAxNyAtMTYyIDE3IC0yMTYgMHoiLz4KPC9nPgo8L3N2Zz4K" alt=""></span></button>
+<button class="fankit-bg" type="button" data-bg-file="bg/bg16.jpg" aria-label="Выбрать фон 16"><img src="bg/bg16.jpg" alt="" loading="lazy"><span class="fankit-bg-check"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/Pgo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDIwMDEwOTA0Ly9FTiIKICJodHRwOi8vd3d3LnczLm9yZy9UUi8yMDAxL1JFQy1TVkctMjAwMTA5MDQvRFREL3N2ZzEwLmR0ZCI+CjxzdmcgdmVyc2lvbj0iMS4wIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiB3aWR0aD0iNTEyLjAwMDAwMHB0IiBoZWlnaHQ9IjUxMi4wMDAwMDBwdCIgdmlld0JveD0iMCAwIDUxMi4wMDAwMDAgNTEyLjAwMDAwMCIKIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaWRZTWlkIG1lZXQiPgoKPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMC4wMDAwMDAsNTEyLjAwMDAwMCkgc2NhbGUoMC4xMDAwMDAsLTAuMTAwMDAwKSIKZmlsbD0iIzAwMDAwMCIgc3Ryb2tlPSJub25lIj4KPHBhdGggZD0iTTQ2MDUgNDM4NiBjLTEwNSAtMzMgLTEwOSAtMzYgLTE0NDUgLTEzNzIgbC0xMzE1IC0xMzE0IC01OTUgNTk1CmMtNTUzIDU1MSAtNjAwIDU5NiAtNjYyIDYyNSAtMTU5IDc0IC0zMjggNTEgLTQ1NCAtNjMgLTEwMCAtOTAgLTE0OSAtMjM0Ci0xMjUgLTM2NCAyNSAtMTM0IDkgLTExNyA4MzkgLTk0NCA3MjYgLTcyNCA3NzEgLTc2NyA4MzIgLTc5NCA3OCAtMzQgMTg1IC00NAoyNTcgLTI1IDEyMiAzMyA3MCAtMTYgMTYyOSAxNTQzIDE2MTQgMTYxNiAxNTIyIDE1MTcgMTU0NyAxNjYwIDM0IDE5OSAtOTEKMzkyIC0yOTIgNDUzIC01NiAxNyAtMTYyIDE3IC0yMTYgMHoiLz4KPC9nPgo8L3N2Zz4K" alt=""></span></button>
+<button class="fankit-bg" type="button" data-bg-file="bg/bg17.jpg" aria-label="Выбрать фон 17"><img src="bg/bg17.jpg" alt="" loading="lazy"><span class="fankit-bg-check"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/Pgo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDIwMDEwOTA0Ly9FTiIKICJodHRwOi8vd3d3LnczLm9yZy9UUi8yMDAxL1JFQy1TVkctMjAwMTA5MDQvRFREL3N2ZzEwLmR0ZCI+CjxzdmcgdmVyc2lvbj0iMS4wIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiB3aWR0aD0iNTEyLjAwMDAwMHB0IiBoZWlnaHQ9IjUxMi4wMDAwMDBwdCIgdmlld0JveD0iMCAwIDUxMi4wMDAwMDAgNTEyLjAwMDAwMCIKIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaWRZTWlkIG1lZXQiPgoKPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMC4wMDAwMDAsNTEyLjAwMDAwMCkgc2NhbGUoMC4xMDAwMDAsLTAuMTAwMDAwKSIKZmlsbD0iIzAwMDAwMCIgc3Ryb2tlPSJub25lIj4KPHBhdGggZD0iTTQ2MDUgNDM4NiBjLTEwNSAtMzMgLTEwOSAtMzYgLTE0NDUgLTEzNzIgbC0xMzE1IC0xMzE0IC01OTUgNTk1CmMtNTUzIDU1MSAtNjAwIDU5NiAtNjYyIDYyNSAtMTU5IDc0IC0zMjggNTEgLTQ1NCAtNjMgLTEwMCAtOTAgLTE0OSAtMjM0Ci0xMjUgLTM2NCAyNSAtMTM0IDkgLTExNyA4MzkgLTk0NCA3MjYgLTcyNCA3NzEgLTc2NyA4MzIgLTc5NCA3OCAtMzQgMTg1IC00NAoyNTcgLTI1IDEyMiAzMyA3MCAtMTYgMTYyOSAxNTQzIDE2MTQgMTYxNiAxNTIyIDE1MTcgMTU0NyAxNjYwIDM0IDE5OSAtOTEKMzkyIC0yOTIgNDUzIC01NiAxNyAtMTYyIDE3IC0yMTYgMHoiLz4KPC9nPgo8L3N2Zz4K" alt=""></span></button>
+<button class="fankit-bg" type="button" data-bg-file="bg/bg18.jpg" aria-label="Выбрать фон 18"><img src="bg/bg18.jpg" alt="" loading="lazy"><span class="fankit-bg-check"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/Pgo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDIwMDEwOTA0Ly9FTiIKICJodHRwOi8vd3d3LnczLm9yZy9UUi8yMDAxL1JFQy1TVkctMjAwMTA5MDQvRFREL3N2ZzEwLmR0ZCI+CjxzdmcgdmVyc2lvbj0iMS4wIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiB3aWR0aD0iNTEyLjAwMDAwMHB0IiBoZWlnaHQ9IjUxMi4wMDAwMDBwdCIgdmlld0JveD0iMCAwIDUxMi4wMDAwMDAgNTEyLjAwMDAwMCIKIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaWRZTWlkIG1lZXQiPgoKPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMC4wMDAwMDAsNTEyLjAwMDAwMCkgc2NhbGUoMC4xMDAwMDAsLTAuMTAwMDAwKSIKZmlsbD0iIzAwMDAwMCIgc3Ryb2tlPSJub25lIj4KPHBhdGggZD0iTTQ2MDUgNDM4NiBjLTEwNSAtMzMgLTEwOSAtMzYgLTE0NDUgLTEzNzIgbC0xMzE1IC0xMzE0IC01OTUgNTk1CmMtNTUzIDU1MSAtNjAwIDU5NiAtNjYyIDYyNSAtMTU5IDc0IC0zMjggNTEgLTQ1NCAtNjMgLTEwMCAtOTAgLTE0OSAtMjM0Ci0xMjUgLTM2NCAyNSAtMTM0IDkgLTExNyA4MzkgLTk0NCA3MjYgLTcyNCA3NzEgLTc2NyA4MzIgLTc5NCA3OCAtMzQgMTg1IC00NAoyNTcgLTI1IDEyMiAzMyA3MCAtMTYgMTYyOSAxNTQzIDE2MTQgMTYxNiAxNTIyIDE1MTcgMTU0NyAxNjYwIDM0IDE5OSAtOTEKMzkyIC0yOTIgNDUzIC01NiAxNyAtMTYyIDE3IC0yMTYgMHoiLz4KPC9nPgo8L3N2Zz4K" alt=""></span></button>
+<button class="fankit-bg" type="button" data-bg-file="bg/bg19.jpg" aria-label="Выбрать фон 19"><img src="bg/bg19.jpg" alt="" loading="lazy"><span class="fankit-bg-check"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/Pgo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDIwMDEwOTA0Ly9FTiIKICJodHRwOi8vd3d3LnczLm9yZy9UUi8yMDAxL1JFQy1TVkctMjAwMTA5MDQvRFREL3N2ZzEwLmR0ZCI+CjxzdmcgdmVyc2lvbj0iMS4wIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiB3aWR0aD0iNTEyLjAwMDAwMHB0IiBoZWlnaHQ9IjUxMi4wMDAwMDBwdCIgdmlld0JveD0iMCAwIDUxMi4wMDAwMDAgNTEyLjAwMDAwMCIKIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaWRZTWlkIG1lZXQiPgoKPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMC4wMDAwMDAsNTEyLjAwMDAwMCkgc2NhbGUoMC4xMDAwMDAsLTAuMTAwMDAwKSIKZmlsbD0iIzAwMDAwMCIgc3Ryb2tlPSJub25lIj4KPHBhdGggZD0iTTQ2MDUgNDM4NiBjLTEwNSAtMzMgLTEwOSAtMzYgLTE0NDUgLTEzNzIgbC0xMzE1IC0xMzE0IC01OTUgNTk1CmMtNTUzIDU1MSAtNjAwIDU5NiAtNjYyIDYyNSAtMTU5IDc0IC0zMjggNTEgLTQ1NCAtNjMgLTEwMCAtOTAgLTE0OSAtMjM0Ci0xMjUgLTM2NCAyNSAtMTM0IDkgLTExNyA4MzkgLTk0NCA3MjYgLTcyNCA3NzEgLTc2NyA4MzIgLTc5NCA3OCAtMzQgMTg1IC00NAoyNTcgLTI1IDEyMiAzMyA3MCAtMTYgMTYyOSAxNTQzIDE2MTQgMTYxNiAxNTIyIDE1MTcgMTU0NyAxNjYwIDM0IDE5OSAtOTEKMzkyIC0yOTIgNDUzIC01NiAxNyAtMTYyIDE3IC0yMTYgMHoiLz4KPC9nPgo8L3N2Zz4K" alt=""></span></button>
+<button class="fankit-bg" type="button" data-bg-file="bg/bg20.jpg" aria-label="Выбрать фон 20"><img src="bg/bg20.jpg" alt="" loading="lazy"><span class="fankit-bg-check"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/Pgo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDIwMDEwOTA0Ly9FTiIKICJodHRwOi8vd3d3LnczLm9yZy9UUi8yMDAxL1JFQy1TVkctMjAwMTA5MDQvRFREL3N2ZzEwLmR0ZCI+CjxzdmcgdmVyc2lvbj0iMS4wIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiB3aWR0aD0iNTEyLjAwMDAwMHB0IiBoZWlnaHQ9IjUxMi4wMDAwMDBwdCIgdmlld0JveD0iMCAwIDUxMi4wMDAwMDAgNTEyLjAwMDAwMCIKIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaWRZTWlkIG1lZXQiPgoKPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMC4wMDAwMDAsNTEyLjAwMDAwMCkgc2NhbGUoMC4xMDAwMDAsLTAuMTAwMDAwKSIKZmlsbD0iIzAwMDAwMCIgc3Ryb2tlPSJub25lIj4KPHBhdGggZD0iTTQ2MDUgNDM4NiBjLTEwNSAtMzMgLTEwOSAtMzYgLTE0NDUgLTEzNzIgbC0xMzE1IC0xMzE0IC01OTUgNTk1CmMtNTUzIDU1MSAtNjAwIDU5NiAtNjYyIDYyNSAtMTU5IDc0IC0zMjggNTEgLTQ1NCAtNjMgLTEwMCAtOTAgLTE0OSAtMjM0Ci0xMjUgLTM2NCAyNSAtMTM0IDkgLTExNyA4MzkgLTk0NCA3MjYgLTcyNCA3NzEgLTc2NyA4MzIgLTc5NCA3OCAtMzQgMTg1IC00NAoyNTcgLTI1IDEyMiAzMyA3MCAtMTYgMTYyOSAxNTQzIDE2MTQgMTYxNiAxNTIyIDE1MTcgMTU0NyAxNjYwIDM0IDE5OSAtOTEKMzkyIC0yOTIgNDUzIC01NiAxNyAtMTYyIDE3IC0yMTYgMHoiLz4KPC9nPgo8L3N2Zz4K" alt=""></span></button>
+<button class="fankit-bg" type="button" data-bg-file="bg/bg21.jpg" aria-label="Выбрать фон 21"><img src="bg/bg21.jpg" alt="" loading="lazy"><span class="fankit-bg-check"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/Pgo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDIwMDEwOTA0Ly9FTiIKICJodHRwOi8vd3d3LnczLm9yZy9UUi8yMDAxL1JFQy1TVkctMjAwMTA5MDQvRFREL3N2ZzEwLmR0ZCI+CjxzdmcgdmVyc2lvbj0iMS4wIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiB3aWR0aD0iNTEyLjAwMDAwMHB0IiBoZWlnaHQ9IjUxMi4wMDAwMDBwdCIgdmlld0JveD0iMCAwIDUxMi4wMDAwMDAgNTEyLjAwMDAwMCIKIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaWRZTWlkIG1lZXQiPgoKPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMC4wMDAwMDAsNTEyLjAwMDAwMCkgc2NhbGUoMC4xMDAwMDAsLTAuMTAwMDAwKSIKZmlsbD0iIzAwMDAwMCIgc3Ryb2tlPSJub25lIj4KPHBhdGggZD0iTTQ2MDUgNDM4NiBjLTEwNSAtMzMgLTEwOSAtMzYgLTE0NDUgLTEzNzIgbC0xMzE1IC0xMzE0IC01OTUgNTk1CmMtNTUzIDU1MSAtNjAwIDU5NiAtNjYyIDYyNSAtMTU5IDc0IC0zMjggNTEgLTQ1NCAtNjMgLTEwMCAtOTAgLTE0OSAtMjM0Ci0xMjUgLTM2NCAyNSAtMTM0IDkgLTExNyA4MzkgLTk0NCA3MjYgLTcyNCA3NzEgLTc2NyA4MzIgLTc5NCA3OCAtMzQgMTg1IC00NAoyNTcgLTI1IDEyMiAzMyA3MCAtMTYgMTYyOSAxNTQzIDE2MTQgMTYxNiAxNTIyIDE1MTcgMTU0NyAxNjYwIDM0IDE5OSAtOTEKMzkyIC0yOTIgNDUzIC01NiAxNyAtMTYyIDE3IC0yMTYgMHoiLz4KPC9nPgo8L3N2Zz4K" alt=""></span></button>
+<button class="fankit-bg" type="button" data-bg-file="bg/bg22.jpg" aria-label="Выбрать фон 22"><img src="bg/bg22.jpg" alt="" loading="lazy"><span class="fankit-bg-check"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/Pgo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDIwMDEwOTA0Ly9FTiIKICJodHRwOi8vd3d3LnczLm9yZy9UUi8yMDAxL1JFQy1TVkctMjAwMTA5MDQvRFREL3N2ZzEwLmR0ZCI+CjxzdmcgdmVyc2lvbj0iMS4wIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiB3aWR0aD0iNTEyLjAwMDAwMHB0IiBoZWlnaHQ9IjUxMi4wMDAwMDBwdCIgdmlld0JveD0iMCAwIDUxMi4wMDAwMDAgNTEyLjAwMDAwMCIKIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaWRZTWlkIG1lZXQiPgoKPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMC4wMDAwMDAsNTEyLjAwMDAwMCkgc2NhbGUoMC4xMDAwMDAsLTAuMTAwMDAwKSIKZmlsbD0iIzAwMDAwMCIgc3Ryb2tlPSJub25lIj4KPHBhdGggZD0iTTQ2MDUgNDM4NiBjLTEwNSAtMzMgLTEwOSAtMzYgLTE0NDUgLTEzNzIgbC0xMzE1IC0xMzE0IC01OTUgNTk1CmMtNTUzIDU1MSAtNjAwIDU5NiAtNjYyIDYyNSAtMTU5IDc0IC0zMjggNTEgLTQ1NCAtNjMgLTEwMCAtOTAgLTE0OSAtMjM0Ci0xMjUgLTM2NCAyNSAtMTM0IDkgLTExNyA4MzkgLTk0NCA3MjYgLTcyNCA3NzEgLTc2NyA4MzIgLTc5NCA3OCAtMzQgMTg1IC00NAoyNTcgLTI1IDEyMiAzMyA3MCAtMTYgMTYyOSAxNTQzIDE2MTQgMTYxNiAxNTIyIDE1MTcgMTU0NyAxNjYwIDM0IDE5OSAtOTEKMzkyIC0yOTIgNDUzIC01NiAxNyAtMTYyIDE3IC0yMTYgMHoiLz4KPC9nPgo8L3N2Zz4K" alt=""></span></button>
+<button class="fankit-bg" type="button" data-bg-file="bg/bg23.jpg" aria-label="Выбрать фон 23"><img src="bg/bg23.jpg" alt="" loading="lazy"><span class="fankit-bg-check"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/Pgo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDIwMDEwOTA0Ly9FTiIKICJodHRwOi8vd3d3LnczLm9yZy9UUi8yMDAxL1JFQy1TVkctMjAwMTA5MDQvRFREL3N2ZzEwLmR0ZCI+CjxzdmcgdmVyc2lvbj0iMS4wIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiB3aWR0aD0iNTEyLjAwMDAwMHB0IiBoZWlnaHQ9IjUxMi4wMDAwMDBwdCIgdmlld0JveD0iMCAwIDUxMi4wMDAwMDAgNTEyLjAwMDAwMCIKIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaWRZTWlkIG1lZXQiPgoKPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMC4wMDAwMDAsNTEyLjAwMDAwMCkgc2NhbGUoMC4xMDAwMDAsLTAuMTAwMDAwKSIKZmlsbD0iIzAwMDAwMCIgc3Ryb2tlPSJub25lIj4KPHBhdGggZD0iTTQ2MDUgNDM4NiBjLTEwNSAtMzMgLTEwOSAtMzYgLTE0NDUgLTEzNzIgbC0xMzE1IC0xMzE0IC01OTUgNTk1CmMtNTUzIDU1MSAtNjAwIDU5NiAtNjYyIDYyNSAtMTU5IDc0IC0zMjggNTEgLTQ1NCAtNjMgLTEwMCAtOTAgLTE0OSAtMjM0Ci0xMjUgLTM2NCAyNSAtMTM0IDkgLTExNyA4MzkgLTk0NCA3MjYgLTcyNCA3NzEgLTc2NyA4MzIgLTc5NCA3OCAtMzQgMTg1IC00NAoyNTcgLTI1IDEyMiAzMyA3MCAtMTYgMTYyOSAxNTQzIDE2MTQgMTYxNiAxNTIyIDE1MTcgMTU0NyAxNjYwIDM0IDE5OSAtOTEKMzkyIC0yOTIgNDUzIC01NiAxNyAtMTYyIDE3IC0yMTYgMHoiLz4KPC9nPgo8L3N2Zz4K" alt=""></span></button></div>
       </div>
     </div>
   </section>
@@ -656,9 +982,16 @@
       const onboarding = document.getElementById('onboarding');
       const mainPage = document.getElementById('mainPage');
       const nicknameInput = document.getElementById('nicknameInput');
+      const nicknameCaseButton = document.getElementById('nicknameCaseButton');
       const saveButton = document.getElementById('saveOnboarding');
       const nextButton = document.getElementById('nextOnboarding');
-      let selectedBackground = 'fankit';
+      const fankitPicker = document.getElementById('fankitPicker');
+      const closeFankitPickerButton = document.getElementById('closeFankitPicker');
+      const fankitOption = document.querySelector('[data-background="fankit"]');
+      const uploadOption = document.querySelector('[data-background="upload"]');
+      const backgroundUploadInput = document.getElementById('backgroundUploadInput');
+      const UPLOADED_BG_KEY = `${STORAGE_NAME}:uploaded-background`;
+      let selectedBackground = null;
 
       const showPage = () => document.documentElement.classList.remove('fonts-loading');
       if (document.fonts && document.fonts.ready) {
@@ -714,22 +1047,158 @@
         document.documentElement.classList.remove('onboarding-pending');
       }
 
+      const openFankitPicker = () => {
+        fankitPicker.classList.add('is-open');
+        fankitPicker.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+      };
+
+      const closeFankitPicker = () => {
+        fankitPicker.classList.remove('is-open');
+        fankitPicker.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+      };
+
+      const updateNextButton = () => {
+        nextButton.disabled = !selectedBackground;
+      };
+
+      const setSelectedOption = (option) => {
+        document.querySelectorAll('.background-option').forEach((item) => {
+          item.classList.toggle('is-selected', item === option);
+        });
+      };
+
+      const saveUploadedBackground = (file) => {
+        if (!file || !file.type.startsWith('image/')) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            localStorage.setItem(UPLOADED_BG_KEY, String(reader.result));
+            selectedBackground = 'uploaded';
+            document.querySelectorAll('.fankit-bg').forEach((bg) => bg.classList.remove('is-selected'));
+            setSelectedOption(uploadOption);
+            updateNextButton();
+          } catch (_) {
+            alert('Не удалось сохранить фон. Выберите изображение меньшего размера.');
+          }
+          backgroundUploadInput.value = '';
+        };
+        reader.readAsDataURL(file);
+      };
+
       document.querySelectorAll('.background-option').forEach((option) => {
         option.addEventListener('click', () => {
-          selectedBackground = option.dataset.background;
-          document.querySelectorAll('.background-option').forEach((item) => item.classList.toggle('is-selected', item === option));
+          if (option.dataset.background === 'fankit') {
+            openFankitPicker();
+          } else {
+            backgroundUploadInput.click();
+          }
         });
       });
 
+      backgroundUploadInput.addEventListener('change', () => {
+        const file = backgroundUploadInput.files?.[0];
+        if (!file) return;
+        if (!file.type.startsWith('image/')) {
+          backgroundUploadInput.value = '';
+          return;
+        }
+        saveUploadedBackground(file);
+      });
+
+      let dragDepth = 0;
+
+      const hasDraggedFiles = (event) => Array.from(event.dataTransfer?.types || []).includes('Files');
+
+      window.addEventListener('dragenter', (event) => {
+        if (!hasDraggedFiles(event)) return;
+        event.preventDefault();
+        dragDepth += 1;
+        body.classList.add('is-file-dragging');
+        uploadOption.classList.add('is-dragover');
+      });
+
+      window.addEventListener('dragover', (event) => {
+        if (!hasDraggedFiles(event)) return;
+        event.preventDefault();
+        if (event.dataTransfer) event.dataTransfer.dropEffect = 'copy';
+        body.classList.add('is-file-dragging');
+      });
+
+      window.addEventListener('dragleave', (event) => {
+        if (!hasDraggedFiles(event)) return;
+        event.preventDefault();
+        dragDepth = Math.max(0, dragDepth - 1);
+        if (dragDepth === 0) {
+          body.classList.remove('is-file-dragging');
+          uploadOption.classList.remove('is-dragover');
+        }
+      });
+
+      window.addEventListener('drop', (event) => {
+        event.preventDefault();
+        dragDepth = 0;
+        body.classList.remove('is-file-dragging');
+        uploadOption.classList.remove('is-dragover');
+        const file = [...(event.dataTransfer?.files || [])].find((item) => item.type.startsWith('image/'));
+        if (file) saveUploadedBackground(file);
+      });
+
+      document.querySelectorAll('.fankit-bg').forEach((item) => {
+        item.addEventListener('click', () => {
+          selectedBackground = item.dataset.bgFile;
+          document.querySelectorAll('.fankit-bg').forEach((bg) => bg.classList.toggle('is-selected', bg === item));
+          setSelectedOption(fankitOption);
+          localStorage.removeItem(UPLOADED_BG_KEY);
+          updateNextButton();
+          setTimeout(closeFankitPicker, 160);
+        });
+      });
+
+      closeFankitPickerButton.addEventListener('click', closeFankitPicker);
+      fankitPicker.addEventListener('click', (event) => {
+        if (event.target === fankitPicker) closeFankitPicker();
+      });
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && fankitPicker.classList.contains('is-open')) closeFankitPicker();
+      });
+
+      updateNextButton();
+
       nextButton.addEventListener('click', () => {
+        if (!selectedBackground) return;
         document.querySelector('[data-step="1"]').classList.remove('is-active');
         document.querySelector('[data-step="2"]').classList.add('is-active');
         setTimeout(() => nicknameInput.focus({ preventScroll: true }), 180);
       });
 
-      nicknameInput.addEventListener('input', () => {
+      let nicknameUppercase = false;
+
+      const updateNicknameControls = () => {
+        const hasText = nicknameInput.value.length > 0;
+        nicknameCaseButton.classList.toggle('is-visible', hasText);
+        nicknameCaseButton.setAttribute('aria-hidden', hasText ? 'false' : 'true');
+        nicknameCaseButton.textContent = nicknameUppercase ? 'A' : 'a';
         saveButton.disabled = nicknameInput.value.trim().length < 2;
+      };
+
+      nicknameInput.addEventListener('input', updateNicknameControls);
+
+      nicknameCaseButton.addEventListener('click', () => {
+        if (!nicknameInput.value.length) return;
+        const start = nicknameInput.selectionStart ?? nicknameInput.value.length;
+        const end = nicknameInput.selectionEnd ?? nicknameInput.value.length;
+        nicknameUppercase = !nicknameUppercase;
+        nicknameInput.value = nicknameUppercase
+          ? nicknameInput.value.toLocaleUpperCase('ru-RU')
+          : nicknameInput.value.toLocaleLowerCase('ru-RU');
+        nicknameInput.focus({ preventScroll: true });
+        nicknameInput.setSelectionRange(start, end);
+        updateNicknameControls();
       });
+
+      updateNicknameControls();
 
       nicknameInput.addEventListener('keydown', (event) => {
         if (event.key === 'Enter' && !saveButton.disabled) saveButton.click();
