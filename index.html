@@ -81,6 +81,7 @@
   html {
     background: var(--bg);
     color-scheme: light dark;
+    overflow-x: hidden;
   }
 
   body {
@@ -90,6 +91,7 @@
     font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
     transition: background-color .3s var(--ease), color .3s var(--ease);
+    overflow-x: hidden;
   }
 
   button { font-family: inherit; }
@@ -316,20 +318,6 @@
       transition-duration: 0.001ms !important;
       animation-duration: 0.001ms !important;
     }
-  }
-
-  #mainPage {
-    opacity: 1;
-    filter: blur(0);
-    transform: scale(1);
-    transition: opacity .6s var(--ease), filter .6s var(--ease), transform .6s var(--ease);
-  }
-
-  #mainPage.is-hidden {
-    opacity: 0;
-    filter: blur(14px);
-    transform: scale(.97);
-    pointer-events: none;
   }
 
   .onboarding-overlay {
@@ -720,6 +708,163 @@
 
 .bg-sheet__upload-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
 .bg-sheet__upload-btn:active { transform: translateY(0); }
+
+.app-page {
+  opacity: 1;
+  filter: blur(0);
+  transform: scale(1);
+  transition: opacity .6s var(--ease), filter .6s var(--ease), transform .6s var(--ease);
+}
+
+.app-page.is-hidden {
+  opacity: 0;
+  filter: blur(14px);
+  transform: scale(.97);
+  pointer-events: none;
+}
+
+.app-page[hidden] { display: none; }
+
+.page-stack {
+  position: relative;
+  overflow: hidden;
+  min-height: 100vh;
+}
+
+.app-page.is-sliding {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  transition:
+    transform .45s var(--ease),
+    filter .45s var(--ease),
+    opacity .45s var(--ease);
+  will-change: transform, filter, opacity;
+  filter: blur(0);
+  opacity: 1;
+}
+
+.app-page.slide-enter-forward {
+  transform: translateX(-100vw) !important;
+  opacity: 1 !important;
+}
+
+.app-page.slide-enter-back {
+  transform: translateX(100vw) !important;
+  opacity: 1 !important;
+}
+
+.app-page.slide-center {
+  transform: translateX(0) !important;
+  filter: blur(0) !important;
+  opacity: 1 !important;
+}
+
+.app-page.slide-exit-back {
+  transform: translateX(-100vw) !important;
+  filter: blur(12px) !important;
+  opacity: 0 !important;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.back-btn {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: var(--surface);
+  color: var(--text-soft);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color .2s var(--ease), color .2s var(--ease), transform .18s var(--ease);
+}
+.back-btn:hover { background: var(--accent); color: #fff; }
+.back-btn:active { transform: scale(.92); }
+.back-btn svg { width: 20px; height: 20px; }
+
+.upload-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: var(--radius-lg);
+  transition: outline-color .2s var(--ease);
+}
+
+.upload-dropzone.is-dragover {
+  outline: 2px dashed var(--accent);
+  outline-offset: 10px;
+}
+
+.upload-dropzone__icon {
+  width: 44px;
+  height: 44px;
+  color: var(--accent);
+}
+.upload-dropzone__icon svg { width: 100%; height: 100%; }
+
+.upload-dropzone__text {
+  color: var(--text-muted);
+  font-size: .92rem;
+  line-height: 1.6;
+  max-width: 320px;
+  margin: 0;
+}
+
+.screens-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.screens-grid__item {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--surface-soft);
+  box-shadow: var(--shadow-sm);
+}
+
+.screens-grid__item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.screens-grid__remove {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, .55);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  transition: background-color .2s var(--ease);
+}
+.screens-grid__remove:hover { background: var(--accent); }
+
+.screens-counter {
+  margin: 14px 0 24px;
+  color: var(--text-muted);
+  font-size: .9rem;
+  text-align: center;
+}
 </style>
 </head>
 <body>
@@ -779,7 +924,8 @@
   </div>
 </div>
 
-<div class="page" id="mainPage">
+<div class="page-stack">
+  <div class="page app-page" id="mainPage">
     <header class="topbar">
     <h1 class="title">Вырезание акций</h1>
     <button type="button" class="theme-toggle" id="themeToggle" aria-label="Переключить тему">
@@ -816,7 +962,7 @@
       <h2 class="section-label">выберите игру</h2>
       <div class="games-grid">
 
-        <button type="button" class="game-card" data-soon="false">
+        <button type="button" class="game-card" data-soon="false" id="brawlCard">
           <span class="game-card__icon game-card__icon--live">
             <svg version="1.0" xmlns="http://www.w3.org/2000/svg"
  viewBox="0 0 1014.000000 1014.000000"
@@ -1913,6 +2059,36 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
   </main>
 </div>
 
+<div class="page app-page is-hidden" id="brawlPage" hidden>
+  <header class="topbar">
+    <div class="topbar-left">
+      <button type="button" class="back-btn" id="brawlBackBtn" aria-label="Назад">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 18l-6-6 6-6"></path>
+        </svg>
+      </button>
+      <h1 class="title">Brawl Stars</h1>
+    </div>
+  </header>
+
+  <main>
+    <section class="banner">
+      <p>Загрузите скриншоты из игры, чтобы система смогла их вырезать и вставить на Ваш фон. Или перетащите их со своего устройства сюда.</p>
+    </section>
+
+    <div class="upload-dropzone" id="screensDropzone">
+      <button type="button" class="bg-sheet__upload-btn" id="screensUploadBtn">Загрузить скриншот</button>
+      <input type="file" id="screensInput" accept="image/*" multiple hidden>
+    </div>
+
+    <div class="screens-grid" id="screensGrid"></div>
+    <p class="screens-counter" id="screensCounter"></p>
+
+    <button type="button" class="btn-primary is-appearing" id="generateBtn">Сгенерировать</button>
+  </main>
+</div>
+</div>
+
 <div class="bg-sheet-overlay" id="bgSheetOverlay" hidden>
   <div class="bg-sheet" id="bgSheet">
     <div class="bg-sheet__handle"></div>
@@ -1951,7 +2127,7 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
 </div>
 
 <script>
-  const DB_NAME = 'vyrezanвавввie_akc45iy6_db';
+  const DB_NAME = 'vyrezanооваввммвввie_ahhjkc45iy6_db';
 
   function loadDB() {
     try { return JSON.parse(localStorage.getItem(DB_NAME)) || {}; }
@@ -2072,6 +2248,7 @@ function goToStep(fromEl, toEl, after) {
     goToStep(step2, stepWelcome, function () {
       setTimeout(function () {
         overlay.classList.add('is-leaving');
+        window.scrollTo(0, 0);
         mainPage.classList.remove('is-hidden');
         setTimeout(function () { overlay.setAttribute('hidden', ''); }, 550);
       }, 1300);
@@ -2080,6 +2257,10 @@ function goToStep(fromEl, toEl, after) {
 
   nicknameInput.addEventListener('keydown', function (e) {
     if (e.key === 'Enter') document.getElementById('step2Save').click();
+  });
+
+  nicknameInput.addEventListener('blur', function () {
+    window.scrollTo(0, 0);
   });
 })();
 
@@ -2259,6 +2440,11 @@ dropZone.addEventListener('drop', function (e) {
         return;
       }
 
+      var iconStage = toggle.querySelector('.icon-stage');
+      var iconSvgs = iconStage.querySelectorAll('svg');
+      iconStage.style.transition = 'none';
+      iconSvgs.forEach(function (svg) { svg.style.transition = 'none'; });
+
       var endRadius = Math.hypot(
         Math.max(x, window.innerWidth - x),
         Math.max(y, window.innerHeight - y)
@@ -2283,6 +2469,11 @@ dropZone.addEventListener('drop', function (e) {
             pseudoElement: '::view-transition-new(root)'
           }
         );
+      });
+
+      transition.finished.then(function () {
+        iconStage.style.transition = '';
+        iconSvgs.forEach(function (svg) { svg.style.transition = ''; });
       });
     });
 
@@ -2395,6 +2586,175 @@ editNicknameSave.addEventListener('click', function () {
   saveDB({ nickname: nickname });
   closeSheet(editNicknameOverlay);
 });
+var brawlCard = document.getElementById('brawlCard');
+var brawlPage = document.getElementById('brawlPage');
+var brawlBackBtn = document.getElementById('brawlBackBtn');
+var mainPageEl = document.getElementById('mainPage');
+
+var pageIsAnimating = false;
+
+function slidePage(hideEl, showEl, direction) {
+  if (pageIsAnimating) return;
+
+  pageIsAnimating = true;
+  window.scrollTo(0, 0);
+
+  var enterClass =
+    direction === 'forward'
+      ? 'slide-enter-forward'
+      : 'slide-enter-back';
+
+  var exitClass =
+    direction === 'forward'
+      ? 'slide-exit-forward'
+      : 'slide-exit-back';
+
+  hideEl.classList.add('is-sliding', 'slide-center');
+
+  showEl.hidden = false;
+  showEl.classList.remove('is-hidden');
+  showEl.classList.add('is-sliding', enterClass);
+
+  showEl.offsetHeight;
+
+  requestAnimationFrame(function () {
+    hideEl.classList.remove('slide-center');
+    hideEl.classList.add(exitClass);
+
+    showEl.classList.remove(enterClass);
+    showEl.classList.add('slide-center');
+  });
+
+  function finishSlide(event) {
+    if (event.propertyName !== 'transform') return;
+
+    hideEl.removeEventListener('transitionend', finishSlide);
+
+    hideEl.hidden = true;
+    hideEl.classList.remove(
+      'is-sliding',
+      'slide-center',
+      'slide-exit-forward',
+      'slide-exit-back'
+    );
+    hideEl.classList.add('is-hidden');
+
+    showEl.classList.remove(
+      'is-sliding',
+      'slide-center',
+      'slide-enter-forward',
+      'slide-enter-back'
+    );
+
+    pageIsAnimating = false;
+  }
+
+  hideEl.addEventListener('transitionend', finishSlide);
+}
+
+brawlCard.addEventListener('click', function () {
+  slidePage(mainPageEl, brawlPage, 'forward');
+});
+
+brawlBackBtn.addEventListener('click', function () {
+  slidePage(brawlPage, mainPageEl, 'back');
+});
+
+var MAX_SCREENS = 10;
+var screens = [];
+
+var screensDropzone = document.getElementById('screensDropzone');
+var screensUploadBtn = document.getElementById('screensUploadBtn');
+var screensInput = document.getElementById('screensInput');
+var screensGrid = document.getElementById('screensGrid');
+var screensCounter = document.getElementById('screensCounter');
+var generateBtn = document.getElementById('generateBtn');
+
+function renderScreens() {
+  screensGrid.innerHTML = '';
+  screens.forEach(function (src, idx) {
+    var item = document.createElement('div');
+    item.className = 'screens-grid__item';
+
+    var img = document.createElement('img');
+    img.src = src;
+    img.alt = 'Скриншот ' + (idx + 1);
+
+    var removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'screens-grid__remove';
+    removeBtn.setAttribute('aria-label', 'Удалить');
+    removeBtn.textContent = '✕';
+    removeBtn.addEventListener('click', function () {
+      screens.splice(idx, 1);
+      renderScreens();
+    });
+
+    item.appendChild(img);
+    item.appendChild(removeBtn);
+    screensGrid.appendChild(item);
+  });
+
+  screensCounter.textContent = screens.length + ' / ' + MAX_SCREENS;
+
+  var hasScreens = screens.length > 0;
+  generateBtn.classList.toggle('is-visible', hasScreens);
+  generateBtn.classList.toggle('is-appearing', !hasScreens);
+
+  screensUploadBtn.disabled = screens.length >= MAX_SCREENS;
+  screensDropzone.style.opacity = screens.length >= MAX_SCREENS ? '.5' : '1';
+}
+
+function addFiles(fileList) {
+  var files = Array.prototype.filter.call(fileList, function (f) {
+    return f.type.indexOf('image/') === 0;
+  });
+
+  var remaining = MAX_SCREENS - screens.length;
+  files.slice(0, remaining).forEach(function (file) {
+    readFileAsDataURL(file, function (dataUrl) {
+      if (dataUrl && screens.length < MAX_SCREENS) {
+        screens.push(dataUrl);
+        renderScreens();
+      }
+    });
+  });
+}
+
+screensUploadBtn.addEventListener('click', function () {
+  screensInput.click();
+});
+
+screensInput.addEventListener('change', function () {
+  if (screensInput.files && screensInput.files.length > 0) {
+    addFiles(screensInput.files);
+    screensInput.value = '';
+  }
+});
+
+['dragenter', 'dragover'].forEach(function (evt) {
+  screensDropzone.addEventListener(evt, function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    screensDropzone.classList.add('is-dragover');
+  });
+});
+
+['dragleave', 'drop'].forEach(function (evt) {
+  screensDropzone.addEventListener(evt, function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    screensDropzone.classList.remove('is-dragover');
+  });
+});
+
+screensDropzone.addEventListener('drop', function (e) {
+  if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+    addFiles(e.dataTransfer.files);
+  }
+});
+
+renderScreens();
 </script>
 </body>
 </html>
