@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover" />
 <meta name="color-scheme" content="light dark">
 <title>Snapi</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -64,11 +64,17 @@
     touch-action: manipulation;
   }
   html, body {
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  button, a, input {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    outline: none;
+  }
 
   * { box-sizing: border-box; }
 
@@ -432,6 +438,13 @@
     max-width: 340px;
   }
 
+  .step-controls {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
   .bg-options {
     display: flex;
     flex-direction: column;
@@ -472,30 +485,248 @@
   .field-input::placeholder { color: var(--accent); opacity: .55; }
   .field-input:focus { box-shadow: 0 0 0 2px var(--accent); }
 
-  .btn-primary {
-    display: block;
-    width: 100%;
-    appearance: none;
-    border: none;
-    border-radius: var(--radius-pill);
-    background: var(--accent);
-    color: #fff;
-    font-weight: 700;
-    font-size: clamp(.95rem, .9rem + .2vw, 1.05rem);
-    padding: clamp(15px, 2.4vw, 18px) 20px;
-    cursor: pointer;
-    box-shadow: var(--shadow-sm);
-    transition: transform .18s var(--ease), box-shadow .25s var(--ease), background-color .25s var(--ease);
-  }
-  .btn-primary:hover { transform: translateY(-2px); box-shadow: var(--shadow); background: var(--accent-strong); }
-  .btn-primary:active { transform: translateY(0); }
+.btn-primary {
+  display: block;
+  width: 100%;
+  appearance: none;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: clamp(.95rem, .9rem + .2vw, 1.05rem);
+  padding: clamp(15px, 2.4vw, 18px) 20px;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: transform .18s var(--ease), box-shadow .25s var(--ease), background-color .25s var(--ease), opacity .3s var(--ease);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: var(--shadow); background: var(--accent-strong); }
+.btn-primary:active { transform: translateY(0); }
+
+.btn-primary.is-appearing {
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+}
+
+.btn-primary.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+  .input-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.field-input {
+  padding-right: 56px;
+}
+
+.case-toggle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 6px;
+  margin: auto 0;
+  appearance: none;
+  border: none;
+  background: var(--surface-soft);
+  color: var(--accent);
+  font-weight: 800;
+  font-size: .85rem;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: background-color .2s var(--ease), color .2s var(--ease);
+}
+
+.case-toggle:hover { background: var(--accent); color: #fff; }
+.case-toggle:active { transform: scale(.92); }
+.bg-sheet-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0, 0, 0, .55);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity .3s var(--ease);
+}
+
+.bg-sheet-overlay[hidden] { display: none; }
+.bg-sheet-overlay.is-visible { opacity: 1; }
+
+.bg-sheet {
+  width: 100%;
+  max-width: 480px;
+  min-height: 65vh;
+  max-height: 85vh;
+  background: var(--bg);
+  border-radius: 28px 28px 0 0;
+  padding: 10px 20px calc(20px + env(safe-area-inset-bottom));
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
+  touch-action: pan-y;
+  transform: translateY(100%);
+  transition: transform .35s var(--ease);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.bg-sheet::-webkit-scrollbar {
+  display: none;
+}
+
+.bg-sheet-overlay.is-visible .bg-sheet {
+  transform: translateY(0);
+}
+
+.bg-sheet__handle {
+  width: 40px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--text-faint);
+  margin: 6px auto 18px;
+}
+
+.bg-sheet__title {
+  margin: 0 0 18px;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.bg-sheet__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  padding-bottom: 10px;
+}
+
+.bg-sheet__item {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  border-radius: 16px;
+  overflow: hidden;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  background: var(--surface);
+  transition: transform .15s var(--ease), outline-color .15s var(--ease);
+}
+
+.bg-sheet__item:active { transform: scale(.96); }
+
+.bg-sheet__item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.bg-sheet__item.is-selected {
+  outline: 3px solid var(--accent);
+  outline-offset: -3px;
+}
+.bg-option__status {
+  color: var(--accent);
+  font-weight: 700;
+  margin-left: 6px;
+}
+.onboarding-step[data-step="1"].is-dragover {
+  outline: 2px dashed var(--accent);
+  outline-offset: 10px;
+  border-radius: 20px;
+}
+.sheet-choice-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 10px;
+}
+
+.sheet-choice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  appearance: none;
+  border: none;
+  background: var(--surface);
+  color: var(--text-soft);
+  font: inherit;
+  font-weight: 700;
+  font-size: 1.05rem;
+  padding: 18px 20px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: transform .18s var(--ease), box-shadow .25s var(--ease), background-color .25s var(--ease);
+}
+
+.sheet-choice:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+.sheet-choice:active { transform: translateY(0); }
+
+.sheet-choice__hint {
+  color: var(--accent);
+  font-weight: 700;
+  font-size: .9rem;
+}
+.sheet-choice__preview {
+  width: 44px;
+  height: 32px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--surface-soft);
+  flex: none;
+}
+
+.sheet-choice__preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.sheet-choice__preview-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-faint);
+  font-size: .7rem;
+}
+.bg-sheet__upload-btn {
+  display: block;
+  width: 100%;
+  appearance: none;
+  border: none;
+  background: var(--surface);
+  color: var(--accent-strong);
+  font: inherit;
+  font-weight: 700;
+  font-size: .95rem;
+  padding: 14px 20px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  margin-bottom: 18px;
+  transition: transform .18s var(--ease), box-shadow .25s var(--ease);
+  box-shadow: var(--shadow-sm);
+}
+
+.bg-sheet__upload-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+.bg-sheet__upload-btn:active { transform: translateY(0); }
 </style>
 </head>
 <body>
 
 <body>
 
-<div class="onboarding-overlay" id="onboardingOverlay">
+<div class="onboarding-overlay" id="onboardingOverlay" hidden>
   <div class="onboarding-card">
 
     <div class="onboarding-step" data-step="1">
@@ -507,12 +738,17 @@
 
       <div class="step-controls">
         <div class="bg-options">
-          <button type="button" class="bg-option">Фон с Fankit</button>
+          <button type="button" class="bg-option" id="fankitBtn">
+            Фон с Fankit<span class="bg-option__status" id="fankitStatus"></span>
+          </button>
           <span class="bg-or">или</span>
-          <button type="button" class="bg-option">Загрузить фон</button>
+          <button type="button" class="bg-option" id="uploadBtn">
+            Загрузить с устройства<span class="bg-option__status" id="uploadStatus"></span>
+          </button>
+          <input type="file" id="uploadInput" accept="image/*" hidden>
         </div>
 
-        <button type="button" class="btn-primary" id="step1Next">Далее</button>
+        <button type="button" class="btn-primary is-appearing" id="step1Next">Далее</button>
       </div>
     </div>
 
@@ -524,8 +760,11 @@
       </div>
 
       <div class="step-controls">
-        <input type="text" class="field-input" id="nicknameInput" placeholder="Введите текст" autocomplete="off">
-        <button type="button" class="btn-primary" id="step2Save">Сохранить</button>
+        <div class="input-wrap">
+          <input type="text" class="field-input" id="nicknameInput" placeholder="Введите текст" autocomplete="off">
+          <button type="button" class="case-toggle" id="caseToggle" aria-label="Переключить регистр">Aa</button>
+        </div>
+        <button type="button" class="btn-primary is-appearing" id="step2Save">Сохранить</button>
       </div>
     </div>
 
@@ -540,7 +779,7 @@
   </div>
 </div>
 
-<div class="page is-hidden" id="mainPage">
+<div class="page" id="mainPage">
     <header class="topbar">
     <h1 class="title">Вырезание акций</h1>
     <button type="button" class="theme-toggle" id="themeToggle" aria-label="Переключить тему">
@@ -571,7 +810,7 @@
       </p>
     </section>
 
-    <button type="button" class="btn-secondary">Изменить шаблон работы</button>
+    <button type="button" class="btn-secondary" id="editTemplateBtn">Изменить шаблон работы</button>
 
     <section class="games">
       <h2 class="section-label">выберите игру</h2>
@@ -1674,8 +1913,45 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
   </main>
 </div>
 
+<div class="bg-sheet-overlay" id="bgSheetOverlay" hidden>
+  <div class="bg-sheet" id="bgSheet">
+    <div class="bg-sheet__handle"></div>
+    <h2 class="bg-sheet__title">Выберите фон из Fankit</h2>
+    <button type="button" class="bg-sheet__upload-btn" id="bgSheetUploadBtn">Загрузить с устройства</button>
+    <div class="bg-sheet__grid" id="bgGrid"></div>
+  </div>
+</div>
+
+<div class="bg-sheet-overlay" id="editChooseOverlay" hidden>
+  <div class="bg-sheet">
+    <div class="bg-sheet__handle"></div>
+    <h2 class="bg-sheet__title">Что хотите изменить?</h2>
+    <div class="sheet-choice-list">
+      <button type="button" class="sheet-choice" id="editBgOption">
+        <span>Фон</span>
+        <span class="sheet-choice__preview" id="editBgPreview"></span>
+      </button>
+      <button type="button" class="sheet-choice" id="editNicknameOption">
+        Ник<span class="sheet-choice__hint" id="editNicknameHint"></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="bg-sheet-overlay" id="editNicknameOverlay" hidden>
+  <div class="bg-sheet">
+    <div class="bg-sheet__handle"></div>
+    <h2 class="bg-sheet__title">Изменить ник</h2>
+    <div class="input-wrap">
+      <input type="text" class="field-input" id="editNicknameInput" placeholder="Введите текст" autocomplete="off">
+      <button type="button" class="case-toggle" id="editCaseToggle" aria-label="Переключить регистр">Aa</button>
+    </div>
+    <button type="button" class="btn-primary" id="editNicknameSave">Сохранить</button>
+  </div>
+</div>
+
 <script>
-  const DB_NAME = 'vyrezanie_akciy4_db';
+  const DB_NAME = 'vyrezanвавввie_akc45iy6_db';
 
   function loadDB() {
     try { return JSON.parse(localStorage.getItem(DB_NAME)) || {}; }
@@ -1684,7 +1960,11 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
 
   function saveDB(data) {
     var merged = Object.assign(loadDB(), data);
-    localStorage.setItem(DB_NAME, JSON.stringify(merged));
+    try {
+      localStorage.setItem(DB_NAME, JSON.stringify(merged));
+    } catch (e) {
+      console.warn('Не удалось сохранить данные — превышена квота хранилища', e);
+    }
     return merged;
   }
 
@@ -1707,7 +1987,7 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
 }
 
 function prepareStepText(stepEl) {
-  stepEl.querySelectorAll('.step-badge, .step-title, .step-desc').forEach(splitChars);
+  stepEl.querySelectorAll('.step-badge, .welcome-icon, .step-title, .step-desc').forEach(splitChars);
 }
 
 function goToStep(fromEl, toEl, after) {
@@ -1746,10 +2026,11 @@ function goToStep(fromEl, toEl, after) {
   var mainPage = document.getElementById('mainPage');
 
   if (db.onboarded) {
-    overlay.setAttribute('hidden', '');
-    mainPage.classList.remove('is-hidden');
     return;
   }
+
+  overlay.hidden = false;
+  mainPage.classList.add('is-hidden');
 
   var step1 = overlay.querySelector('[data-step="1"]');
   var step2 = overlay.querySelector('[data-step="2"]');
@@ -1757,11 +2038,27 @@ function goToStep(fromEl, toEl, after) {
   var nicknameInput = document.getElementById('nicknameInput');
   var welcomeTitle = document.getElementById('welcomeTitle');
 
+  var caseToggle = document.getElementById('caseToggle');
+  var isUpper = false;
+
+  caseToggle.addEventListener('click', function () {
+    isUpper = !isUpper;
+    nicknameInput.value = isUpper ? nicknameInput.value.toUpperCase() : nicknameInput.value.toLowerCase();
+    nicknameInput.focus();
+  });
+
   prepareStepText(step1);
   prepareStepText(step2);
 
   document.getElementById('step1Next').addEventListener('click', function () {
     goToStep(step1, step2, function () { nicknameInput.focus(); });
+  });
+
+  nicknameInput.addEventListener('input', function () {
+    var saveBtn = document.getElementById('step2Save');
+    var hasValue = nicknameInput.value.trim().length > 0;
+    saveBtn.classList.toggle('is-visible', hasValue);
+    saveBtn.classList.toggle('is-appearing', !hasValue);
   });
 
   document.getElementById('step2Save').addEventListener('click', function () {
@@ -1785,6 +2082,165 @@ function goToStep(fromEl, toEl, after) {
     if (e.key === 'Enter') document.getElementById('step2Save').click();
   });
 })();
+
+var bgSheetOverlay = document.getElementById('bgSheetOverlay');
+var bgGrid = document.getElementById('bgGrid');
+var fankitBtn = document.getElementById('fankitBtn');
+
+for (var i = 1; i <= 23; i++) {
+  (function (n) {
+    var item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'bg-sheet__item';
+    item.dataset.bg = 'bg' + n;
+
+    var img = document.createElement('img');
+    img.src = 'bg/bg' + n + '.jpg';
+    img.alt = 'Фон ' + n;
+    img.loading = 'lazy';
+
+    item.appendChild(img);
+    bgGrid.appendChild(item);
+  })(i);
+}
+
+function openBgSheet() {
+  bgSheetOverlay.hidden = false;
+  requestAnimationFrame(function () {
+    bgSheetOverlay.classList.add('is-visible');
+  });
+}
+
+function closeBgSheet() {
+  bgSheetOverlay.classList.remove('is-visible');
+  setTimeout(function () { bgSheetOverlay.hidden = true; }, 350);
+}
+
+fankitBtn.addEventListener('click', openBgSheet);
+
+bgSheetOverlay.addEventListener('click', function (e) {
+  if (e.target === bgSheetOverlay) closeBgSheet();
+});
+
+var uploadBtn = document.getElementById('uploadBtn');
+var uploadInput = document.getElementById('uploadInput');
+var fankitStatus = document.getElementById('fankitStatus');
+var uploadStatus = document.getElementById('uploadStatus');
+var step1NextBtn = document.getElementById('step1Next');
+
+function updateBgSelectionUI(source) {
+  if (source === 'fankit') {
+    fankitStatus.textContent = ' (выбрано)';
+    uploadStatus.textContent = '';
+    uploadInput.value = '';
+  } else if (source === 'upload') {
+    uploadStatus.textContent = ' (выбрано)';
+    fankitStatus.textContent = '';
+    bgGrid.querySelectorAll('.bg-sheet__item').forEach(function (el) {
+      el.classList.remove('is-selected');
+    });
+  } else {
+    fankitStatus.textContent = '';
+    uploadStatus.textContent = '';
+  }
+
+  if (source) {
+    step1NextBtn.classList.remove('is-appearing');
+    step1NextBtn.classList.add('is-visible');
+  } else {
+    step1NextBtn.classList.remove('is-visible');
+    step1NextBtn.classList.add('is-appearing');
+  }
+}
+
+var bgSheetUploadBtn = document.getElementById('bgSheetUploadBtn');
+
+bgSheetUploadBtn.addEventListener('click', function () {
+  uploadInput.click();
+});
+
+bgGrid.addEventListener('click', function (e) {
+  var item = e.target.closest('.bg-sheet__item');
+  if (!item) return;
+
+  bgGrid.querySelectorAll('.bg-sheet__item').forEach(function (el) {
+    el.classList.remove('is-selected');
+  });
+  item.classList.add('is-selected');
+
+  saveDB({ selectedBg: item.dataset.bg, selectedBgSource: 'fankit' });
+  updateBgSelectionUI('fankit');
+  setTimeout(closeBgSheet, 200);
+});
+
+uploadBtn.addEventListener('click', function () {
+  uploadInput.click();
+});
+
+function readFileAsDataURL(file, cb) {
+  var reader = new FileReader();
+  reader.onload = function () {
+    var img = new Image();
+    img.onload = function () {
+      var maxSize = 800;
+      var scale = Math.min(1, maxSize / Math.max(img.width, img.height));
+      var canvas = document.createElement('canvas');
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      var compressed = canvas.toDataURL('image/jpeg', 0.75);
+      cb(compressed);
+    };
+    img.onerror = function () { cb(reader.result); };
+    img.src = reader.result;
+  };
+  reader.onerror = function () { cb(null); };
+  reader.readAsDataURL(file);
+}
+
+uploadInput.addEventListener('change', function () {
+  if (uploadInput.files && uploadInput.files.length > 0) {
+    readFileAsDataURL(uploadInput.files[0], function (dataUrl) {
+      saveDB({ selectedBgSource: 'upload', uploadedBgDataUrl: dataUrl });
+      updateBgSelectionUI('upload');
+      closeBgSheet();
+    });
+  }
+});
+
+var dropZone = document.querySelector('.onboarding-step[data-step="1"]');
+
+['dragenter', 'dragover'].forEach(function (evt) {
+  dropZone.addEventListener(evt, function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    dropZone.classList.add('is-dragover');
+  });
+});
+
+['dragleave', 'drop'].forEach(function (evt) {
+  dropZone.addEventListener(evt, function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    dropZone.classList.remove('is-dragover');
+  });
+});
+
+dropZone.addEventListener('drop', function (e) {
+  var file = e.dataTransfer.files && e.dataTransfer.files[0];
+  if (file && file.type.indexOf('image/') === 0) {
+    var dt = new DataTransfer();
+    dt.items.add(file);
+    uploadInput.files = dt.files;
+    readFileAsDataURL(file, function (dataUrl) {
+      saveDB({ selectedBgSource: 'upload', uploadedBgDataUrl: dataUrl });
+      updateBgSelectionUI('upload');
+    });
+  }
+});
   (function () {
     var root = document.documentElement;
     var toggle = document.getElementById('themeToggle');
@@ -1837,7 +2293,108 @@ function goToStep(fromEl, toEl, after) {
   })();
   document.addEventListener('contextmenu', e => e.preventDefault());
   document.addEventListener('copy', e => e.preventDefault());
-</script>
 
+  document.addEventListener('click', function (e) {
+    var active = document.activeElement;
+    if (active && active.tagName === 'INPUT' && !e.target.closest('.input-wrap')) {
+      active.blur();
+    }
+  });
+  ['dragover', 'drop'].forEach(function (evt) {
+    document.addEventListener(evt, function (e) { e.preventDefault(); });
+  });
+
+  var editTemplateBtn = document.getElementById('editTemplateBtn');
+var editChooseOverlay = document.getElementById('editChooseOverlay');
+var editNicknameOverlay = document.getElementById('editNicknameOverlay');
+var editBgOption = document.getElementById('editBgOption');
+var editNicknameOption = document.getElementById('editNicknameOption');
+var editBgHint = document.getElementById('editBgHint');
+var editNicknameHint = document.getElementById('editNicknameHint');
+var editNicknameInput = document.getElementById('editNicknameInput');
+var editCaseToggle = document.getElementById('editCaseToggle');
+var editNicknameSave = document.getElementById('editNicknameSave');
+
+function openSheet(overlay) {
+  overlay.hidden = false;
+  requestAnimationFrame(function () {
+    overlay.classList.add('is-visible');
+  });
+}
+
+function closeSheet(overlay) {
+  overlay.classList.remove('is-visible');
+  setTimeout(function () { overlay.hidden = true; }, 350);
+}
+
+function syncBgSheetSelection() {
+  var db = loadDB();
+  bgGrid.querySelectorAll('.bg-sheet__item').forEach(function (el) {
+    el.classList.toggle('is-selected', db.selectedBgSource === 'fankit' && el.dataset.bg === db.selectedBg);
+  });
+}
+
+var editBgPreview = document.getElementById('editBgPreview');
+
+editTemplateBtn.addEventListener('click', function () {
+  var db = loadDB();
+
+  editBgPreview.innerHTML = '';
+  if (db.selectedBgSource === 'fankit' && db.selectedBg) {
+    var img = document.createElement('img');
+    img.src = 'bg/' + db.selectedBg + '.jpg';
+    img.alt = 'Текущий фон';
+    editBgPreview.appendChild(img);
+  } else if (db.selectedBgSource === 'upload' && db.uploadedBgDataUrl) {
+    var img2 = document.createElement('img');
+    img2.src = db.uploadedBgDataUrl;
+    img2.alt = 'Текущий фон';
+    editBgPreview.appendChild(img2);
+  } else {
+    var empty = document.createElement('span');
+    empty.className = 'sheet-choice__preview-empty';
+    empty.textContent = '—';
+    editBgPreview.appendChild(empty);
+  }
+
+  editNicknameHint.textContent = db.nickname || 'не задан';
+  openSheet(editChooseOverlay);
+});
+
+editChooseOverlay.addEventListener('click', function (e) {
+  if (e.target === editChooseOverlay) closeSheet(editChooseOverlay);
+});
+
+editBgOption.addEventListener('click', function () {
+  closeSheet(editChooseOverlay);
+  syncBgSheetSelection();
+  openBgSheet();
+});
+
+editNicknameOption.addEventListener('click', function () {
+  closeSheet(editChooseOverlay);
+  var db = loadDB();
+  editNicknameInput.value = db.nickname || '';
+  openSheet(editNicknameOverlay);
+});
+
+editNicknameOverlay.addEventListener('click', function (e) {
+  if (e.target === editNicknameOverlay) closeSheet(editNicknameOverlay);
+});
+
+var editIsUpper = false;
+editCaseToggle.addEventListener('click', function () {
+  editIsUpper = !editIsUpper;
+  editNicknameInput.value = editIsUpper ? editNicknameInput.value.toUpperCase() : editNicknameInput.value.toLowerCase();
+  editNicknameInput.focus();
+});
+
+editNicknameSave.addEventListener('click', function () {
+  var nickname = editNicknameInput.value.trim();
+  if (!nickname) { editNicknameInput.focus(); return; }
+  saveDB({ nickname: nickname });
+  closeSheet(editNicknameOverlay);
+});
+</script>
 </body>
 </html>
