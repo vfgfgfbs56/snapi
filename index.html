@@ -859,11 +859,283 @@
 }
 .screens-grid__remove:hover { background: var(--accent); }
 
-.screens-counter {
+.screens-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
   margin: 14px 0 24px;
+}
+
+.screens-counter {
+  margin: 0;
   color: var(--text-muted);
   font-size: .9rem;
-  text-align: center;
+}
+
+.screens-clear-btn {
+  appearance: none;
+  border: none;
+  background: none;
+  color: var(--accent-strong);
+  font: inherit;
+  font-weight: 700;
+  font-size: .9rem;
+  padding: 4px;
+  cursor: pointer;
+}
+
+.screens-clear-btn:hover { text-decoration: underline; }
+.effects-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 20px 0 32px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.effects-toggle input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.effects-toggle__box {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  transition: background-color .25s var(--ease);
+}
+
+.effects-toggle input:checked ~ .effects-toggle__box {
+  background: var(--accent);
+}
+
+.effects-toggle__check {
+  width: 13px;
+  height: 13px;
+  color: #fff;
+  opacity: 0;
+  transform: scale(.3) rotate(-20deg);
+  transition: opacity .25s var(--ease), transform .25s var(--ease);
+}
+
+.effects-toggle input:checked ~ .effects-toggle__box .effects-toggle__check {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+}
+
+.effects-toggle__text {
+  color: var(--text-muted);
+  font-size: .9rem;
+  line-height: 1.5;
+  padding-top: 2px;
+}
+.current-template {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  margin: 0 0 clamp(16px, 2.5vw, 22px);
+  box-shadow: var(--shadow-sm);
+}
+
+.current-template__thumb {
+  flex: none;
+  width: 52px;
+  height: 40px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--surface-soft);
+}
+
+.current-template__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.current-template__lines {
+  flex: 1;
+  min-width: 0;
+}
+
+.current-template__line {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: .88rem;
+  line-height: 1.5;
+}
+
+.current-template__line strong {
+  color: var(--text-soft);
+  font-weight: 700;
+}
+
+.current-template__edit-btn {
+  flex: none;
+  appearance: none;
+  border: none;
+  background: none;
+  color: var(--accent-strong);
+  font: inherit;
+  font-weight: 700;
+  font-size: .9rem;
+  padding: 8px 4px;
+  cursor: pointer;
+}
+
+.current-template__edit-btn:hover { text-decoration: underline; }
+
+.color-presets {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+.color-preset {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  background: conic-gradient(from 135deg, var(--c1) 0deg 180deg, var(--c2) 180deg 360deg);
+  box-shadow: var(--shadow-sm);
+  transition: transform .18s var(--ease), box-shadow .2s var(--ease), outline-color .2s var(--ease);
+  outline: 2px solid transparent;
+  outline-offset: 3px;
+}
+
+.color-preset:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+.color-preset:active { transform: translateY(0); }
+
+.color-preset.is-selected {
+  outline-color: var(--accent);
+}
+.size-picker {
+  margin: 0 0 16px;
+}
+
+.size-picker__title {
+  margin: 0 0 10px;
+  font-size: .9rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.size-picker__hint {
+  margin: 8px 0 0;
+  font-size: .78rem;
+  color: var(--text-faint);
+  line-height: 1.4;
+}
+
+.size-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.size-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  appearance: none;
+  border: 1.5px solid transparent;
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--text-muted);
+  font: inherit;
+  font-weight: 700;
+  font-size: .82rem;
+  padding: 9px 14px;
+  cursor: pointer;
+  transition: border-color .2s var(--ease), color .2s var(--ease);
+}
+
+.size-chip img {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  border-radius: 3px;
+}
+
+.size-chip.is-selected {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.size-fields {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.size-fields input {
+  flex: 1;
+  min-width: 0;
+  appearance: none;
+  border: none;
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: .92rem;
+  padding: 11px 14px;
+  outline: none;
+  transition: box-shadow .2s var(--ease);
+}
+
+.size-fields input:focus { box-shadow: 0 0 0 2px var(--accent); }
+
+.size-fields__x {
+  color: var(--text-faint);
+  font-weight: 700;
+}
+.size-chip__status {
+  color: var(--accent);
+  font-weight: 700;
+  margin-left: 4px;
+}
+
+.size-chip__bg-dims {
+  margin-left: 2px;
+}
+.size-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 90px;
+  transform: translateX(-50%) translateY(10px);
+  background: rgba(0, 0, 0, .75);
+  color: #fff;
+  font-weight: 700;
+  font-size: .95rem;
+  padding: 14px 22px;
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s var(--ease), transform .3s var(--ease);
+  z-index: 300;
+}
+
+.size-toast.is-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 </style>
 </head>
@@ -884,7 +1156,7 @@
       <div class="step-controls">
         <div class="bg-options">
           <button type="button" class="bg-option" id="fankitBtn">
-            Фон с Fankit<span class="bg-option__status" id="fankitStatus"></span>
+            Выбрать фон<span class="bg-option__status" id="fankitStatus"></span>
           </button>
           <span class="bg-or">или</span>
           <button type="button" class="bg-option" id="uploadBtn">
@@ -2072,6 +2344,35 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
   </header>
 
   <main>
+    <section class="current-template" id="currentTemplateInfo">
+      <div class="current-template__thumb" id="currentTemplateThumb"></div>
+      <div class="current-template__lines">
+        <p class="current-template__line">Загружен фон</p>
+        <p class="current-template__line">Введён ник: <strong id="currentTemplateNick"></strong></p>
+      </div>
+      <button type="button" class="current-template__edit-btn" id="currentTemplateEditBtn">Изменить</button>
+    </section>
+
+    <section class="size-picker">
+      <h2 class="size-picker__title">Размер результата</h2>
+
+      <div class="size-chips" id="sizeChips">
+        <button type="button" class="size-chip" data-type="telegram" data-width="1280" data-height="720">
+          <img src="telegram_size.png" alt="">1280×720
+          <span class="size-chip__status"></span>
+        </button>
+        <button type="button" class="size-chip" data-type="playerok" data-width="1280" data-height="960">
+          <img src="playerok_size.png" alt="">1280×960
+          <span class="size-chip__status"></span>
+        </button>
+        <button type="button" class="size-chip" data-type="bg">
+          <span class="size-chip__label">Размер фона</span><span class="size-chip__bg-dims"></span>
+          <span class="size-chip__status"></span>
+        </button>
+      </div>
+      <div class="size-toast" id="sizeToast">Данный размер уже выбран.</div>
+    </section>
+
     <section class="banner">
       <p>Загрузите скриншоты из игры, чтобы система смогла их вырезать и вставить на Ваш фон. Или перетащите их со своего устройства сюда.</p>
     </section>
@@ -2082,7 +2383,26 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
     </div>
 
     <div class="screens-grid" id="screensGrid"></div>
-    <p class="screens-counter" id="screensCounter"></p>
+    <div class="screens-footer">
+      <p class="screens-counter" id="screensCounter"></p>
+      <button type="button" class="screens-clear-btn" id="screensClearBtn" hidden>Удалить все</button>
+    </div>
+
+    <label class="effects-toggle" id="effectsToggle">
+      <input type="checkbox" id="effectsCheckbox">
+      <span class="effects-toggle__box">
+        <svg class="effects-toggle__check" viewBox="0 0 512 512" aria-hidden="true">
+          <g transform="translate(0,512) scale(0.1,-0.1)" fill="currentColor" stroke="none">
+            <path d="M4605 4386 c-105 -33 -109 -36 -1445 -1372 l-1315 -1314 -595 595
+    c-553 551 -600 596 -662 625 -159 74 -328 51 -454 -63 -100 -90 -149 -234
+    -125 -364 25 -134 9 -117 839 -944 726 -724 771 -767 832 -794 78 -34 185 -44
+    257 -25 122 33 70 -16 1629 1543 1614 1616 1522 1517 1547 1660 34 199 -91
+    392 -292 453 -56 17 -162 17 -216 0z"/>
+          </g>
+        </svg>
+      </span>
+      <span class="effects-toggle__text">Нужно ли добавлять эффекты, ник, детализацию на Вашу работу?</span>
+    </label>
 
     <button type="button" class="btn-primary is-appearing" id="generateBtn">Сгенерировать</button>
   </main>
@@ -2092,8 +2412,18 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
 <div class="bg-sheet-overlay" id="bgSheetOverlay" hidden>
   <div class="bg-sheet" id="bgSheet">
     <div class="bg-sheet__handle"></div>
-    <h2 class="bg-sheet__title">Выберите фон из Fankit</h2>
+    <h2 class="bg-sheet__title">Выберите фон</h2>
+
+    <div class="color-presets" id="colorPresets">
+      <button type="button" class="color-preset" data-color="green" style="--c1:#8be08a; --c2:#2f7d3a;" aria-label="Зелёная гамма"></button>
+      <button type="button" class="color-preset" data-color="blue" style="--c1:#6ab4f7; --c2:#1c4f8c;" aria-label="Синяя гамма"></button>
+      <button type="button" class="color-preset" data-color="yellow" style="--c1:#f6d565; --c2:#b0691c;" aria-label="Жёлтая гамма"></button>
+      <button type="button" class="color-preset" data-color="purple" style="--c1:#c97af0; --c2:#4b0f7d;" aria-label="Фиолетовая гамма"></button>
+      <button type="button" class="color-preset" data-color="gray" style="--c1:#8a8a8a; --c2:#141414;" aria-label="Серая гамма"></button>
+    </div>
+
     <button type="button" class="bg-sheet__upload-btn" id="bgSheetUploadBtn">Загрузить с устройства</button>
+
     <div class="bg-sheet__grid" id="bgGrid"></div>
   </div>
 </div>
@@ -2314,8 +2644,8 @@ function updateBgSelectionUI(source) {
     fankitStatus.textContent = ' (выбрано)';
     uploadStatus.textContent = '';
     uploadInput.value = '';
-  } else if (source === 'upload') {
-    uploadStatus.textContent = ' (выбрано)';
+  } else if (source === 'upload' || source === 'color') {
+    uploadStatus.textContent = source === 'color' ? '' : ' (выбрано)';
     fankitStatus.textContent = '';
     bgGrid.querySelectorAll('.bg-sheet__item').forEach(function (el) {
       el.classList.remove('is-selected');
@@ -2340,6 +2670,55 @@ bgSheetUploadBtn.addEventListener('click', function () {
   uploadInput.click();
 });
 
+var colorPresets = document.getElementById('colorPresets');
+
+function generateColorBg(c1, c2) {
+  var width = 1280;
+  var height = 720;
+  var canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  var ctx = canvas.getContext('2d');
+
+  var grad = ctx.createLinearGradient(0, 0, width, height);
+  grad.addColorStop(0, c1);
+  grad.addColorStop(1, c2);
+
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, width, height);
+
+  return canvas.toDataURL('image/jpeg', 0.85);
+}
+
+colorPresets.addEventListener('click', function (e) {
+  var btn = e.target.closest('.color-preset');
+  if (!btn) return;
+
+  var c1 = getComputedStyle(btn).getPropertyValue('--c1').trim();
+  var c2 = getComputedStyle(btn).getPropertyValue('--c2').trim();
+  var dataUrl = generateColorBg(c1, c2);
+
+  colorPresets.querySelectorAll('.color-preset').forEach(function (el) {
+    el.classList.remove('is-selected');
+  });
+  btn.classList.add('is-selected');
+
+  bgGrid.querySelectorAll('.bg-sheet__item').forEach(function (el) {
+    el.classList.remove('is-selected');
+  });
+
+  saveDB({
+    selectedBgSource: 'color',
+    selectedColorPreset: btn.dataset.color,
+    uploadedBgDataUrl: dataUrl
+  });
+
+  updateBgSelectionUI('color');
+  updateCurrentTemplateInfo();
+  applyDefaultSize();
+  setTimeout(closeBgSheet, 200);
+});
+
 bgGrid.addEventListener('click', function (e) {
   var item = e.target.closest('.bg-sheet__item');
   if (!item) return;
@@ -2351,6 +2730,8 @@ bgGrid.addEventListener('click', function (e) {
 
   saveDB({ selectedBg: item.dataset.bg, selectedBgSource: 'fankit' });
   updateBgSelectionUI('fankit');
+  updateCurrentTemplateInfo();
+  applyDefaultSize();
   setTimeout(closeBgSheet, 200);
 });
 
@@ -2363,6 +2744,9 @@ function readFileAsDataURL(file, cb) {
   reader.onload = function () {
     var img = new Image();
     img.onload = function () {
+      var origWidth = img.width;
+      var origHeight = img.height;
+
       var maxSize = 800;
       var scale = Math.min(1, maxSize / Math.max(img.width, img.height));
       var canvas = document.createElement('canvas');
@@ -2373,7 +2757,7 @@ function readFileAsDataURL(file, cb) {
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
       var compressed = canvas.toDataURL('image/jpeg', 0.75);
-      cb(compressed);
+      cb(compressed, origWidth, origHeight);
     };
     img.onerror = function () { cb(reader.result); };
     img.src = reader.result;
@@ -2384,9 +2768,11 @@ function readFileAsDataURL(file, cb) {
 
 uploadInput.addEventListener('change', function () {
   if (uploadInput.files && uploadInput.files.length > 0) {
-    readFileAsDataURL(uploadInput.files[0], function (dataUrl) {
-      saveDB({ selectedBgSource: 'upload', uploadedBgDataUrl: dataUrl });
+    readFileAsDataURL(uploadInput.files[0], function (dataUrl, w, h) {
+      saveDB({ selectedBgSource: 'upload', uploadedBgDataUrl: dataUrl, uploadedBgWidth: w, uploadedBgHeight: h });
       updateBgSelectionUI('upload');
+      updateCurrentTemplateInfo();
+      applyDefaultSize();
       closeBgSheet();
     });
   }
@@ -2416,9 +2802,10 @@ dropZone.addEventListener('drop', function (e) {
     var dt = new DataTransfer();
     dt.items.add(file);
     uploadInput.files = dt.files;
-    readFileAsDataURL(file, function (dataUrl) {
-      saveDB({ selectedBgSource: 'upload', uploadedBgDataUrl: dataUrl });
+    readFileAsDataURL(file, function (dataUrl, w, h) {
+      saveDB({ selectedBgSource: 'upload', uploadedBgDataUrl: dataUrl, uploadedBgWidth: w, uploadedBgHeight: h });
       updateBgSelectionUI('upload');
+      applyDefaultSize();
     });
   }
 });
@@ -2523,25 +2910,119 @@ function syncBgSheetSelection() {
   bgGrid.querySelectorAll('.bg-sheet__item').forEach(function (el) {
     el.classList.toggle('is-selected', db.selectedBgSource === 'fankit' && el.dataset.bg === db.selectedBg);
   });
+  colorPresets.querySelectorAll('.color-preset').forEach(function (el) {
+    el.classList.toggle('is-selected', db.selectedBgSource === 'color' && el.dataset.color === db.selectedColorPreset);
+  });
 }
+
+var sizeChips = document.getElementById('sizeChips');
+
+function getBgSize() {
+  var db = loadDB();
+  if (db.selectedBgSource === 'upload' && db.uploadedBgWidth && db.uploadedBgHeight) {
+    return { width: db.uploadedBgWidth, height: db.uploadedBgHeight };
+  }
+  return { width: 1280, height: 720 };
+}
+
+function matchChipType(w, h) {
+  if (w === 1280 && h === 720 && !(loadDB().selectedBgSource === 'upload')) return 'telegram';
+  if (w === 1280 && h === 960) return 'playerok';
+  var bgSize = getBgSize();
+  if (w === bgSize.width && h === bgSize.height) return 'bg';
+  return null;
+}
+
+function renderSizeSelection() {
+  var db = loadDB();
+  var sel = db.sizeSelection || { width: 1280, height: 720 };
+  var type = matchChipType(sel.width, sel.height);
+
+  var bgSize = getBgSize();
+  var bgChip = sizeChips.querySelector('.size-chip[data-type="bg"]');
+  bgChip.querySelector('.size-chip__bg-dims').textContent = '(' + bgSize.width + '×' + bgSize.height + ')';
+
+  sizeChips.querySelectorAll('.size-chip').forEach(function (btn) {
+    var isSelected = btn.dataset.type === type;
+    btn.classList.toggle('is-selected', isSelected);
+    btn.querySelector('.size-chip__status').textContent = isSelected ? ' (выбрано)' : '';
+  });
+}
+
+function applyDefaultSize() {
+  var db = loadDB();
+  var w = 1280, h = 720;
+
+  if (db.selectedBgSource === 'upload' && db.uploadedBgWidth && db.uploadedBgHeight) {
+    w = db.uploadedBgWidth;
+    h = db.uploadedBgHeight;
+  }
+
+  saveDB({ sizeSelection: { width: w, height: h } });
+  renderSizeSelection();
+}
+
+var sizeToast = document.getElementById('sizeToast');
+var sizeToastTimer = null;
+
+function showSizeToast() {
+  clearTimeout(sizeToastTimer);
+  sizeToast.classList.add('is-visible');
+  sizeToastTimer = setTimeout(function () {
+    sizeToast.classList.remove('is-visible');
+  }, 2000);
+}
+
+sizeChips.addEventListener('click', function (e) {
+  var chip = e.target.closest('.size-chip');
+  if (!chip) return;
+
+  var w, h;
+  if (chip.dataset.type === 'bg') {
+    var bgSize = getBgSize();
+    w = bgSize.width;
+    h = bgSize.height;
+  } else {
+    w = Number(chip.dataset.width);
+    h = Number(chip.dataset.height);
+  }
+
+  var db = loadDB();
+  var current = db.sizeSelection || { width: 1280, height: 720 };
+
+  if (current.width === w && current.height === h) {
+    showSizeToast();
+    return;
+  }
+
+  saveDB({ sizeSelection: { width: w, height: h } });
+  renderSizeSelection();
+});
 
 var editBgPreview = document.getElementById('editBgPreview');
 
-editTemplateBtn.addEventListener('click', function () {
-  var db = loadDB();
-
-  editBgPreview.innerHTML = '';
+function renderBgThumb(container, db) {
+  container.innerHTML = '';
   if (db.selectedBgSource === 'fankit' && db.selectedBg) {
     var img = document.createElement('img');
     img.src = 'bg/' + db.selectedBg + '.jpg';
     img.alt = 'Текущий фон';
-    editBgPreview.appendChild(img);
-  } else if (db.selectedBgSource === 'upload' && db.uploadedBgDataUrl) {
+    container.appendChild(img);
+    return true;
+  } else if ((db.selectedBgSource === 'upload' || db.selectedBgSource === 'color') && db.uploadedBgDataUrl) {
     var img2 = document.createElement('img');
     img2.src = db.uploadedBgDataUrl;
     img2.alt = 'Текущий фон';
-    editBgPreview.appendChild(img2);
-  } else {
+    container.appendChild(img2);
+    return true;
+  }
+  return false;
+}
+
+function openEditChooseSheet() {
+  var db = loadDB();
+
+  if (!renderBgThumb(editBgPreview, db)) {
     var empty = document.createElement('span');
     empty.className = 'sheet-choice__preview-empty';
     empty.textContent = '—';
@@ -2550,7 +3031,19 @@ editTemplateBtn.addEventListener('click', function () {
 
   editNicknameHint.textContent = db.nickname || 'не задан';
   openSheet(editChooseOverlay);
-});
+}
+
+function updateCurrentTemplateInfo() {
+  var db = loadDB();
+  var thumbEl = document.getElementById('currentTemplateThumb');
+  renderBgThumb(thumbEl, db);
+  document.getElementById('currentTemplateNick').textContent = db.nickname || '—';
+}
+
+editTemplateBtn.addEventListener('click', openEditChooseSheet);
+
+var currentTemplateEditBtn = document.getElementById('currentTemplateEditBtn');
+currentTemplateEditBtn.addEventListener('click', openEditChooseSheet);
 
 editChooseOverlay.addEventListener('click', function (e) {
   if (e.target === editChooseOverlay) closeSheet(editChooseOverlay);
@@ -2584,6 +3077,7 @@ editNicknameSave.addEventListener('click', function () {
   var nickname = editNicknameInput.value.trim();
   if (!nickname) { editNicknameInput.focus(); return; }
   saveDB({ nickname: nickname });
+  updateCurrentTemplateInfo();
   closeSheet(editNicknameOverlay);
 });
 var brawlCard = document.getElementById('brawlCard');
@@ -2653,6 +3147,9 @@ function slidePage(hideEl, showEl, direction) {
 }
 
 brawlCard.addEventListener('click', function () {
+  syncEffectsCheckboxDefault();
+  updateCurrentTemplateInfo();
+  renderSizeSelection();
   slidePage(mainPageEl, brawlPage, 'forward');
 });
 
@@ -2669,6 +3166,19 @@ var screensInput = document.getElementById('screensInput');
 var screensGrid = document.getElementById('screensGrid');
 var screensCounter = document.getElementById('screensCounter');
 var generateBtn = document.getElementById('generateBtn');
+
+var effectsCheckbox = document.getElementById('effectsCheckbox');
+
+function syncEffectsCheckboxDefault() {
+  var db = loadDB();
+  effectsCheckbox.checked = db.selectedBgSource === 'fankit';
+}
+
+effectsCheckbox.addEventListener('change', function () {
+  saveDB({ effectsEnabled: effectsCheckbox.checked });
+});
+
+var screensClearBtn = document.getElementById('screensClearBtn');
 
 function renderScreens() {
   screensGrid.innerHTML = '';
@@ -2696,6 +3206,7 @@ function renderScreens() {
   });
 
   screensCounter.textContent = screens.length + ' / ' + MAX_SCREENS;
+  screensClearBtn.hidden = screens.length < 2;
 
   var hasScreens = screens.length > 0;
   generateBtn.classList.toggle('is-visible', hasScreens);
@@ -2704,6 +3215,11 @@ function renderScreens() {
   screensUploadBtn.disabled = screens.length >= MAX_SCREENS;
   screensDropzone.style.opacity = screens.length >= MAX_SCREENS ? '.5' : '1';
 }
+
+screensClearBtn.addEventListener('click', function () {
+  screens = [];
+  renderScreens();
+});
 
 function addFiles(fileList) {
   var files = Array.prototype.filter.call(fileList, function (f) {
