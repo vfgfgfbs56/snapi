@@ -3520,7 +3520,15 @@ generateBtn.addEventListener('click', function () {
       generateOverlayText.textContent = 'Обрабатываем скриншот ' + (idx + 1) + ' из ' + screens.length + '…';
 
       loadImage(screens[idx]).then(function (img) {
-        window.BrawlStarsOfferExtractor.runMagicLogic(img);
+        try {
+          window.BrawlStarsOfferExtractor.runMagicLogic(img);
+        } catch (err) {
+          console.warn('Не удалось обработать скриншот ' + (idx + 1) + ' — пропускаем.', err);
+        }
+        idx++;
+        setTimeout(processNext, 30);
+      }).catch(function (err) {
+        console.warn('Не удалось загрузить скриншот ' + (idx + 1) + ' — пропускаем.', err);
         idx++;
         setTimeout(processNext, 30);
       });
