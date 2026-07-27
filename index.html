@@ -1137,6 +1137,62 @@
   opacity: 1;
   transform: translate(-50%, -50%) scale(1);
 }
+
+.generate-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  background: rgba(0, 0, 0, .6);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s var(--ease);
+}
+
+.generate-overlay.is-visible { opacity: 1; pointer-events: auto; }
+.generate-overlay[hidden] { display: none; }
+
+.generate-overlay__spinner {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  border: 4px solid rgba(255, 255, 255, .25);
+  border-top-color: #fff;
+  animation: spin .8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.generate-overlay__text {
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  text-align: center;
+  padding: 0 20px;
+}
+
+.result-wrap {
+  margin: 20px 0 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.result-wrap[hidden] { display: none; }
+
+#resultCanvas {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  opacity: 0;
+  transition: opacity .4s var(--ease);
+}
+
+#resultCanvas.is-ready { opacity: 1; }
 </style>
 </head>
 <body>
@@ -2405,6 +2461,10 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
     </label>
 
     <button type="button" class="btn-primary is-appearing" id="generateBtn">Сгенерировать</button>
+
+    <div class="result-wrap" id="resultWrap" hidden>
+      <canvas id="resultCanvas"></canvas>
+    </div>
   </main>
 </div>
 </div>
@@ -2455,6 +2515,13 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
     <button type="button" class="btn-primary" id="editNicknameSave">Сохранить</button>
   </div>
 </div>
+
+<div class="generate-overlay" id="generateOverlay" hidden>
+  <div class="generate-overlay__spinner"></div>
+  <p class="generate-overlay__text" id="generateOverlayText">Генерируется работа, подождите…</p>
+</div>
+
+<script src="brawl-stars-offer-extractor.js"></script>
 
 <script>
   const DB_NAME = 'vyre45iy6_db';
@@ -3274,6 +3341,194 @@ screensDropzone.addEventListener('drop', function (e) {
 });
 
 renderScreens();
+
+
+// ---------- Глобальное окружение для extractor.js ----------
+var allGeneratedCards = [];
+window.layerState = {
+  offers: [],
+  globalPriceScale: 1,
+  isBrawlPassMode: false,
+  offerPriceFont: 'LilitaOneRus',
+  offerPriceColor: '#ffffff'
+};
+
+function checkBatchCompletion() {
+  // extractor.js вызывает это после каждого скриншота (в том числе при неудаче).
+  // Реальную последовательность обработки мы контролируем сами через processNext(),
+  // поэтому здесь ничего делать не нужно.
+}
+
+var resultCanvas = document.getElementById('resultCanvas');
+var resultWrap = document.getElementById('resultWrap');
+var generateOverlay = document.getElementById('generateOverlay');
+var generateOverlayText = document.getElementById('generateOverlayText');
+var bgImageForRender = null;
+
+function loadImage(src) {
+  return new Promise(function (resolve, reject) {
+    var img = new Image();
+    img.onload = function () { resolve(img); };
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+
+// Раскладывает вырезанные карточки сеткой по холсту нужного размера
+function layoutOffers(canvasW, canvasH) {
+  var offers = window.layerState.offers;
+  var count = offers.length;
+  if (count === 0) return;
+
+  var cols = Math.min(count, Math.max(1, Math.ceil(Math.sqrt(count * (canvasW / canvasH)))));
+  cols = Math.min(cols, 5);
+  var rows = Math.ceil(count / cols);
+
+  var padding = canvasW * 0.03;
+  var cellW = (canvasW - padding * (cols + 1)) / cols;
+  var cellH = (canvasH - padding * (rows + 1)) / rows;
+
+  offers.forEach(function (offer, idx) {
+    var card = offer.ref.canvas;
+    var col = idx % cols;
+    var row = Math.floor(idx / cols);
+
+    var scale = Math.min(cellW / card.width, cellH / card.height);
+    var w = card.width * scale;
+    var h = card.height * scale;
+
+    var cellX = padding + col * (cellW + padding);
+    var cellY = padding + row * (cellH + padding);
+    var x = cellX + (cellW - w) / 2;
+    var y = cellY + (cellH - h) / 2;
+
+    offer.target.x = x;
+    offer.target.y = y;
+    offer.target.w = w;
+    offer.target.h = h;
+
+    offer.anim.x = x;
+    offer.anim.y = y + h * 0.12;
+    offer.anim.scale = 0;
+    offer.anim.alpha = 0;
+    offer.startDelay = idx * 130;
+  });
+}
+
+// Рисует один кадр: фон + все карточки в текущем состоянии анимации
+function drawResultFrame(ctx, canvasW, canvasH, elapsed) {
+  ctx.clearRect(0, 0, canvasW, canvasH);
+
+  if (bgImageForRender) {
+    var ir = bgImageForRender.width / bgImageForRender.height;
+    var cr = canvasW / canvasH;
+    var sx, sy, sw, sh;
+    if (ir > cr) {
+      sh = bgImageForRender.height;
+      sw = sh * cr;
+      sy = 0;
+      sx = (bgImageForRender.width - sw) / 2;
+    } else {
+      sw = bgImageForRender.width;
+      sh = sw / cr;
+      sx = 0;
+      sy = (bgImageForRender.height - sh) / 2;
+    }
+    ctx.drawImage(bgImageForRender, sx, sy, sw, sh, 0, 0, canvasW, canvasH);
+  }
+
+  var allDone = true;
+  window.layerState.offers.forEach(function (offer) {
+    if (elapsed < offer.startDelay) { allDone = false; return; }
+
+    var ease = 0.12;
+    offer.anim.x += (offer.target.x - offer.anim.x) * ease;
+    offer.anim.y += (offer.target.y - offer.anim.y) * ease;
+    offer.anim.scale += (offer.target.scale - offer.anim.scale) * ease;
+    offer.anim.alpha += (offer.target.alpha - offer.anim.alpha) * ease;
+
+    if (Math.abs(offer.target.scale - offer.anim.scale) > 0.01 ||
+        Math.abs(offer.target.alpha - offer.anim.alpha) > 0.01) {
+      allDone = false;
+    }
+
+    var card = offer.ref.canvas;
+    var w = offer.target.w * offer.anim.scale;
+    var h = offer.target.h * offer.anim.scale;
+    var cx = offer.anim.x + offer.target.w / 2;
+    var cy = offer.anim.y + offer.target.h / 2;
+
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, Math.min(1, offer.anim.alpha));
+    ctx.drawImage(card, cx - w / 2, cy - h / 2, w, h);
+    ctx.restore();
+  });
+
+  return allDone;
+}
+
+function runRenderLoop(ctx, canvasW, canvasH) {
+  var start = performance.now();
+  function frame(now) {
+    var elapsed = now - start;
+    var done = drawResultFrame(ctx, canvasW, canvasH, elapsed);
+    if (!done) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+generateBtn.addEventListener('click', function () {
+  if (screens.length === 0) return;
+
+  var db = loadDB();
+  var size = db.sizeSelection || { width: 1280, height: 720 };
+  var bgSrc = db.uploadedBgDataUrl
+    ? db.uploadedBgDataUrl
+    : (db.selectedBg ? 'bg/' + db.selectedBg + '.jpg' : null);
+
+  allGeneratedCards = [];
+  window.layerState.offers = [];
+
+  generateOverlay.hidden = false;
+  requestAnimationFrame(function () { generateOverlay.classList.add('is-visible'); });
+  generateOverlayText.textContent = 'Обрабатываем скриншот 1 из ' + screens.length + '…';
+
+  resultCanvas.width = size.width;
+  resultCanvas.height = size.height;
+  resultCanvas.classList.remove('is-ready');
+
+  var bgPromise = bgSrc ? loadImage(bgSrc) : Promise.resolve(null);
+
+  bgPromise.then(function (bgImg) {
+    bgImageForRender = bgImg;
+
+    var idx = 0;
+    function processNext() {
+      if (idx >= screens.length) {
+        layoutOffers(size.width, size.height);
+
+        generateOverlay.classList.remove('is-visible');
+        setTimeout(function () { generateOverlay.hidden = true; }, 300);
+
+        resultWrap.hidden = false;
+        requestAnimationFrame(function () { resultCanvas.classList.add('is-ready'); });
+
+        runRenderLoop(resultCanvas.getContext('2d'), size.width, size.height);
+        return;
+      }
+
+      generateOverlayText.textContent = 'Обрабатываем скриншот ' + (idx + 1) + ' из ' + screens.length + '…';
+
+      loadImage(screens[idx]).then(function (img) {
+        window.BrawlStarsOfferExtractor.runMagicLogic(img);
+        idx++;
+        setTimeout(processNext, 30);
+      });
+    }
+
+    processNext();
+  });
+});
 </script>
 </body>
 </html>
