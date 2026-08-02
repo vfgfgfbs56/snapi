@@ -2,6 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" type="image/png" href="favicon.png">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover" />
 <meta name="color-scheme" content="light dark">
 <title>Snapi</title>
@@ -246,6 +247,12 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
     gap: 14px;
+  }
+
+  @media (min-width: 680px) {
+    .games-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
   }
 
   .game-card {
@@ -1188,11 +1195,8 @@
   height: auto;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
-  opacity: 0;
-  transition: opacity .4s var(--ease);
+  opacity: 1;
 }
-
-#resultCanvas.is-ready { opacity: 1; }
 </style>
 </head>
 <body>
@@ -2460,11 +2464,28 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
       <span class="effects-toggle__text">Нужно ли добавлять эффекты, ник, детализацию на Вашу работу?</span>
     </label>
 
-    <button type="button" class="btn-primary is-appearing" id="generateBtn">Сгенерировать</button>
+<button type="button" class="btn-primary is-appearing" id="generateBtn">Сгенерировать</button>
+  </main>
+</div>
 
-    <div class="result-wrap" id="resultWrap" hidden>
+<div class="page app-page is-hidden" id="resultPage" hidden>
+  <header class="topbar">
+    <div class="topbar-left">
+      <button type="button" class="back-btn" id="resultBackBtn" aria-label="Назад">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 18l-6-6 6-6"></path>
+        </svg>
+      </button>
+      <h1 class="title">Результат</h1>
+    </div>
+  </header>
+
+  <main>
+    <div class="result-wrap" id="resultWrap">
       <canvas id="resultCanvas"></canvas>
     </div>
+
+    <button type="button" class="btn-primary" id="downloadResultBtn">Скачать</button>
   </main>
 </div>
 </div>
@@ -2521,10 +2542,10 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
   <p class="generate-overlay__text" id="generateOverlayText">Генерируется работа, подождите…</p>
 </div>
 
-<script src="brawl-stars-offer-extractor.js"></script>
+<script src="brawl-stars-logic.js"></script>
 
 <script>
-  const DB_NAME = 'vyre45iy6_db';
+  const DB_NAME = 'vysre45iy6_db';
 
   function loadDB() {
     try { return JSON.parse(localStorage.getItem(DB_NAME)) || {}; }
@@ -2806,30 +2827,17 @@ uploadBtn.addEventListener('click', function () {
   uploadInput.click();
 });
 
-function readFileAsDataURL(file, cb) {
+function readScreenshotAsDataURL(file, cb) {
   var reader = new FileReader();
+
   reader.onload = function () {
-    var img = new Image();
-    img.onload = function () {
-      var origWidth = img.width;
-      var origHeight = img.height;
-
-      var maxSize = 800;
-      var scale = Math.min(1, maxSize / Math.max(img.width, img.height));
-      var canvas = document.createElement('canvas');
-      canvas.width = Math.round(img.width * scale);
-      canvas.height = Math.round(img.height * scale);
-
-      var ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-      var compressed = canvas.toDataURL('image/jpeg', 0.75);
-      cb(compressed, origWidth, origHeight);
-    };
-    img.onerror = function () { cb(reader.result); };
-    img.src = reader.result;
+    cb(reader.result);
   };
-  reader.onerror = function () { cb(null); };
+
+  reader.onerror = function () {
+    cb(null);
+  };
+
   reader.readAsDataURL(file);
 }
 
@@ -3298,7 +3306,7 @@ function addFiles(fileList) {
 
   var remaining = MAX_SCREENS - screens.length;
   files.slice(0, remaining).forEach(function (file) {
-    readFileAsDataURL(file, function (dataUrl) {
+    readScreenshotAsDataURL(file, function (dataUrl) {
       if (dataUrl && screens.length < MAX_SCREENS) {
         screens.push(dataUrl);
         renderScreens();
@@ -3353,17 +3361,14 @@ window.layerState = {
   offerPriceColor: '#ffffff'
 };
 
-function checkBatchCompletion() {
-  // extractor.js вызывает это после каждого скриншота (в том числе при неудаче).
-  // Реальную последовательность обработки мы контролируем сами через processNext(),
-  // поэтому здесь ничего делать не нужно.
-}
-
 var resultCanvas = document.getElementById('resultCanvas');
-var resultWrap = document.getElementById('resultWrap');
 var generateOverlay = document.getElementById('generateOverlay');
 var generateOverlayText = document.getElementById('generateOverlayText');
 var bgImageForRender = null;
+
+var resultPage = document.getElementById('resultPage');
+var resultBackBtn = document.getElementById('resultBackBtn');
+var downloadResultBtn = document.getElementById('downloadResultBtn');
 
 function loadImage(src) {
   return new Promise(function (resolve, reject) {
@@ -3408,16 +3413,19 @@ function layoutOffers(canvasW, canvasH) {
     offer.target.h = h;
 
     offer.anim.x = x;
-    offer.anim.y = y + h * 0.12;
-    offer.anim.scale = 0;
-    offer.anim.alpha = 0;
-    offer.startDelay = idx * 130;
+    offer.anim.y = y;
+    offer.anim.scale = 1;
+    offer.anim.alpha = 1;
+    offer.startDelay = 0;
   });
 }
 
 // Рисует один кадр: фон + все карточки в текущем состоянии анимации
 function drawResultFrame(ctx, canvasW, canvasH, elapsed) {
   ctx.clearRect(0, 0, canvasW, canvasH);
+
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
 
   if (bgImageForRender) {
     var ir = bgImageForRender.width / bgImageForRender.height;
@@ -3467,15 +3475,44 @@ function drawResultFrame(ctx, canvasW, canvasH, elapsed) {
   return allDone;
 }
 
+var resultRenderToken = 0;
+
 function runRenderLoop(ctx, canvasW, canvasH) {
+  var token = ++resultRenderToken;
   var start = performance.now();
   function frame(now) {
+    if (token !== resultRenderToken) return; // страницу закрыли — гасим цикл
     var elapsed = now - start;
     var done = drawResultFrame(ctx, canvasW, canvasH, elapsed);
     if (!done) requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
 }
+
+function stopResultRenderLoop() {
+  resultRenderToken++;
+}
+
+function showResultPage() {
+  slidePage(brawlPage, resultPage, 'forward');
+  runRenderLoop(
+    resultCanvas.getContext('2d'),
+    resultCanvas.width,
+    resultCanvas.height
+  );
+}
+
+resultBackBtn.addEventListener('click', function () {
+  stopResultRenderLoop();
+  slidePage(resultPage, brawlPage, 'back');
+});
+
+downloadResultBtn.addEventListener('click', function () {
+  var link = document.createElement('a');
+  link.download = 'snapi-result.png';
+  link.href = resultCanvas.toDataURL('image/png');
+  link.click();
+});
 
 generateBtn.addEventListener('click', function () {
   if (screens.length === 0) return;
@@ -3499,6 +3536,12 @@ generateBtn.addEventListener('click', function () {
 
   var bgPromise = bgSrc ? loadImage(bgSrc) : Promise.resolve(null);
 
+  var extractOptions = {
+    priceScale: window.layerState.globalPriceScale,
+    priceFontFamily: window.layerState.offerPriceFont,
+    priceColor: window.layerState.offerPriceColor
+  };
+
   bgPromise.then(function (bgImg) {
     bgImageForRender = bgImg;
 
@@ -3510,18 +3553,23 @@ generateBtn.addEventListener('click', function () {
         generateOverlay.classList.remove('is-visible');
         setTimeout(function () { generateOverlay.hidden = true; }, 300);
 
-        resultWrap.hidden = false;
-        requestAnimationFrame(function () { resultCanvas.classList.add('is-ready'); });
-
-        runRenderLoop(resultCanvas.getContext('2d'), size.width, size.height);
+        showResultPage(); // вместо показа канваса на этой же странице — переход на отдельную
         return;
       }
 
       generateOverlayText.textContent = 'Обрабатываем скриншот ' + (idx + 1) + ' из ' + screens.length + '…';
-
       loadImage(screens[idx]).then(function (img) {
         try {
-          window.BrawlStarsOfferExtractor.runMagicLogic(img);
+          var cards = window.runMagicLogic(img, extractOptions); // теперь возвращает массив карточек
+          cards.forEach(function (card) {
+            allGeneratedCards.push(card);
+            window.layerState.offers.push({
+              ref: card,
+              target: { x: 0, y: 0, w: 0, h: 0, scale: 1, alpha: 1 },
+              anim: { x: 0, y: 0, scale: 0, alpha: 0 },
+              startDelay: 0
+            });
+          });
         } catch (err) {
           console.warn('Не удалось обработать скриншот ' + (idx + 1) + ' — пропускаем.', err);
         }
