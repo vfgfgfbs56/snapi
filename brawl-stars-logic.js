@@ -686,19 +686,21 @@
         canvasHeight,
       );
 
-      // Плашка с ценой найдена не была (например, карточка-подарок без цены) —
-      // ничего не подрисовываем поверх, чтобы не портить карточку случайной
-      // надписью произвольного размера в произвольном месте.
-      if (eraseResult) {
-        drawPriceText(
-          ctx,
-          canvasWidth,
-          canvasHeight,
-          options.replacementPrice,
-          eraseResult,
-          options,
-        );
+      // Если корректная нижняя ценовая плашка не найдена, это не акция.
+      // Например, карточка «ПОДАРОК» имеет количество предметов, но не цену.
+      // Такую карточку полностью исключаем из результата.
+      if (!eraseResult) {
+        continue;
       }
+
+      drawPriceText(
+        ctx,
+        canvasWidth,
+        canvasHeight,
+        options.replacementPrice,
+        eraseResult,
+        options,
+      );
 
       cards.push({
         canvas,
@@ -959,8 +961,22 @@
 
       const detectedWidth = maxBoxX - minBoxX;
       const detectedHeight = maxBoxY - minBoxY;
+      const plateAspectRatio = detectedWidth / Math.max(1, detectedHeight);
+      const plateCenterY = (minBoxY + maxBoxY) / 2;
 
-      if (detectedWidth < w * 0.25 || detectedHeight < h * 0.04) {
+      // Настоящая область цены находится в нижней части карточки и имеет
+      // горизонтальную форму. У подарков алгоритм раньше принимал за цену
+      // большую жёлтую область внутри карточки, из-за чего поверх неё
+      // появлялась огромная надпись FREE.
+      const isValidPricePlate =
+        detectedWidth >= w * 0.25 &&
+        detectedHeight >= h * 0.04 &&
+        detectedHeight <= h * 0.22 &&
+        plateAspectRatio >= 1.65 &&
+        plateCenterY >= h * 0.68 &&
+        maxBoxY >= h * 0.76;
+
+      if (!isValidPricePlate) {
         return null;
       }
 
