@@ -278,7 +278,7 @@
   .game-card:not([data-soon="true"]):hover,
   .game-card:not([data-soon="true"]):focus-visible {
     transform: translateY(-4px);
-    border-style: dashed;
+    border-style: solid;
     border-color: var(--border-hover);
     box-shadow: var(--shadow);
   }
@@ -3379,53 +3379,138 @@ function loadImage(src) {
   });
 }
 
-// Раскладывает вырезанные карточки сеткой по холсту нужного размера
+// Раскладывает вырезанные карточки рядами по холсту нужного размера,
+// стараясь равномерно распределить карточки между рядами (а не просто
+// пихать, пока не переполнится), чтобы ряды получались похожей высоты.
 function layoutOffers(canvasW, canvasH) {
   var offers = window.layerState.offers;
   var count = offers.length;
   if (count === 0) return;
 
-  var cols = Math.min(count, Math.max(1, Math.ceil(Math.sqrt(count * (canvasW / canvasH)))));
-  cols = Math.min(cols, 5);
-  var rows = Math.ceil(count / cols);
+  // Отступы: сверху — под будущий ник, по бокам — просто воздух.
+  var marginX = canvasW * 0.06;
+  var marginTop = canvasH * 0.12;
+  var marginBottom = canvasH * 0.05;
+  var gap = Math.min(canvasW, canvasH) * 0.025;
 
-  var padding = canvasW * 0.03;
-  var cellW = (canvasW - padding * (cols + 1)) / cols;
-  var cellH = (canvasH - padding * (rows + 1)) / rows;
+  var areaX = marginX;
+  var areaY = marginTop;
+  var areaW = canvasW - marginX * 2;
+  var areaH = canvasH - marginTop - marginBottom;
 
-  offers.forEach(function (offer, idx) {
+  var items = offers.map(function (offer) {
     var card = offer.ref.canvas;
-    var col = idx % cols;
-    var row = Math.floor(idx / cols);
+    return { offer: offer, ratio: card.width / card.height };
+  });
 
-    var scale = Math.min(cellW / card.width, cellH / card.height);
-    var w = card.width * scale;
-    var h = card.height * scale;
+  var ratioSumAll = items.reduce(function (s, it) { return s + it.ratio; }, 0);
 
-    var cellX = padding + col * (cellW + padding);
-    var cellY = padding + row * (cellH + padding);
-    var x = cellX + (cellW - w) / 2;
-    var y = cellY + (cellH - h) / 2;
+  // Делит карточки (по порядку) на rowCount рядов так, чтобы у каждого
+  // ряда была примерно одинаковая суммарная "ширина" (ratio), а не просто
+  // "сколько влезет по высоте наугад".
+  function balancedPartition(rowCount) {
+    var target = ratioSumAll / rowCount;
+    var rowsLocal = [];
+    var current = [];
+    var currentSum = 0;
+    var rowsLeft = rowCount;
 
-    offer.target.x = x;
-    offer.target.y = y;
-    offer.target.w = w;
-    offer.target.h = h;
+    for (var i = 0; i < items.length; i++) {
+      var item = items[i];
+      current.push(item);
+      currentSum += item.ratio;
 
-    offer.anim.x = x;
-    offer.anim.y = y;
-    offer.anim.scale = 1;
-    offer.anim.alpha = 1;
-    offer.startDelay = 0;
+      var itemsLeft = items.length - i - 1;
+      var rowsRemainingAfter = rowsLeft - 1;
+
+      if (rowsRemainingAfter > 0 && currentSum >= target && itemsLeft >= rowsRemainingAfter) {
+        rowsLocal.push({ items: current, ratioSum: currentSum });
+        current = [];
+        currentSum = 0;
+        rowsLeft--;
+      }
+    }
+    if (current.length) rowsLocal.push({ items: current, ratioSum: currentSum });
+    return rowsLocal;
+  }
+
+  // Пробуем от 1 ряда и дальше, пока не найдём вариант, где ряды не
+  // слишком тонкие и не слишком отличаются друг от друга по высоте.
+  var rows = null;
+
+  for (var rowCount = 1; rowCount <= items.length; rowCount++) {
+    var candidate = balancedPartition(rowCount);
+    if (candidate.length !== rowCount) continue;
+
+    var naturalHeights = candidate.map(function (row) {
+      return (areaW - gap * (row.items.length - 1)) / row.ratioSum;
+    });
+    var minH = Math.min.apply(null, naturalHeights);
+    var maxH = Math.max.apply(null, naturalHeights);
+    var balance = minH / maxH;
+    var fairShare = areaH / rowCount;
+    var thin = minH < fairShare * 0.5;
+
+    if (!thin && (balance >= 0.55 || rowCount === items.length)) {
+      rows = candidate;
+      break;
+    }
+    if (!rows) rows = candidate;
+  }
+
+  // Тянем каждый ряд по ширине области (но не бесконечно — чтобы ряд
+  // из одной-двух узких карточек не раздувался нелепо).
+  var maxStretch = 1.6;
+  var rowHeights = rows.map(function (row) {
+    var naturalGuess = areaH / rows.length;
+    var widthAtNatural = row.ratioSum * naturalGuess + gap * (row.items.length - 1);
+    var scale = Math.min(areaW / widthAtNatural, maxStretch);
+    return naturalGuess * scale;
+  });
+
+  var totalContentH = rowHeights.reduce(function (s, h) { return s + h; }, 0) + gap * (rows.length - 1);
+  var desiredFitScale = areaH / totalContentH;
+
+  // Следим, чтобы после подгонки по высоте ни один ряд не вылез за
+  // пределы ширины холста.
+  var maxFitScale = Infinity;
+  rows.forEach(function (row, i) {
+    var w = row.ratioSum * rowHeights[i] + gap * (row.items.length - 1);
+    maxFitScale = Math.min(maxFitScale, areaW / w);
+  });
+
+  var fitScale = Math.min(desiredFitScale, maxFitScale);
+  rowHeights = rowHeights.map(function (h) { return h * fitScale; });
+  var scaledGap = gap * fitScale;
+  totalContentH = totalContentH * fitScale;
+
+  // Центрируем весь блок по вертикали в отведённой области.
+  var y = areaY + (areaH - totalContentH) / 2;
+
+  rows.forEach(function (row, rowIndex) {
+    var rowHeight = rowHeights[rowIndex];
+    var rowWidth = row.ratioSum * rowHeight + scaledGap * (row.items.length - 1);
+    var x = areaX + (areaW - rowWidth) / 2;
+
+    row.items.forEach(function (item) {
+      var w = item.ratio * rowHeight;
+      var h = rowHeight;
+      var offer = item.offer;
+
+      offer.target.x = x;
+      offer.target.y = y;
+      offer.target.w = w;
+      offer.target.h = h;
+
+      x += w + scaledGap;
+    });
+
+    y += rowHeight + scaledGap;
   });
 }
 
-// Рисует один кадр: фон + все карточки в текущем состоянии анимации
-function drawResultFrame(ctx, canvasW, canvasH, elapsed) {
+function drawResult(ctx, canvasW, canvasH) {
   ctx.clearRect(0, 0, canvasW, canvasH);
-
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = 'high';
 
   if (bgImageForRender) {
     var ir = bgImageForRender.width / bgImageForRender.height;
@@ -3445,65 +3530,20 @@ function drawResultFrame(ctx, canvasW, canvasH, elapsed) {
     ctx.drawImage(bgImageForRender, sx, sy, sw, sh, 0, 0, canvasW, canvasH);
   }
 
-  var allDone = true;
   window.layerState.offers.forEach(function (offer) {
-    if (elapsed < offer.startDelay) { allDone = false; return; }
-
-    var ease = 0.12;
-    offer.anim.x += (offer.target.x - offer.anim.x) * ease;
-    offer.anim.y += (offer.target.y - offer.anim.y) * ease;
-    offer.anim.scale += (offer.target.scale - offer.anim.scale) * ease;
-    offer.anim.alpha += (offer.target.alpha - offer.anim.alpha) * ease;
-
-    if (Math.abs(offer.target.scale - offer.anim.scale) > 0.01 ||
-        Math.abs(offer.target.alpha - offer.anim.alpha) > 0.01) {
-      allDone = false;
-    }
-
     var card = offer.ref.canvas;
-    var w = offer.target.w * offer.anim.scale;
-    var h = offer.target.h * offer.anim.scale;
-    var cx = offer.anim.x + offer.target.w / 2;
-    var cy = offer.anim.y + offer.target.h / 2;
-
-    ctx.save();
-    ctx.globalAlpha = Math.max(0, Math.min(1, offer.anim.alpha));
-    ctx.drawImage(card, cx - w / 2, cy - h / 2, w, h);
-    ctx.restore();
+    ctx.drawImage(card, offer.target.x, offer.target.y, offer.target.w, offer.target.h);
   });
-
-  return allDone;
-}
-
-var resultRenderToken = 0;
-
-function runRenderLoop(ctx, canvasW, canvasH) {
-  var token = ++resultRenderToken;
-  var start = performance.now();
-  function frame(now) {
-    if (token !== resultRenderToken) return; // страницу закрыли — гасим цикл
-    var elapsed = now - start;
-    var done = drawResultFrame(ctx, canvasW, canvasH, elapsed);
-    if (!done) requestAnimationFrame(frame);
-  }
-  requestAnimationFrame(frame);
-}
-
-function stopResultRenderLoop() {
-  resultRenderToken++;
 }
 
 function showResultPage() {
+  resultCanvas.classList.remove('is-ready');
   slidePage(brawlPage, resultPage, 'forward');
-  runRenderLoop(
-    resultCanvas.getContext('2d'),
-    resultCanvas.width,
-    resultCanvas.height
-  );
+  drawResult(resultCanvas.getContext('2d'), resultCanvas.width, resultCanvas.height);
+  requestAnimationFrame(function () { resultCanvas.classList.add('is-ready'); });
 }
 
 resultBackBtn.addEventListener('click', function () {
-  stopResultRenderLoop();
   slidePage(resultPage, brawlPage, 'back');
 });
 
@@ -3565,9 +3605,7 @@ generateBtn.addEventListener('click', function () {
             allGeneratedCards.push(card);
             window.layerState.offers.push({
               ref: card,
-              target: { x: 0, y: 0, w: 0, h: 0, scale: 1, alpha: 1 },
-              anim: { x: 0, y: 0, scale: 0, alpha: 0 },
-              startDelay: 0
+              target: { x: 0, y: 0, w: 0, h: 0 }
             });
           });
         } catch (err) {
