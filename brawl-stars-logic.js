@@ -702,12 +702,24 @@
         options,
       );
 
+      const styledCard = addCardOutlineAndShadow(canvas);
+
       cards.push({
-        canvas,
+        canvas: styledCard.canvas,
+
         x: minX,
         y: minY,
+
+        // Размер вместе с обводкой и тенью — только для отрисовки.
+        renderWidth: styledCard.canvas.width,
+        renderHeight: styledCard.canvas.height,
+
+        // Размер самой акции — для расположения и раздвигания.
         width: canvasWidth,
         height: canvasHeight,
+
+        effectPadding: styledCard.padding,
+
         info: eraseResult,
         price: eraseResult ? options.replacementPrice : null,
       });
@@ -1232,8 +1244,7 @@
       : options.priceColor;
 
     const numberFont =
-      `normal ${fontSize}px '${options.priceFontFamily}', ` +
-      `'Arial Black', Impact, sans-serif`;
+      `normal ${fontSize}px '${isFree ? 'LilitaOneRus' : options.priceFontFamily}'`;
     const symbolFont =
       `normal ${Math.max(fontSize - 4, 16)}px 'Rockwell', serif`;
 
@@ -1280,7 +1291,67 @@
     drawTextParts(0, 0, true, mainColour);
   }
 
-  function createIntegralImage(mask, w, h) {
+  function addCardOutlineAndShadow(sourceCanvas) {
+  const outlineSize = 4;
+  const shadowBlur = 6;
+  const shadowOffsetY = 26;
+  const padding = outlineSize + shadowBlur + Math.abs(shadowOffsetY) + 2;
+
+  const resultCanvas = document.createElement('canvas');
+  resultCanvas.width = sourceCanvas.width + padding * 2;
+  resultCanvas.height = sourceCanvas.height + padding * 2;
+
+  const resultCtx = resultCanvas.getContext('2d');
+  const silhouetteCanvas = document.createElement('canvas');
+  silhouetteCanvas.width = sourceCanvas.width;
+  silhouetteCanvas.height = sourceCanvas.height;
+
+  const silhouetteCtx = silhouetteCanvas.getContext('2d');
+
+  // Создаём полностью белый силуэт акции.
+  silhouetteCtx.drawImage(sourceCanvas, 0, 0);
+  silhouetteCtx.globalCompositeOperation = 'source-in';
+  silhouetteCtx.fillStyle = '#ffffff';
+  silhouetteCtx.fillRect(
+    0,
+    0,
+    silhouetteCanvas.width,
+    silhouetteCanvas.height,
+  );
+  silhouetteCtx.globalCompositeOperation = 'source-over';
+
+  // Чёрная размытая тень.
+  resultCtx.save();
+  resultCtx.shadowColor = 'rgba(0, 0, 0, 0.25)';
+  resultCtx.shadowBlur = shadowBlur;
+  resultCtx.shadowOffsetX = 0;
+  resultCtx.shadowOffsetY = shadowOffsetY;
+  resultCtx.drawImage(silhouetteCanvas, padding, padding);
+  resultCtx.restore();
+
+  // Белая обводка толщиной 3 px вокруг прозрачного силуэта.
+  for (let y = -outlineSize; y <= outlineSize; y++) {
+    for (let x = -outlineSize; x <= outlineSize; x++) {
+      if (x * x + y * y > outlineSize * outlineSize) continue;
+
+      resultCtx.drawImage(
+        silhouetteCanvas,
+        padding + x,
+        padding + y,
+      );
+    }
+  }
+
+  // Сама акция поверх обводки и тени.
+  resultCtx.drawImage(sourceCanvas, padding, padding);
+
+  return {
+    canvas: resultCanvas,
+    padding,
+  };
+}
+
+function createIntegralImage(mask, w, h) {
     const integral = new Int32Array(w * h);
 
     for (let y = 0; y < h; y++) {
