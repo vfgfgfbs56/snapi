@@ -6,6 +6,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover" />
 <meta name="color-scheme" content="light dark">
 <title>Snapi</title>
+
+<script>
+  const DB_NAME = 'vysоre4п5jjy6_db';
+
+  document.documentElement.classList.add('booting');
+
+  try {
+    var bootDB = JSON.parse(localStorage.getItem(DB_NAME)) || {};
+    document.documentElement.setAttribute(
+      'data-theme',
+      bootDB.theme === 'light' ? 'light' : 'dark'
+    );
+  } catch (e) {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+</script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -17,12 +34,65 @@
     --ease: cubic-bezier(.4,0,.2,1);
   }
 
+  @font-face {
+    font-family: 'SupercellMagic';
+    src: url('fonts/Supercell-Magic.ttf') format('truetype');
+    font-display: block;
+  }
+  @font-face {
+    font-family: 'LilitaOneRus';
+    src: url('fonts/lilitaonerus.ttf') format('truetype');
+    font-display: block;
+  }
+  @font-face {
+    font-family: 'PusiaBold';
+    src: url('fonts/Pusia Bold.otf') format('opentype');
+    font-display: block;
+  }
+  @font-face {
+    font-family: 'BebasNeueCyrillic';
+    src: url('fonts/bebasneuecyrillic.ttf') format('truetype');
+    font-display: block;
+  }
+  @font-face {
+    font-family: 'NunitoBlack';
+    src: url('fonts/Nunito-Black.ttf') format('truetype');
+    font-display: block;
+  }
+  @font-face {
+    font-family: 'AmericanCaptainCyrillic';
+    src: url('fonts/americancaptaincyrillic.ttf') format('truetype');
+    font-display: block;
+  }
+  @font-face {
+    font-family: 'AlegreyaSansSCBlack';
+    src: url('fonts/AlegreyaSansSC-Black.ttf') format('truetype');
+    font-display: block;
+  }
+  @font-face {
+    font-family: 'HackedCyr';
+    src: url('fonts/Hacked Cyr.ttf') format('truetype');
+    font-display: block;
+  }
+  @font-face {
+    font-family: 'Font16103';
+    src: url('fonts/16103.otf') format('opentype');
+    font-display: block;
+  }
+
   html {
     scrollbar-width: none;      
     -ms-overflow-style: none; 
   }
   html::-webkit-scrollbar {
     display: none;             
+  }
+
+  html.booting *,
+  html.booting *::before,
+  html.booting *::after {
+    transition: none !important;
+    animation: none !important;
   }
 
   html[data-theme="light"] {
@@ -82,7 +152,7 @@
   html {
     background: var(--bg);
     color-scheme: light dark;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 
   body {
@@ -91,8 +161,21 @@
     color: var(--text);
     font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
-    transition: background-color .3s var(--ease), color .3s var(--ease);
-    overflow-x: hidden;
+
+    opacity: 0;
+    pointer-events: none;
+
+    transition:
+      background-color .3s var(--ease),
+      color .3s var(--ease),
+      opacity .18s var(--ease);
+
+    overflow-x: clip;
+  }
+
+  html.app-ready body {
+    opacity: 1;
+    pointer-events: auto;
   }
 
   button { font-family: inherit; }
@@ -179,14 +262,22 @@
   ::view-transition-old(root) { z-index: 1; }
   ::view-transition-new(root) { z-index: 2; }
 
+  html.theme-to-light::view-transition-old(root) {
+    z-index: 2;
+  }
+
+  html.theme-to-light::view-transition-new(root) {
+    z-index: 1;
+  }
+
   /* ---------- Banner ---------- */
 
   .banner {
-    background: var(--surface);
-    border-radius: var(--radius-lg);
-    padding: clamp(18px, 3vw, 24px) clamp(20px, 3.5vw, 28px);
+    background: transparent;
+    border-radius: 0;
+    padding: 0;
     margin: 0 0 clamp(16px, 2.5vw, 22px);
-    box-shadow: var(--shadow-sm);
+    box-shadow: none;
   }
 
   .banner p {
@@ -204,11 +295,26 @@
     background: none;
     padding: 0;
     margin: 0;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    vertical-align: middle;
+
     font: inherit;
     font-weight: 700;
     color: var(--accent-strong);
     cursor: pointer;
     white-space: nowrap;
+  }
+
+  .link-btn__arrow {
+    display: block;
+    flex: none;
+    width: .82em;
+    height: .82em;
+    color: currentColor;
+    transform: translateY(.5px);
   }
   .link-btn:hover { text-decoration: underline; }
   .link-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
@@ -406,18 +512,145 @@
   to   { opacity: 1; transform: translate(0, 0); filter: blur(0); }
 }
 
-  .step-badge, .welcome-icon {
-    width: 84px;
-    height: 84px;
-    border-radius: 50%;
-    background: var(--accent);
-    color: #fff;
-    display: grid;
-    place-items: center;
-    font-size: 2rem;
-    font-weight: 800;
-    margin-bottom: 22px;
+.step-badge, .welcome-icon {
+  position: relative;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--text-muted);
+  display: grid;
+  place-items: center;
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 22px;
+}
+
+.step-badge__num {
+  position: relative;
+  z-index: 1;
+}
+
+.step-badge__ring {
+  position: absolute;
+  inset: -7px;
+  width: calc(100% + 14px);
+  height: calc(100% + 14px);
+  transform: rotate(-90deg);
+  pointer-events: none;
+  overflow: visible;
+  z-index: 3;
+}
+.step-badge__ring-fill {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 238.76;
+  stroke-dashoffset: 238.76;
+  transition: stroke-dashoffset .8s var(--ease);
+}
+
+.welcome-icon {
+  isolation: isolate;
+}
+
+.welcome-icon::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  z-index: 0;
+  pointer-events: none;
+
+  box-shadow: inset 0 0 0 0 var(--accent);
+  transition: box-shadow .55s var(--ease);
+}
+
+.welcome-icon.is-completing::before {
+  box-shadow: inset 0 0 0 44px var(--accent);
+}
+
+.welcome-check {
+  position: relative;
+  z-index: 2;
+
+  width: 34px;
+  height: 34px;
+
+  color: #fff;
+
+  opacity: 0;
+  filter: blur(4px);
+  transform: scale(.86);
+
+  transition:
+    opacity .28s var(--ease),
+    filter .28s var(--ease),
+    transform .28s var(--ease);
+}
+
+.welcome-check path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+
+  transition: stroke-dashoffset .32s ease .1s;
+}
+
+.welcome-icon.is-completing .welcome-check {
+  opacity: 1;
+  filter: blur(0);
+  transform: scale(1);
+}
+
+.welcome-icon.is-completing .welcome-check path {
+  stroke-dashoffset: 0;
+}
+
+.onboarding-welcome
+.step-text:not(.is-entering)
+.step-desc
+.char:nth-last-child(-n + 3) {
+  animation: welcomeLoadingDot 1.15s ease-in-out infinite;
+}
+
+.onboarding-welcome
+.step-desc
+.char:nth-last-child(3) {
+  animation-delay: 0s;
+}
+
+.onboarding-welcome
+.step-desc
+.char:nth-last-child(2) {
+  animation-delay: .16s;
+}
+
+.onboarding-welcome
+.step-desc
+.char:nth-last-child(1) {
+  animation-delay: .32s;
+}
+
+@keyframes welcomeLoadingDot {
+  0%, 100% {
+    opacity: .3;
+    filter: blur(2.5px);
+    transform: translateY(1px) scale(.9);
   }
+
+  50% {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0) scale(1);
+  }
+}
 
   .step-title {
     margin: 0 0 12px;
@@ -565,8 +798,10 @@
   padding: 10px 20px calc(20px + env(safe-area-inset-bottom));
   overflow-y: auto;
   overflow-x: hidden;
-  overscroll-behavior-x: none;
+
+  overscroll-behavior: contain;
   touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
   transform: translateY(100%);
   transition: transform .35s var(--ease);
   scrollbar-width: none;
@@ -589,12 +824,44 @@
   margin: 6px auto 18px;
 }
 
-.bg-sheet__title {
+@media (min-width: 769px) {
+  .bg-sheet__handle {
+    display: none;
+  }
+}
+
+.bg-sheet__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   margin: 0 0 18px;
+}
+
+.bg-sheet__title {
+  margin: 0;
   font-size: 1.4rem;
   font-weight: 700;
   color: var(--text-muted);
 }
+
+.bg-sheet__close {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--text-soft);
+  padding: 0;
+  cursor: pointer;
+  transition: background-color .2s var(--ease), color .2s var(--ease), transform .18s var(--ease);
+}
+.bg-sheet__close:hover { background: var(--accent); color: #fff; }
+.bg-sheet__close:active { transform: scale(.92); }
+.bg-sheet__close svg { width: 16px; height: 16px; }
 
 .bg-sheet__grid {
   display: grid;
@@ -643,6 +910,61 @@
   flex-direction: column;
   gap: 10px;
   padding-bottom: 10px;
+}
+
+@keyframes bgSheetPopIn {
+  0% {
+    transform: scale(0);
+  }
+  70% {
+    transform: scale(1.035);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes bgSheetPopOut {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.035);
+  }
+  100% {
+    transform: scale(0);
+  }
+}
+
+@media (min-width: 769px) {
+  .bg-sheet.is-opening {
+    animation: bgSheetPopIn .28s var(--ease) forwards;
+  }
+  .bg-sheet.is-closing {
+    animation: bgSheetPopOut .24s var(--ease) forwards;
+  }
+}
+
+@media (min-width: 769px) {
+  .bg-sheet-overlay {
+    align-items: center;
+    padding: 32px;
+  }
+
+  .bg-sheet {
+    width: min(480px, 100%);
+    min-height: 0;
+    max-height: calc(100vh - 64px);
+
+    border-radius: 28px;
+
+    padding:
+      20px
+      20px
+      24px;
+
+    transform: scale(1);
+  }
 }
 
 .sheet-choice {
@@ -718,8 +1040,8 @@
 
 .app-page {
   opacity: 1;
-  filter: blur(0);
-  transform: scale(1);
+  filter: none;
+  transform: none;
   transition: opacity .6s var(--ease), filter .6s var(--ease), transform .6s var(--ease);
 }
 
@@ -734,7 +1056,7 @@
 
 .page-stack {
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   min-height: 100vh;
 }
 
@@ -742,6 +1064,7 @@
   position: absolute;
   inset: 0;
   width: 100%;
+  pointer-events: none; 
   transition:
     transform .45s var(--ease),
     filter .45s var(--ease),
@@ -765,6 +1088,12 @@
   transform: translateX(0) !important;
   filter: blur(0) !important;
   opacity: 1 !important;
+}
+
+.app-page.slide-exit-forward {
+  transform: translateX(100vw) !important;
+  filter: blur(12px) !important;
+  opacity: 0 !important;
 }
 
 .app-page.slide-exit-back {
@@ -804,9 +1133,80 @@
   transition: outline-color .2s var(--ease);
 }
 
-.upload-dropzone.is-dragover {
-  outline: 2px dashed var(--accent);
-  outline-offset: 10px;
+.screen-drop-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+
+  padding:
+    calc(16px + env(safe-area-inset-top))
+    16px
+    calc(16px + env(safe-area-inset-bottom));
+
+  background: color-mix(in srgb, var(--bg) 94%, transparent);
+
+  opacity: 0;
+  transition: opacity .18s ease;
+
+  pointer-events: none;
+}
+
+.screen-drop-overlay.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.screen-drop-overlay__area {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 2px solid color-mix(in srgb, var(--text-muted) 24%, transparent);
+  border-radius: clamp(28px, 5vw, 44px);
+
+  transition:
+    border-color .16s ease,
+    background-color .16s ease,
+    box-shadow .16s ease;
+}
+
+.screen-drop-overlay__area.is-active {
+  border-color: var(--accent);
+
+  background: color-mix(
+    in srgb,
+    var(--accent) 4%,
+    transparent
+  );
+
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+.screen-drop-overlay__text {
+  max-width: 520px;
+  padding: 30px;
+
+  color: var(--text-muted);
+
+  font-size: clamp(1.25rem, 4vw, 2rem);
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: center;
+
+  pointer-events: none;
+
+  transition:
+    color .16s ease,
+    transform .16s ease;
+}
+
+.screen-drop-overlay__area.is-active .screen-drop-overlay__text {
+  color: var(--accent);
+  transform: scale(1.02);
 }
 
 .upload-dropzone__icon {
@@ -910,41 +1310,94 @@
 }
 
 .effects-toggle__box {
+  position: relative;
   flex: none;
   width: 24px;
   height: 24px;
   border-radius: 7px;
+
   background: var(--surface);
+  transition: background-color 0s linear .20s;
   box-shadow: var(--shadow-sm);
   display: grid;
   place-items: center;
   overflow: hidden;
-  transition: background-color .25s var(--ease);
+}
+
+.effects-toggle__box::after {
+  content: '';
+  position: absolute;
+  width: 220%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+
+  background: var(--surface);
+
+  transform: scale(1.05);
+  transition: transform .20s cubic-bezier(.4, 0, .2, 1);
+
+  z-index: 1;
+}
+
+.effects-toggle input:checked ~ .effects-toggle__box::after {
+  transform: scale(0);
+}
+
+.effects-toggle__check {
+  position: relative;
+  z-index: 2;
+
+  width: 14px;
+  height: 14px;
+  color: #fff;
+  overflow: visible;
+}
+
+.effects-toggle__check path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+
+  transition: stroke-dashoffset .18s ease;
+}
+
+.effects-toggle input:checked ~ .effects-toggle__box .effects-toggle__check path {
+  stroke-dashoffset: 0;
 }
 
 .effects-toggle input:checked ~ .effects-toggle__box {
   background: var(--accent);
-}
-
-.effects-toggle__check {
-  width: 13px;
-  height: 13px;
-  color: #fff;
-  opacity: 0;
-  transform: scale(.3) rotate(-20deg);
-  transition: opacity .25s var(--ease), transform .25s var(--ease);
-}
-
-.effects-toggle input:checked ~ .effects-toggle__box .effects-toggle__check {
-  opacity: 1;
-  transform: scale(1) rotate(0deg);
+  transition-delay: 0s;
 }
 
 .effects-toggle__text {
-  color: var(--text-muted);
+  color: var(--text);
   font-size: .9rem;
   line-height: 1.5;
   padding-top: 2px;
+
+  display: inline-block;
+  transform-origin: left center;
+  will-change: transform;
+}
+
+.generate-sticky.is-visible .effects-toggle__text {
+  animation: effectsHintPulse 2.2s ease-in-out infinite;
+}
+
+@keyframes effectsHintPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.02);
+  }
 }
 .current-template {
   display: flex;
@@ -955,6 +1408,15 @@
   padding: 14px 16px;
   margin: 0 0 clamp(16px, 2.5vw, 22px);
   box-shadow: var(--shadow-sm);
+
+  cursor: pointer;
+  transition:
+    background-color .2s var(--ease),
+    transform .18s var(--ease);
+}
+
+.current-template:active {
+  transform: scale(.99);
 }
 
 .current-template__thumb {
@@ -1185,21 +1647,422 @@
 .result-wrap {
   margin: 20px 0 24px;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: stretch;
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+  gap: 14px;
 }
 
 .result-wrap[hidden] { display: none; }
 
 #resultCanvas {
   max-width: 100%;
+  max-height: calc(100svh - 100px);
+  width: auto;
   height: auto;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
   opacity: 1;
 }
+
+.style-strip-section {
+  margin: 0;
+}
+
+.style-strip__title {
+  margin: 0 0 16px;
+  font-size: .9rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.style-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(6px, 2vw, 10px);
+}
+
+.style-strip__item {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 2 / 1;
+  min-width: 0;
+  border-radius: 14px;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  background: var(--surface);
+  overflow: hidden;
+  outline: 2px solid transparent;
+  outline-offset: -2px;
+  transition: transform .15s var(--ease), outline-color .15s var(--ease);
+}
+
+.nickname-panel {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.nickname-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  appearance: none;
+  border: none;
+  background: none;
+  padding: 16px 18px;
+  font: inherit;
+  color: var(--text-soft);
+  text-align: left;
+  cursor: pointer;
+}
+
+.nickname-panel__title {
+  flex: 1;
+  min-width: 0;
+  font-weight: 700;
+  font-size: .95rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nickname-panel__controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: none;
+}
+
+.nickname-switch {
+  position: relative;
+  flex: none;
+  width: 40px;
+  height: 24px;
+  appearance: none;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--border);
+  padding: 0;
+  cursor: pointer;
+  transition: background-color .25s var(--ease);
+}
+
+.nickname-switch.is-on {
+  background: var(--accent);
+}
+
+.nickname-switch__thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: var(--shadow-sm);
+  transition: transform .25s var(--ease);
+}
+
+.nickname-switch.is-on .nickname-switch__thumb {
+  transform: translateX(16px);
+}
+
+.nickname-panel.is-nickname-off .nickname-panel__title {
+  opacity: .55;
+}
+
+.nickname-panel__chevron {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  color: var(--text-muted);
+  transition: transform .3s var(--ease);
+}
+
+.nickname-panel__chevron svg { width: 100%; height: 100%; }
+
+.nickname-panel.is-collapsed .nickname-panel__chevron {
+  transform: rotate(-90deg);
+}
+
+.collapse-body {
+  overflow: hidden;
+  max-height: 1200px;
+  opacity: 1;
+  transition: max-height .35s var(--ease), opacity .25s var(--ease);
+}
+
+.collapse-body.is-collapsed {
+  max-height: 0;
+  opacity: 0;
+}
+
+.nickname-panel__body-inner {
+  padding: 2px 18px 18px;
+}
+
+.sub-panel + .sub-panel {
+  margin-top: 6px;
+}
+
+.sub-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  appearance: none;
+  border: none;
+  background: none;
+  padding: 10px 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+.sub-panel__title {
+  font-size: .9rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.sub-panel__chevron {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  color: var(--text-muted);
+  transition: transform .3s var(--ease);
+}
+
+.sub-panel__chevron svg { width: 100%; height: 100%; }
+
+.sub-panel.is-collapsed .sub-panel__chevron {
+  transform: rotate(-90deg);
+}
+
+.sub-panel .style-strip {
+  margin-top: 4px;
+  padding-bottom: 4px;
+}
+
+.style-strip__item:active { transform: scale(.98); }
+.style-strip__item canvas { width: 100%; height: 100%; display: block; }
+.style-strip__item.is-selected { outline-color: var(--accent); }
+.result-left {
+  position: sticky;
+  top: calc(12px + env(safe-area-inset-top));
+  z-index: 20;
+
+  background: transparent;
+  align-self: start;
+
+  isolation: isolate;
+  overflow: visible;
+}
+
+.result-left::before {
+  content: '';
+  position: absolute;
+
+  top: -18px;
+  bottom: -45px;
+
+  left: 50%;
+  width: calc(100vw + 20px);
+  transform: translateX(-50%);
+
+  background:
+    color-mix(in srgb, var(--bg) 48%, transparent);
+
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 0, 0, .55) 4%,
+    #000 10%,
+    #000 82%,
+    rgba(0, 0, 0, .7) 90%,
+    rgba(0, 0, 0, .25) 97%,
+    transparent 100%
+  );
+
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 0, 0, .35) 5%,
+    #000 12%,
+    #000 82%,
+    rgba(0, 0, 0, .7) 90%,
+    rgba(0, 0, 0, .25) 97%,
+    transparent 100%
+  );
+
+  pointer-events: none;
+  z-index: -1;
+}
+
+@media (min-width: 860px) {
+  .result-left::before {
+    left: -28px;
+    right: -28px;
+
+    width: auto;
+    transform: none;
+  }
+}
+
+.result-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+@media (min-width: 860px) {
+  .result-sidebar {
+    gap: 32px;
+  }
+}
+
+@media (min-width: 860px) {
+  .result-main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    align-items: start;
+    gap: 28px;
+  }
+
+  .result-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    top: 24px;
+    align-self: start;
+  }
+
+  .result-wrap {
+    margin: 0 0 20px;
+  }
+
+  #resultCanvas {
+    max-width: 480px;
+  }
+  .style-strip {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(6px, 2vw, 10px);
+  }
+  .result-sidebar > .style-strip-section:not(:first-child) {
+    margin-top: 0; 
+  }
+}
+#downloadResultBtn {
+  padding: 14px 20px;
+  font-size: .95rem;
+}
+.generate-sticky {
+  position: fixed;
+  left: 50%;
+  bottom: calc(10px + env(safe-area-inset-bottom));
+  transform: translate(-50%, 20px);
+
+  width: min(908px, calc(100vw - 36px));
+
+  z-index: 50;
+
+  background: transparent;
+  isolation: isolate;
+
+  padding:
+    12px
+    0
+    8px;
+
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+
+  transition:
+    opacity .3s var(--ease),
+    transform .3s var(--ease),
+    visibility .3s;
+}
+
+.generate-sticky::before {
+  content: '';
+  position: absolute;
+
+  left: 50%;
+  bottom: -55px;
+
+  width: calc(100% + 160px);
+  height: calc(100% + 125px);
+
+  transform: translateX(-50%);
+
+  background: color-mix(in srgb, var(--bg) 48%, transparent);
+
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0,0,0,.18) 12%,
+    rgba(0,0,0,.65) 26%,
+    #000 42%,
+    #000 100%
+  );
+
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0,0,0,.18) 12%,
+    rgba(0,0,0,.65) 26%,
+    #000 42%,
+    #000 100%
+  );
+
+  z-index: -1;
+  pointer-events: none;
+}
+
+.generate-sticky.is-visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translate(-50%, 0);
+}
+
+.generate-sticky .effects-toggle {
+  margin: 0 0 12px;
+}
+#brawlPage main {
+  padding-bottom: 140px;
+}
+body.page-scroll-locked {
+  position: fixed;
+  left: 0;
+  right: 0;
+  width: 100%;
+
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
+}
 </style>
 </head>
-<body>
 
 <body>
 
@@ -1208,7 +2071,12 @@
 
     <div class="onboarding-step" data-step="1">
       <div class="step-text">
-        <div class="step-badge">1</div>
+        <div class="step-badge">
+          <svg class="step-badge__ring" viewBox="0 0 84 84" aria-hidden="true">
+            <circle class="step-badge__ring-fill" cx="42" cy="42" r="38"></circle>
+          </svg>
+          <span class="step-badge__num">1</span>
+        </div>
         <h2 class="step-title">Выберите фон</h2>
         <p class="step-desc">Выберите или загрузите свой фон, который будет использоваться в дальнейших Ваших работах.</p>
       </div>
@@ -1230,9 +2098,14 @@
     </div>
 
     <div class="onboarding-step" data-step="2" hidden>
-      <div class="step-text">
-        <div class="step-badge">2</div>
-        <h2 class="step-title">Введите ник</h2>
+    <div class="step-text">
+      <div class="step-badge">
+        <svg class="step-badge__ring" viewBox="0 0 84 84" aria-hidden="true">
+          <circle class="step-badge__ring-fill" id="stepBadgeRing2" cx="42" cy="42" r="38"></circle>
+        </svg>
+        <span class="step-badge__num">2</span>
+      </div>
+      <h2 class="step-title">Введите ник</h2>
         <p class="step-desc">Введите свой ник, который будет использоваться при создание работ.</p>
       </div>
 
@@ -1246,10 +2119,17 @@
     </div>
 
     <div class="onboarding-step onboarding-welcome" data-step="welcome" hidden>
-      <div class="step-text">
-        <div class="welcome-icon">✓</div>
-        <h2 class="step-title" id="welcomeTitle">Добро пожаловать!</h2>
-        <p class="step-desc">Всё готово, переходим в приложение…</p>
+    <div class="step-text">
+      <div class="welcome-icon">
+        <svg class="step-badge__ring" viewBox="0 0 84 84" aria-hidden="true">
+          <circle class="step-badge__ring-fill" id="stepBadgeRingWelcome" cx="42" cy="42" r="38"></circle>
+        </svg>
+        <svg class="welcome-check" viewBox="0 0 24 24" aria-hidden="true">
+          <path pathLength="1" d="M5 12.5l4.2 4.2L19 7"></path>
+        </svg>
+      </div>
+      <h2 class="step-title" id="welcomeTitle">Добро пожаловать!</h2>
+        <p class="step-desc">Всё готово, загружаем сервис...</p>
       </div>
     </div>
 
@@ -1284,7 +2164,22 @@
         и скачать результат. Вам <strong>не нужно платить</strong> —
         достаточно загрузить картинку, и алгоритмы сервиса сами
         отделят нужный объект от фона.
-        <button type="button" class="link-btn">Как пользоваться&gt;</button>
+        <button type="button" class="link-btn">
+          <span>Как пользоваться</span>
+          <svg class="link-btn__arrow"
+              viewBox="0 0 512 512"
+              aria-hidden="true">
+            <g transform="translate(0,512) scale(0.1,-0.1)"
+              fill="currentColor"
+              stroke="none">
+              <path d="M1519 4852 c-123 -32 -234 -128 -292 -250 -30 -64 -32 -73 -32 -187
+              0 -207 -71 -120 859 -1053 l801 -802 -811 -813 c-758 -760 -812 -816 -838
+              -875 -38 -88 -51 -177 -36 -260 45 -262 303 -432 555 -367 126 33 106 15 1124
+              1029 530 529 983 987 1007 1019 114 153 114 381 0 534 -24 32 -473 486 -997
+              1010 -1015 1012 -984 984 -1116 1018 -73 19 -141 18 -224 -3z"/>
+            </g>
+          </svg>
+        </button>
       </p>
     </section>
 
@@ -2404,7 +3299,12 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
   </header>
 
   <main>
-    <section class="current-template" id="currentTemplateInfo">
+    <section
+        class="current-template"
+        id="currentTemplateInfo"
+        role="button"
+        tabindex="0"
+      >
       <div class="current-template__thumb" id="currentTemplateThumb"></div>
       <div class="current-template__lines">
         <p class="current-template__line">Загружен фон</p>
@@ -2447,25 +3347,17 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
       <p class="screens-counter" id="screensCounter"></p>
       <button type="button" class="screens-clear-btn" id="screensClearBtn" hidden>Удалить все</button>
     </div>
-
-    <label class="effects-toggle" id="effectsToggle">
-      <input type="checkbox" id="effectsCheckbox">
-      <span class="effects-toggle__box">
-        <svg class="effects-toggle__check" viewBox="0 0 512 512" aria-hidden="true">
-          <g transform="translate(0,512) scale(0.1,-0.1)" fill="currentColor" stroke="none">
-            <path d="M4605 4386 c-105 -33 -109 -36 -1445 -1372 l-1315 -1314 -595 595
-    c-553 551 -600 596 -662 625 -159 74 -328 51 -454 -63 -100 -90 -149 -234
-    -125 -364 25 -134 9 -117 839 -944 726 -724 771 -767 832 -794 78 -34 185 -44
-    257 -25 122 33 70 -16 1629 1543 1614 1616 1522 1517 1547 1660 34 199 -91
-    392 -292 453 -56 17 -162 17 -216 0z"/>
-          </g>
-        </svg>
-      </span>
-      <span class="effects-toggle__text">Нужно ли добавлять эффекты, ник, детализацию на Вашу работу?</span>
-    </label>
-
-<button type="button" class="btn-primary is-appearing" id="generateBtn">Сгенерировать</button>
   </main>
+</div>
+
+<div class="screen-drop-overlay" id="screenDropOverlay" hidden>
+  <div class="screen-drop-overlay__area" id="screenDropArea">
+    <div class="screen-drop-overlay__text">
+      Перетащите сюда файлы<br>
+      для автоматической загрузки<br>
+      на сайт
+    </div>
+  </div>
 </div>
 
 <div class="page app-page is-hidden" id="resultPage" hidden>
@@ -2480,20 +3372,101 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
     </div>
   </header>
 
-  <main>
-    <div class="result-wrap" id="resultWrap">
-      <canvas id="resultCanvas"></canvas>
+  <main class="result-main">
+    <div class="result-left">
+      <div class="result-wrap" id="resultWrap">
+        <canvas id="resultCanvas"></canvas>
+        <button type="button" class="btn-primary" id="downloadResultBtn">Скачать</button>
+      </div>
     </div>
 
-    <button type="button" class="btn-primary" id="downloadResultBtn">Скачать</button>
+    <div class="result-sidebar">
+      <section class="nickname-panel" id="nicknamePanel" hidden>
+        <div class="nickname-panel__header" id="nicknamePanelHeader">
+          <span class="nickname-panel__title" id="nicknamePanelTitle">Ник: </span>
+          <div class="nickname-panel__controls">
+            <button type="button" class="nickname-switch" id="nicknameEnableSwitch" aria-label="Включить/выключить ник" aria-pressed="true">
+              <span class="nickname-switch__thumb"></span>
+            </button>
+            <span class="nickname-panel__chevron">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 9l6 6 6-6"></path>
+              </svg>
+            </span>
+          </div>
+        </div>
+
+        <div class="collapse-body" id="nicknamePanelBody">
+          <div class="nickname-panel__body-inner">
+
+            <div class="sub-panel" id="styleSubPanel">
+              <button type="button" class="sub-panel__header" id="styleSubPanelToggle">
+                <span class="sub-panel__title">Стиль ника</span>
+                <span class="sub-panel__chevron">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 9l6 6 6-6"></path>
+                  </svg>
+                </span>
+              </button>
+              <div class="collapse-body" id="styleSubPanelBody">
+                <div class="style-strip" id="styleStrip"></div>
+              </div>
+            </div>
+
+            <div class="sub-panel" id="fontSubPanel">
+              <button type="button" class="sub-panel__header" id="fontSubPanelToggle">
+                <span class="sub-panel__title">Шрифт ника</span>
+                <span class="sub-panel__chevron">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 9l6 6 6-6"></path>
+                  </svg>
+                </span>
+              </button>
+              <div class="collapse-body" id="fontSubPanelBody">
+                <div class="style-strip" id="fontStrip"></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+    </div>
   </main>
 </div>
 </div>
 
+  <div class="generate-sticky">
+    <label class="effects-toggle" id="effectsToggle">
+      <input type="checkbox" id="effectsCheckbox">
+      <span class="effects-toggle__box">
+        <svg class="effects-toggle__check" viewBox="0 0 24 24" aria-hidden="true">
+          <path pathLength="1" d="M5 12.5l4.2 4.2L19 7"></path>
+        </svg>
+      </span>
+      <span class="effects-toggle__text">Нужно ли добавлять эффекты, ник, детализацию на Вашу работу?</span>
+    </label>
+
+    <button type="button" class="btn-primary is-appearing" id="generateBtn">Сгенерировать</button>
+  </div>
+
 <div class="bg-sheet-overlay" id="bgSheetOverlay" hidden>
   <div class="bg-sheet" id="bgSheet">
     <div class="bg-sheet__handle"></div>
-    <h2 class="bg-sheet__title">Выберите фон</h2>
+    <div class="bg-sheet__header">
+      <h2 class="bg-sheet__title">Выберите фон</h2>
+      <button type="button" class="bg-sheet__close" id="bgSheetCloseBtn" aria-label="Закрыть">
+        <svg viewBox="0 0 512 512" aria-hidden="true">
+          <g transform="translate(0.000000,512.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none">
+            <path d="M835 4381 c-48 -22 -79 -54 -100 -103 -19 -47 -19 -79 0 -126 11 -26
+            248 -269 793 -814 l777 -778 -782 -782 c-842 -844 -815 -814 -799 -901 13 -71
+            82 -140 153 -153 87 -16 57 -43 901 799 l782 782 783 -782 c843 -842 813 -815
+            900 -799 71 13 140 82 153 153 16 87 43 57 -799 901 l-782 782 782 783 c842
+            843 815 813 799 900 -13 71 -82 140 -153 153 -87 16 -57 43 -901 -799 l-782
+            -782 -778 777 c-545 545 -788 782 -814 793 -49 20 -84 19 -133 -4z"/>
+          </g>
+        </svg>
+      </button>
+    </div>
 
     <div class="color-presets" id="colorPresets">
       <button type="button" class="color-preset" data-color="green" style="--c1:#8be08a; --c2:#2f7d3a;" aria-label="Зелёная гамма"></button>
@@ -2512,7 +3485,21 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
 <div class="bg-sheet-overlay" id="editChooseOverlay" hidden>
   <div class="bg-sheet">
     <div class="bg-sheet__handle"></div>
-    <h2 class="bg-sheet__title">Что хотите изменить?</h2>
+    <div class="bg-sheet__header">
+      <h2 class="bg-sheet__title">Что хотите изменить?</h2>
+      <button type="button" class="bg-sheet__close" id="editChooseCloseBtn" aria-label="Закрыть">
+        <svg viewBox="0 0 512 512" aria-hidden="true">
+          <g transform="translate(0.000000,512.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none">
+            <path d="M835 4381 c-48 -22 -79 -54 -100 -103 -19 -47 -19 -79 0 -126 11 -26
+            248 -269 793 -814 l777 -778 -782 -782 c-842 -844 -815 -814 -799 -901 13 -71
+            82 -140 153 -153 87 -16 57 -43 901 799 l782 782 783 -782 c843 -842 813 -815
+            900 -799 71 13 140 82 153 153 16 87 43 57 -799 901 l-782 782 782 783 c842
+            843 815 813 799 900 -13 71 -82 140 -153 153 -87 16 -57 43 -901 -799 l-782
+            -782 -778 777 c-545 545 -788 782 -814 793 -49 20 -84 19 -133 -4z"/>
+          </g>
+        </svg>
+      </button>
+    </div>
     <div class="sheet-choice-list">
       <button type="button" class="sheet-choice" id="editBgOption">
         <span>Фон</span>
@@ -2528,7 +3515,21 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
 <div class="bg-sheet-overlay" id="editNicknameOverlay" hidden>
   <div class="bg-sheet">
     <div class="bg-sheet__handle"></div>
-    <h2 class="bg-sheet__title">Изменить ник</h2>
+    <div class="bg-sheet__header">
+      <h2 class="bg-sheet__title">Изменить ник</h2>
+      <button type="button" class="bg-sheet__close" id="editNicknameCloseBtn" aria-label="Закрыть">
+        <svg viewBox="0 0 512 512" aria-hidden="true">
+          <g transform="translate(0.000000,512.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none">
+            <path d="M835 4381 c-48 -22 -79 -54 -100 -103 -19 -47 -19 -79 0 -126 11 -26
+            248 -269 793 -814 l777 -778 -782 -782 c-842 -844 -815 -814 -799 -901 13 -71
+            82 -140 153 -153 87 -16 57 -43 901 799 l782 782 783 -782 c843 -842 813 -815
+            900 -799 71 13 140 82 153 153 16 87 43 57 -799 901 l-782 782 782 783 c842
+            843 815 813 799 900 -13 71 -82 140 -153 153 -87 16 -57 43 -901 -799 l-782
+            -782 -778 777 c-545 545 -788 782 -814 793 -49 20 -84 19 -133 -4z"/>
+          </g>
+        </svg>
+      </button>
+    </div>
     <div class="input-wrap">
       <input type="text" class="field-input" id="editNicknameInput" placeholder="Введите текст" autocomplete="off">
       <button type="button" class="case-toggle" id="editCaseToggle" aria-label="Переключить регистр">Aa</button>
@@ -2545,24 +3546,46 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
 <script src="brawl-stars-logic.js"></script>
 
 <script>
-  const DB_NAME = 'vysre45iy6_db';
-
   function loadDB() {
     try { return JSON.parse(localStorage.getItem(DB_NAME)) || {}; }
     catch (e) { return {}; }
   }
 
-  function saveDB(data) {
-    var merged = Object.assign(loadDB(), data);
-    try {
-      localStorage.setItem(DB_NAME, JSON.stringify(merged));
-    } catch (e) {
-      console.warn('Не удалось сохранить данные — превышена квота хранилища', e);
-    }
-    return merged;
+function saveDB(data) {
+  var merged = Object.assign(loadDB(), data);
+  try {
+    localStorage.setItem(DB_NAME, JSON.stringify(merged));
+  } catch (e) {
+    console.warn('Не удалось сохранить данные — превышена квота хранилища', e);
+  }
+  return merged;
+}
+
+function finishInitialBoot() {
+  var root = document.documentElement;
+
+  function reveal() {
+    root.classList.remove('booting');
+
+    requestAnimationFrame(function () {
+      root.classList.add('app-ready');
+    });
   }
 
-  function splitChars(el) {
+  if (!document.fonts) {
+    reveal();
+    return;
+  }
+
+  Promise.all([
+    document.fonts.load('500 16px "Manrope"'),
+    document.fonts.load('600 16px "Manrope"'),
+    document.fonts.load('700 16px "Manrope"'),
+    document.fonts.load('800 16px "Manrope"')
+  ]).then(reveal, reveal);
+}
+
+function splitChars(el) {
   var text = el.textContent;
   el.textContent = '';
   var frag = document.createDocumentFragment();
@@ -2581,7 +3604,29 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
 }
 
 function prepareStepText(stepEl) {
-  stepEl.querySelectorAll('.step-badge, .welcome-icon, .step-title, .step-desc').forEach(splitChars);
+  stepEl.querySelectorAll('.step-badge__num, .step-title, .step-desc').forEach(splitChars);
+}
+
+var RING_CIRCUMFERENCE = 238.76;
+
+function setRingProgress(circle, percent, instant) {
+  if (!circle) return;
+
+  var offset = RING_CIRCUMFERENCE * (1 - percent / 100);
+
+  if (instant) {
+    circle.style.transition = 'none';
+    circle.style.strokeDashoffset = offset;
+
+    void circle.getBoundingClientRect();
+
+    circle.style.transition = '';
+    return;
+  }
+
+  requestAnimationFrame(function () {
+    circle.style.strokeDashoffset = offset;
+  });
 }
 
 function goToStep(fromEl, toEl, after) {
@@ -2620,11 +3665,25 @@ function goToStep(fromEl, toEl, after) {
   var mainPage = document.getElementById('mainPage');
 
   if (db.onboarded) {
+    overlay.hidden = true;
+    overlay.classList.remove('is-leaving');
+
+    mainPage.hidden = false;
+    mainPage.classList.remove('is-hidden');
+
+    finishInitialBoot();
     return;
   }
 
   overlay.hidden = false;
+  overlay.classList.remove('is-leaving');
+
+  mainPage.hidden = false;
   mainPage.classList.add('is-hidden');
+
+  finishInitialBoot();
+
+  lockPageScroll();
 
   var step1 = overlay.querySelector('[data-step="1"]');
   var step2 = overlay.querySelector('[data-step="2"]');
@@ -2645,7 +3704,11 @@ function goToStep(fromEl, toEl, after) {
   prepareStepText(step2);
 
   document.getElementById('step1Next').addEventListener('click', function () {
-    goToStep(step1, step2, function () { nicknameInput.focus(); });
+    setRingProgress(document.getElementById('stepBadgeRing2'), 50);
+
+    goToStep(step1, step2, function () {
+      nicknameInput.focus();
+    });
   });
 
   nicknameInput.addEventListener('input', function () {
@@ -2663,14 +3726,56 @@ function goToStep(fromEl, toEl, after) {
     welcomeTitle.textContent = 'Добро пожаловать, ' + nickname + '!';
     prepareStepText(stepWelcome);
 
-    goToStep(step2, stepWelcome, function () {
-      setTimeout(function () {
-        overlay.classList.add('is-leaving');
-        window.scrollTo(0, 0);
-        mainPage.classList.remove('is-hidden');
-        setTimeout(function () { overlay.setAttribute('hidden', ''); }, 550);
-      }, 1300);
-    });
+    var welcomeRing = document.getElementById('stepBadgeRingWelcome');
+
+    // Сразу ставим прогресс на точку второго шага
+    setRingProgress(welcomeRing, 50, true);
+
+var welcomeRing = document.getElementById('stepBadgeRingWelcome');
+var welcomeIcon = stepWelcome.querySelector('.welcome-icon');
+
+setRingProgress(welcomeRing, 50, true);
+
+goToStep(step2, stepWelcome);
+
+var animationFinished = false;
+
+function finishWelcomeAnimation() {
+  if (animationFinished) return;
+  animationFinished = true;
+
+  // Обводка дошла до 100% —
+  // теперь заполняем сам круг и рисуем галочку
+  welcomeIcon.classList.add('is-completing');
+
+  setTimeout(function () {
+    // Только после окончания всей анимации показываем сайт
+    overlay.classList.add('is-leaving');
+    window.scrollTo(0, 0);
+    mainPage.classList.remove('is-hidden');
+
+    setTimeout(function () {
+      overlay.setAttribute('hidden', '');
+      unlockPageScrollIfPossible();
+    }, 550);
+  }, 700);
+}
+
+welcomeRing.addEventListener('transitionend', function onRingFinished(e) {
+  if (e.propertyName !== 'stroke-dashoffset') return;
+
+  welcomeRing.removeEventListener('transitionend', onRingFinished);
+  finishWelcomeAnimation();
+});
+
+// 50% → 100% начинается сразу при переходе
+setRingProgress(welcomeRing, 100);
+
+// страховка для браузеров/reduced-motion
+setTimeout(finishWelcomeAnimation, 900);
+
+    // И сразу после начала перехода двигаем 50% → 100%
+    setRingProgress(welcomeRing, 100);
   });
 
   nicknameInput.addEventListener('keydown', function (e) {
@@ -2703,16 +3808,76 @@ for (var i = 1; i <= 23; i++) {
   })(i);
 }
 
+function lockPageScroll() {
+  if (document.body.classList.contains('page-scroll-locked')) return;
+
+  var scrollY = window.scrollY;
+
+  document.body.dataset.lockScrollY = scrollY;
+  document.body.classList.add('page-scroll-locked');
+
+  document.body.style.top = '-' + scrollY + 'px';
+}
+
+function unlockPageScrollIfPossible() {
+  var onboarding = document.getElementById('onboardingOverlay');
+
+  var hasOpenSheet = Array.prototype.some.call(
+    document.querySelectorAll('.bg-sheet-overlay'),
+    function (overlay) {
+      return !overlay.hidden;
+    }
+  );
+
+  var onboardingOpen = onboarding && !onboarding.hidden;
+
+  if (hasOpenSheet || onboardingOpen) return;
+
+  var scrollY = parseInt(document.body.dataset.lockScrollY || '0', 10);
+
+  document.body.classList.remove('page-scroll-locked');
+  document.body.style.top = '';
+  delete document.body.dataset.lockScrollY;
+
+  window.scrollTo(0, scrollY);
+}
+
+function restartSheetAnimation(sheet, className) {
+  if (!sheet) return;
+  sheet.classList.remove(className);
+  void sheet.offsetWidth; // форсируем reflow, чтобы анимация запустилась заново
+  sheet.classList.add(className);
+}
+
 function openBgSheet() {
+  var sheet = document.getElementById('bgSheet');
+  if (sheet) {
+    sheet.classList.remove('is-closing');
+    restartSheetAnimation(sheet, 'is-opening');
+  }
+
   bgSheetOverlay.hidden = false;
+  lockPageScroll();
+
   requestAnimationFrame(function () {
     bgSheetOverlay.classList.add('is-visible');
   });
 }
 
 function closeBgSheet() {
+  var sheet = document.getElementById('bgSheet');
+  if (sheet) {
+    sheet.classList.remove('is-opening');
+    restartSheetAnimation(sheet, 'is-closing');
+  }
+
   bgSheetOverlay.classList.remove('is-visible');
-  setTimeout(function () { bgSheetOverlay.hidden = true; }, 350);
+
+  setTimeout(function () {
+    if (sheet) sheet.classList.remove('is-closing');
+    bgSheetOverlay.hidden = true;
+    unlockPageScrollIfPossible();
+  }, 350);
 }
 
 fankitBtn.addEventListener('click', openBgSheet);
@@ -2768,8 +3933,23 @@ function generateColorBg(c1, c2) {
   canvas.height = height;
   var ctx = canvas.getContext('2d');
 
-  var grad = ctx.createLinearGradient(0, 0, width, height);
+  var centerX = width / 2;
+  var centerY = height / 2;
+
+  var radius = Math.hypot(width / 2, height / 2);
+
+  var grad = ctx.createRadialGradient(
+    centerX,
+    centerY,
+    0,
+    centerX,
+    centerY,
+    radius
+  );
+
   grad.addColorStop(0, c1);
+  grad.addColorStop(0.28, c1);
+  grad.addColorStop(0.72, c2);
   grad.addColorStop(1, c2);
 
   ctx.fillStyle = grad;
@@ -2778,13 +3958,47 @@ function generateColorBg(c1, c2) {
   return canvas.toDataURL('image/jpeg', 0.85);
 }
 
+var COLOR_PRESETS = {
+  green:  { c1: '#8be08a', c2: '#2f7d3a' },
+  blue:   { c1: '#6ab4f7', c2: '#1c4f8c' },
+  yellow: { c1: '#f6d565', c2: '#b0691c' },
+  purple: { c1: '#c97af0', c2: '#4b0f7d' },
+  gray:   { c1: '#8a8a8a', c2: '#141414' }
+};
+
+function mixColor(hex1, hex2, t) {
+  var a = parseInt(hex1.slice(1), 16);
+  var b = parseInt(hex2.slice(1), 16);
+  var ar = (a >> 16) & 255, ag = (a >> 8) & 255, ab = a & 255;
+  var br = (b >> 16) & 255, bg = (b >> 8) & 255, bb = b & 255;
+  var r = Math.round(ar + (br - ar) * t);
+  var g = Math.round(ag + (bg - ag) * t);
+  var bl = Math.round(ab + (bb - ab) * t);
+  return 'rgb(' + r + ',' + g + ',' + bl + ')';
+}
+
+function paintColorGradient(ctx, width, height, c1, c2) {
+  var cx = width / 2, cy = height / 2;
+  var radius = Math.hypot(width / 2, height / 2);
+  var grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
+  grad.addColorStop(0,    c1);
+  grad.addColorStop(0.12, c1);
+  grad.addColorStop(0.35, mixColor(c1, c2, 0.35)); // промежуточный тон — сглаживает переход
+  grad.addColorStop(0.6,  mixColor(c1, c2, 0.7));
+  grad.addColorStop(0.85, c2);
+  grad.addColorStop(1,    c2);
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, width, height);
+}
+
 colorPresets.addEventListener('click', function (e) {
   var btn = e.target.closest('.color-preset');
   if (!btn) return;
 
-  var c1 = getComputedStyle(btn).getPropertyValue('--c1').trim();
-  var c2 = getComputedStyle(btn).getPropertyValue('--c2').trim();
-  var dataUrl = generateColorBg(c1, c2);
+  var preset = COLOR_PRESETS[btn.dataset.color];
+  if (!preset) return;
+
+  var dataUrl = generateColorBg(preset.c1, preset.c2);
 
   colorPresets.querySelectorAll('.color-preset').forEach(function (el) {
     el.classList.remove('is-selected');
@@ -2853,37 +4067,8 @@ uploadInput.addEventListener('change', function () {
   }
 });
 
-var dropZone = document.querySelector('.onboarding-step[data-step="1"]');
 
-['dragenter', 'dragover'].forEach(function (evt) {
-  dropZone.addEventListener(evt, function (e) {
-    e.preventDefault();
-    e.stopPropagation();
-    dropZone.classList.add('is-dragover');
-  });
-});
 
-['dragleave', 'drop'].forEach(function (evt) {
-  dropZone.addEventListener(evt, function (e) {
-    e.preventDefault();
-    e.stopPropagation();
-    dropZone.classList.remove('is-dragover');
-  });
-});
-
-dropZone.addEventListener('drop', function (e) {
-  var file = e.dataTransfer.files && e.dataTransfer.files[0];
-  if (file && file.type.indexOf('image/') === 0) {
-    var dt = new DataTransfer();
-    dt.items.add(file);
-    uploadInput.files = dt.files;
-    readFileAsDataURL(file, function (dataUrl, w, h) {
-      saveDB({ selectedBgSource: 'upload', uploadedBgDataUrl: dataUrl, uploadedBgWidth: w, uploadedBgHeight: h });
-      updateBgSelectionUI('upload');
-      applyDefaultSize();
-    });
-  }
-});
 (function () {
   var root = document.documentElement;
   var toggle = document.getElementById('themeToggle');
@@ -2894,8 +4079,14 @@ dropZone.addEventListener('drop', function (e) {
 
   toggle.addEventListener('click', function (event) {
     var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    var x = event.clientX;
-    var y = event.clientY;
+    var activeIcon = root.getAttribute('data-theme') === 'dark'
+      ? toggle.querySelector('.icon-sun')
+      : toggle.querySelector('.icon-moon');
+
+    var iconRect = activeIcon.getBoundingClientRect();
+
+    var x = iconRect.left + iconRect.width / 2;
+    var y = iconRect.top + iconRect.height / 2;
 
     if (!document.startViewTransition || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) {
       root.setAttribute('data-theme', next);
@@ -2914,6 +4105,12 @@ dropZone.addEventListener('drop', function (e) {
       Math.max(y, window.innerHeight - y)
     );
 
+    var goingToLight = next === 'light';
+
+    if (goingToLight) {
+      root.classList.add('theme-to-light');
+    }
+
     var transition = document.startViewTransition(function () {
       root.setAttribute('data-theme', next);
       saveDB({ theme: next });
@@ -2921,22 +4118,44 @@ dropZone.addEventListener('drop', function (e) {
     });
 
     transition.ready.then(function () {
-      root.animate(
-        {
-          clipPath: [
-            'circle(0px at ' + x + 'px ' + y + 'px)',
-            'circle(' + endRadius + 'px at ' + x + 'px ' + y + 'px)'
-          ]
-        },
-        {
-          duration: 410,
-          easing: 'ease-in-out',
-          pseudoElement: '::view-transition-new(root)'
-        }
-      );
+      if (goingToLight) {
+        // Тёмная тема схлопывается обратно к кнопке
+        root.animate(
+          {
+            clipPath: [
+              'circle(' + endRadius + 'px at ' + x + 'px ' + y + 'px)',
+              'circle(0px at ' + x + 'px ' + y + 'px)'
+            ]
+          },
+          {
+            duration: 410,
+            easing: 'ease-in-out',
+            fill: 'forwards',
+            pseudoElement: '::view-transition-old(root)'
+          }
+        );
+      } else {
+        // Тёмная тема раскрывается из кнопки
+        root.animate(
+          {
+            clipPath: [
+              'circle(0px at ' + x + 'px ' + y + 'px)',
+              'circle(' + endRadius + 'px at ' + x + 'px ' + y + 'px)'
+            ]
+          },
+          {
+            duration: 410,
+            easing: 'ease-in-out',
+            fill: 'forwards',
+            pseudoElement: '::view-transition-new(root)'
+          }
+        );
+      }
     });
 
     transition.finished.then(function () {
+      root.classList.remove('theme-to-light');
+
       iconStage.style.transition = '';
       iconSvgs.forEach(function (svg) { svg.style.transition = ''; });
     });
@@ -2972,15 +4191,34 @@ var editCaseToggle = document.getElementById('editCaseToggle');
 var editNicknameSave = document.getElementById('editNicknameSave');
 
 function openSheet(overlay) {
+  var sheet = overlay.querySelector('.bg-sheet');
+  if (sheet) {
+    sheet.classList.remove('is-closing');
+    restartSheetAnimation(sheet, 'is-opening');
+  }
+
   overlay.hidden = false;
+  lockPageScroll();
+
   requestAnimationFrame(function () {
     overlay.classList.add('is-visible');
   });
 }
 
 function closeSheet(overlay) {
+  var sheet = overlay.querySelector('.bg-sheet');
+  if (sheet) {
+    sheet.classList.remove('is-opening');
+    restartSheetAnimation(sheet, 'is-closing');
+  }
+
   overlay.classList.remove('is-visible');
-  setTimeout(function () { overlay.hidden = true; }, 350);
+
+  setTimeout(function () {
+    if (sheet) sheet.classList.remove('is-closing');
+    overlay.hidden = true;
+    unlockPageScrollIfPossible();
+  }, 350);
 }
 
 function syncBgSheetSelection() {
@@ -3120,8 +4358,16 @@ function updateCurrentTemplateInfo() {
 
 editTemplateBtn.addEventListener('click', openEditChooseSheet);
 
-var currentTemplateEditBtn = document.getElementById('currentTemplateEditBtn');
-currentTemplateEditBtn.addEventListener('click', openEditChooseSheet);
+var currentTemplateInfo = document.getElementById('currentTemplateInfo');
+
+currentTemplateInfo.addEventListener('click', openEditChooseSheet);
+
+currentTemplateInfo.addEventListener('keydown', function (e) {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    openEditChooseSheet();
+  }
+});
 
 editChooseOverlay.addEventListener('click', function (e) {
   if (e.target === editChooseOverlay) closeSheet(editChooseOverlay);
@@ -3158,18 +4404,36 @@ editNicknameSave.addEventListener('click', function () {
   updateCurrentTemplateInfo();
   closeSheet(editNicknameOverlay);
 });
+
+var bgSheetCloseBtnEl = document.getElementById('bgSheetCloseBtn');
+if (bgSheetCloseBtnEl) bgSheetCloseBtnEl.addEventListener('click', closeBgSheet);
+
+var editChooseCloseBtnEl = document.getElementById('editChooseCloseBtn');
+if (editChooseCloseBtnEl) editChooseCloseBtnEl.addEventListener('click', function () {
+  closeSheet(editChooseOverlay);
+});
+
+var editNicknameCloseBtnEl = document.getElementById('editNicknameCloseBtn');
+if (editNicknameCloseBtnEl) editNicknameCloseBtnEl.addEventListener('click', function () {
+  closeSheet(editNicknameOverlay);
+});
+
 var brawlCard = document.getElementById('brawlCard');
 var brawlPage = document.getElementById('brawlPage');
 var brawlBackBtn = document.getElementById('brawlBackBtn');
 var mainPageEl = document.getElementById('mainPage');
 
 var pageIsAnimating = false;
+var slideToken = 0;
 
 function slidePage(hideEl, showEl, direction) {
   if (pageIsAnimating) return;
 
   pageIsAnimating = true;
   window.scrollTo(0, 0);
+
+  var myToken = ++slideToken;
+  var finished = false;
 
   var enterClass =
     direction === 'forward'
@@ -3197,10 +4461,13 @@ function slidePage(hideEl, showEl, direction) {
     showEl.classList.add('slide-center');
   });
 
-  function finishSlide(event) {
-    if (event.propertyName !== 'transform') return;
+  function finish() {
+    // игнорируем, если это уже не тот переход (устарел) либо уже отработал
+    if (finished || myToken !== slideToken) return;
+    finished = true;
 
-    hideEl.removeEventListener('transitionend', finishSlide);
+    hideEl.removeEventListener('transitionend', onTransitionEnd);
+    clearTimeout(fallbackTimer);
 
     hideEl.hidden = true;
     hideEl.classList.remove(
@@ -3221,17 +4488,36 @@ function slidePage(hideEl, showEl, direction) {
     pageIsAnimating = false;
   }
 
-  hideEl.addEventListener('transitionend', finishSlide);
+  function onTransitionEnd(event) {
+    if (event.target !== hideEl) return;
+    if (event.propertyName !== 'transform') return;
+    finish();
+  }
+
+  hideEl.addEventListener('transitionend', onTransitionEnd);
+
+  // подстраховка: если по какой-то причине transitionend не придёт
+  // (свёрнутая вкладка, слабое устройство и т.п.) — переход всё равно
+  // корректно завершится сам, а не зависнет
+  var fallbackTimer = setTimeout(finish, 500);
 }
 
 brawlCard.addEventListener('click', function () {
   syncEffectsCheckboxDefault();
   updateCurrentTemplateInfo();
   renderSizeSelection();
+
+  var hasScreens = screens.length > 0;
+
+  generateSticky.classList.toggle('is-visible', hasScreens);
+  generateBtn.classList.toggle('is-visible', hasScreens);
+  generateBtn.classList.toggle('is-appearing', !hasScreens);
+
   slidePage(mainPageEl, brawlPage, 'forward');
 });
 
 brawlBackBtn.addEventListener('click', function () {
+  generateSticky.classList.remove('is-visible');
   slidePage(brawlPage, mainPageEl, 'back');
 });
 
@@ -3240,16 +4526,28 @@ var screens = [];
 
 var screensDropzone = document.getElementById('screensDropzone');
 var screensUploadBtn = document.getElementById('screensUploadBtn');
+
+var screenDropOverlay = document.getElementById('screenDropOverlay');
+var screenDropArea = document.getElementById('screenDropArea');
 var screensInput = document.getElementById('screensInput');
 var screensGrid = document.getElementById('screensGrid');
 var screensCounter = document.getElementById('screensCounter');
 var generateBtn = document.getElementById('generateBtn');
+var generateSticky = document.querySelector('.generate-sticky');
 
 var effectsCheckbox = document.getElementById('effectsCheckbox');
 
 function syncEffectsCheckboxDefault() {
   var db = loadDB();
-  effectsCheckbox.checked = db.selectedBgSource === 'fankit';
+  if (db.effectsEnabled === undefined) {
+    // первый заход — задаём дефолт и сразу фиксируем его в базе
+    var defaultValue = db.selectedBgSource === 'fankit';
+    effectsCheckbox.checked = defaultValue;
+    saveDB({ effectsEnabled: defaultValue });
+  } else {
+    // пользователь уже когда-то явно переключал — уважаем его выбор
+    effectsCheckbox.checked = db.effectsEnabled;
+  }
 }
 
 effectsCheckbox.addEventListener('change', function () {
@@ -3287,6 +4585,9 @@ function renderScreens() {
   screensClearBtn.hidden = screens.length < 2;
 
   var hasScreens = screens.length > 0;
+
+  generateSticky.classList.toggle('is-visible', hasScreens);
+
   generateBtn.classList.toggle('is-visible', hasScreens);
   generateBtn.classList.toggle('is-appearing', !hasScreens);
 
@@ -3326,25 +4627,121 @@ screensInput.addEventListener('change', function () {
   }
 });
 
-['dragenter', 'dragover'].forEach(function (evt) {
-  screensDropzone.addEventListener(evt, function (e) {
-    e.preventDefault();
-    e.stopPropagation();
-    screensDropzone.classList.add('is-dragover');
+var screenDragDepth = 0;
+
+// определяет, куда сейчас должен уйти перетащенный файл:
+// 'screens' — идёт загрузка скриншотов на странице Brawl Stars
+// 'bg' — пользователь на шаге 1 онбординга (выбор фона)
+// null — перетаскивание сейчас никуда не применимо
+function getActiveDropMode() {
+  if (!brawlPage.hidden) return 'screens';
+
+  var onboardingOverlayEl = document.getElementById('onboardingOverlay');
+  var step1El = document.querySelector('.onboarding-step[data-step="1"]');
+
+  if (onboardingOverlayEl && !onboardingOverlayEl.hidden && step1El && !step1El.hidden) {
+    return 'bg';
+  }
+
+  return null;
+}
+
+function showScreenDropOverlay() {
+  var mode = getActiveDropMode();
+  if (!mode) return;
+  if (mode === 'screens' && screens.length >= MAX_SCREENS) return;
+
+  screenDropOverlay.hidden = false;
+
+  requestAnimationFrame(function () {
+    screenDropOverlay.classList.add('is-visible');
   });
+}
+
+screenDropOverlay.addEventListener('pointerdown', function () {
+  screenDragDepth = 0;
+  hideScreenDropOverlay();
 });
 
-['dragleave', 'drop'].forEach(function (evt) {
-  screensDropzone.addEventListener(evt, function (e) {
-    e.preventDefault();
-    e.stopPropagation();
-    screensDropzone.classList.remove('is-dragover');
-  });
+function hideScreenDropOverlay() {
+  screenDropOverlay.classList.remove('is-visible');
+  screenDropArea.classList.remove('is-active');
+
+  setTimeout(function () {
+    if (!screenDropOverlay.classList.contains('is-visible')) {
+      screenDropOverlay.hidden = true;
+    }
+  }, 180);
+}
+
+window.addEventListener('dragenter', function (e) {
+  var mode = getActiveDropMode();
+  if (!mode) return;
+  if (mode === 'screens' && screens.length >= MAX_SCREENS) return;
+
+  e.preventDefault();
+
+  screenDragDepth++;
+  showScreenDropOverlay();
 });
 
-screensDropzone.addEventListener('drop', function (e) {
-  if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+window.addEventListener('dragover', function (e) {
+  if (!getActiveDropMode()) return;
+  e.preventDefault();
+});
+
+window.addEventListener('dragleave', function (e) {
+  if (!getActiveDropMode()) return;
+
+  screenDragDepth--;
+
+  if (screenDragDepth <= 0) {
+    screenDragDepth = 0;
+    hideScreenDropOverlay();
+  }
+});
+
+screenDropArea.addEventListener('dragenter', function (e) {
+  e.preventDefault();
+  screenDropArea.classList.add('is-active');
+});
+
+screenDropArea.addEventListener('dragover', function (e) {
+  e.preventDefault();
+  screenDropArea.classList.add('is-active');
+});
+
+screenDropArea.addEventListener('dragleave', function (e) {
+  if (!screenDropArea.contains(e.relatedTarget)) {
+    screenDropArea.classList.remove('is-active');
+  }
+});
+
+screenDropArea.addEventListener('drop', function (e) {
+  e.preventDefault();
+  e.stopPropagation();
+
+  var mode = getActiveDropMode();
+
+  screenDragDepth = 0;
+  hideScreenDropOverlay();
+
+  if (!e.dataTransfer.files || e.dataTransfer.files.length === 0) return;
+
+  if (mode === 'screens') {
     addFiles(e.dataTransfer.files);
+  } else if (mode === 'bg') {
+    var file = e.dataTransfer.files[0];
+    if (file && file.type.indexOf('image/') === 0) {
+      var dt = new DataTransfer();
+      dt.items.add(file);
+      uploadInput.files = dt.files;
+      readFileAsDataURL(file, function (dataUrl, w, h) {
+        saveDB({ selectedBgSource: 'upload', uploadedBgDataUrl: dataUrl, uploadedBgWidth: w, uploadedBgHeight: h });
+        updateBgSelectionUI('upload');
+        applyDefaultSize();
+      });
+    }
   }
 });
 
@@ -3353,12 +4750,317 @@ renderScreens();
 
 // ---------- Глобальное окружение для extractor.js ----------
 var allGeneratedCards = [];
+var NICKNAME_AREA_RATIO = 0.14;
+var NICKNAME_PADDING_RATIO = 0.12;
+var OFFERS_TOP_RATIO = 0.17;
+var OFFERS_TOP_RATIO_NO_NICKNAME = 0.05;
+
+function getOffersTopRatio() {
+  return isNicknameActive() ? OFFERS_TOP_RATIO : OFFERS_TOP_RATIO_NO_NICKNAME;
+}
+
+var TEXT_STYLES = [
+  { grad:['#e59921','#f6e63a','#e59921'], emboss:'#f2fea1', embossThickness:0.05, shadow:'#7b360e' },
+  { grad:['#cacaca','#ffffff','#cacaca'], emboss:'#ffffff', embossThickness:0.05, shadow:'#3b3b3b' },
+  { isClassic: true, grad: ['#ffba00', '#fcff00', '#ffba00'], inner: '#fcff00' },
+  { grad: ['#ff9600', '#ffde00', '#ff9600'], inner: '#ffde00', shadow: '#000000', outer: '#000000' },
+  { grad: ['#d90646', '#ff2a6b', '#d90646'], inner: '#ff2a6b', shadow: '#000000', outer: '#000000' },
+  { grad: ['#ff9600', '#ffde00', '#ff9600'], inner: '#ffde00', shadow: '#3e1900', outer: null },
+  { grad: ['#c7c7c7', '#ffffff', '#c7c7c7'], inner: '#ffffff', shadow: '#3e3e3e', outer: '#232323' },
+  { grad: ['#c7c7c7', '#ffffff', '#c7c7c7'], inner: '#ffffff', shadow: '#3e3e3e', outer: '#232323', outer2: '#ffffff' },
+  { grad: ['#ffba00', '#fcff00', '#ffba00'], inner: '#fcff00', shadow: '#5b2900', outer: '#3a1a00' },
+  { grad: ['#c7c7c7', '#ffffff', '#c7c7c7'], inner: '#ffffff', shadow: '#000000', outer: '#000000' },
+  { grad: ['#c7c7c7', '#ffffff', '#c7c7c7'], inner: '#ffffff', shadow: '#393939', outer: null },
+  { grad: ['#ffba00', '#fcff00', '#ffba00'], inner: '#fcff00', shadow: '#61005a', outer: '#42003d' },
+  { grad: ['#f3f3f3', '#f3f3f3', '#f3f3f3'], inner: null, shadow: '#191919', outer: '#313131', solidColor: '#f3f3f3' },
+  { grad: ['#ffc000', '#ffc000', '#ffc000'], inner: null, shadow: '#2b1a00', outer: '#573500', solidColor: '#ffc000' },
+  { grad: ['#49de00', '#49de00', '#49de00'], inner: null, shadow: '#0c2500', outer: '#174700', solidColor: '#49de00' },
+  { grad: ['#c600f0', '#c600f0', '#c600f0'], inner: null, shadow: '#280031', outer: '#550067', solidColor: '#c600f0' },
+  { grad: ['#008df0', '#008df0', '#008df0'], inner: null, shadow: '#002138', outer: '#003e6a', solidColor: '#008df0' },
+  { grad:['#ffffff','#ffffff','#ffffff'], emboss:'#ada9ab', embossThickness:0.05, shadow:'#252525', outer:'#252525', noBottomEdge:true },
+  { grad:['#ffc939','#ffc939','#ffc939'], emboss:'#fff4d8', embossThickness:0.05, shadow:'#3e1f00', outer:'#3e1f00', noBottomEdge:true },
+  { grad:['#f267ff','#f267ff','#f267ff'], emboss:'#fac7ff', embossThickness:0.05, shadow:'#29002d', outer:'#29002d', noBottomEdge:true }
+];
+
+
+/**
+ * Рисует светлую верхнюю грань внутри текста.
+ */
+function drawSharpEmboss(ctx, text, fontSize, style, mainFill) {
+    if (!style.emboss) return;
+
+    const thickness = fontSize * (
+        style.embossThickness !== undefined
+            ? style.embossThickness
+            : 0.05
+    );
+
+    ctx.save();
+
+    // Рельеф не выходит за пределы заливки текста.
+    ctx.globalCompositeOperation = 'source-atop';
+
+    // Светлая верхняя часть.
+    ctx.fillStyle = style.emboss;
+    ctx.fillText(text, 0, 0);
+
+    // Основная заливка со смещением вниз.
+    ctx.fillStyle = mainFill || style.grad[2] || style.grad[0];
+    ctx.fillText(text, 0, thickness);
+
+    ctx.restore();
+}
+
+
+/**
+ * Рисует текст с одним из TEXT_STYLES.
+ *
+ * ctx         — контекст итогового canvas
+ * text        — текст
+ * x, y        — центр текста
+ * fontSize    — размер текста
+ * fontFamily  — название загруженного шрифта
+ * styleIndex  — индекс из TEXT_STYLES
+ *
+ * Дополнительно:
+ * skew          — наклон текста
+ * letterSpacing — интервал между буквами
+ * shadowScale   — масштаб финальной размытой тени
+ */
+function drawStyledText(
+    ctx, text, x, y, fontSize, fontFamily, styleIndex = 0,
+    { skew = -0.05, letterSpacing = 0, shadowScale = 1, scaleX = 1, scaleY = 1 } = {}
+) {
+    if (!ctx || !text) return;
+
+    const style = TEXT_STYLES[styleIndex] || TEXT_STYLES[0];
+    const width = ctx.canvas.width;
+    const height = ctx.canvas.height;
+
+    // Глубина объёмной нижней части.
+    const shadowDepth = Math.max(
+        1,
+        Math.floor(fontSize * 0.10)
+    );
+
+    /*
+     * Первый холст:
+     * внешние обводки и объём.
+     */
+    const textCanvas = document.createElement('canvas');
+    textCanvas.width = width;
+    textCanvas.height = height;
+
+    const textCtx = textCanvas.getContext('2d');
+
+    textCtx.textAlign = 'center';
+    textCtx.textBaseline = 'middle';
+    textCtx.font = `${fontSize}px '${fontFamily}', sans-serif`;
+    textCtx.lineJoin = 'round';
+    textCtx.lineCap = 'round';
+
+    if ('letterSpacing' in textCtx) {
+        textCtx.letterSpacing = `${letterSpacing}px`;
+    }
+
+    textCtx.save();
+    textCtx.translate(x, y);
+    textCtx.transform(scaleX, 0, skew, scaleY, 0, 0);
+
+    /*
+     * Классический стиль:
+     * широкая белая обводка,
+     * тёмная обводка,
+     * тонкая нижняя грань.
+     */
+    if (style.isClassic) {
+        textCtx.lineWidth = fontSize * 0.18;
+        textCtx.strokeStyle = '#ffffff';
+
+        for (let i = shadowDepth; i >= 0; i--) {
+            textCtx.strokeText(text, 0, i);
+        }
+
+        textCtx.lineWidth = fontSize * 0.12;
+        textCtx.strokeStyle = '#42003d';
+
+        for (let i = shadowDepth; i >= 0; i--) {
+            textCtx.strokeText(text, 0, i);
+        }
+
+        textCtx.lineWidth = fontSize * 0.0154;
+        textCtx.strokeStyle = '#61005a';
+
+        for (let i = shadowDepth; i >= 0; i--) {
+            textCtx.strokeText(text, 0, i);
+        }
+    } else if (style.outer2) {
+        /*
+         * Стиль с двумя внешними обводками.
+         */
+
+        // Самая широкая обводка.
+        textCtx.lineWidth = fontSize * 0.18;
+        textCtx.strokeStyle = style.outer2;
+
+        for (let i = shadowDepth; i >= 0; i--) {
+            textCtx.strokeText(text, 0, i);
+        }
+
+        // Вторая внешняя обводка.
+        textCtx.lineWidth = fontSize * 0.12;
+        textCtx.strokeStyle = style.outer;
+
+        for (let i = shadowDepth; i >= 0; i--) {
+            textCtx.strokeText(text, 0, i);
+        }
+
+        // Тонкая тёмная грань.
+        textCtx.lineWidth = fontSize * 0.0154;
+        textCtx.strokeStyle = style.shadow;
+
+        for (let i = shadowDepth; i >= 0; i--) {
+            textCtx.strokeText(text, 0, i);
+        }
+    } else if (style.outer) {
+        /*
+         * Стиль с одной внешней обводкой.
+         */
+
+        // Нижняя объёмная грань.
+        if (!style.noBottomEdge) {
+            textCtx.lineWidth = fontSize * 0.12;
+            textCtx.strokeStyle = style.shadow;
+            textCtx.strokeText(text, 0, shadowDepth);
+        }
+
+        // Основная внешняя обводка.
+        textCtx.lineWidth = fontSize * 0.16;
+        textCtx.strokeStyle = style.outer;
+        textCtx.strokeText(text, 0, 0);
+    } else {
+        /*
+         * Стиль без внешней обводки:
+         * рисуется только тонкая нижняя грань.
+         */
+        textCtx.lineWidth = fontSize * 0.0154;
+        textCtx.strokeStyle = style.shadow;
+
+        for (let i = shadowDepth; i >= 0; i--) {
+            textCtx.strokeText(text, 0, i);
+        }
+    }
+
+    textCtx.restore();
+
+
+    /*
+     * Второй холст:
+     * градиент, внутренний кант и рельеф.
+     */
+    const fillCanvas = document.createElement('canvas');
+    fillCanvas.width = width;
+    fillCanvas.height = height;
+
+    const fillCtx = fillCanvas.getContext('2d');
+
+    fillCtx.textAlign = 'center';
+    fillCtx.textBaseline = 'middle';
+    fillCtx.font = `${fontSize}px '${fontFamily}', sans-serif`;
+    fillCtx.lineJoin = 'round';
+    fillCtx.lineCap = 'round';
+
+    if ('letterSpacing' in fillCtx) {
+        fillCtx.letterSpacing = `${letterSpacing}px`;
+    }
+
+    fillCtx.save();
+    fillCtx.translate(x, y);
+    fillCtx.transform(scaleX, 0, skew, scaleY, 0, 0);
+
+    // Вертикальный градиент текста.
+    const gradient = fillCtx.createLinearGradient(
+        0,
+        -fontSize * 0.4,
+        0,
+        fontSize * 0.4
+    );
+
+    gradient.addColorStop(0, style.grad[0]);
+
+    gradient.addColorStop(
+        style.isClassic ? 0.48 : 0.52,
+        style.grad[1]
+    );
+
+    gradient.addColorStop(1, style.grad[2]);
+
+    fillCtx.fillStyle = gradient;
+    fillCtx.fillText(text, 0, 0);
+
+    // Светлая грань рельефа.
+    drawSharpEmboss(
+        fillCtx,
+        text,
+        fontSize,
+        style,
+        gradient
+    );
+
+    // Внутренняя обводка.
+    if (style.inner) {
+        fillCtx.globalCompositeOperation = 'source-atop';
+
+        fillCtx.lineWidth = fontSize * 0.06;
+
+        fillCtx.strokeStyle = style.isClassic
+            ? '#fcff00'
+            : style.inner;
+
+        fillCtx.lineJoin = 'round';
+        fillCtx.strokeText(text, 0, 0);
+    }
+
+    fillCtx.restore();
+
+    // Накладываем заливку поверх внешних обводок.
+    textCtx.drawImage(fillCanvas, 0, 0);
+
+
+    /*
+     * Финальная размытая тень всего готового текста.
+     */
+    const canvasScale = height / 1080;
+
+    ctx.save();
+
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+
+    ctx.shadowBlur = Math.max(
+        5,
+        Math.round(21 * canvasScale * shadowScale)
+    );
+
+    ctx.shadowOffsetX = 0;
+
+    ctx.shadowOffsetY = Math.max(
+        4,
+        Math.round(16 * canvasScale * shadowScale)
+    );
+
+    ctx.drawImage(textCanvas, 0, 0);
+
+    ctx.restore();
+}
+
 window.layerState = {
   offers: [],
   globalPriceScale: 1,
   isBrawlPassMode: false,
   offerPriceFont: 'LilitaOneRus',
-  offerPriceColor: '#ffffff'
+  offerPriceColor: '#ffffff',
+  nicknameFont: loadDB().nicknameFontFamily || 'SupercellMagic',
+  nicknameColor: '#ffffff'
 };
 
 var resultCanvas = document.getElementById('resultCanvas');
@@ -3379,17 +5081,14 @@ function loadImage(src) {
   });
 }
 
-// Раскладывает вырезанные карточки рядами по холсту нужного размера,
-// стараясь равномерно распределить карточки между рядами (а не просто
-// пихать, пока не переполнится), чтобы ряды получались похожей высоты.
 function layoutOffers(canvasW, canvasH) {
   var offers = window.layerState.offers;
   var count = offers.length;
   if (count === 0) return;
 
-  // Отступы: сверху — под будущий ник, по бокам — просто воздух.
+  // Отступы: сверху — под будущий ник (если он включён), по бокам — просто воздух.
   var marginX = canvasW * 0.06;
-  var marginTop = canvasH * 0.12;
+  var marginTop = canvasH * getOffersTopRatio();
   var marginBottom = canvasH * 0.05;
   var gap = Math.min(canvasW, canvasH) * 0.025;
 
@@ -3399,8 +5098,13 @@ function layoutOffers(canvasW, canvasH) {
   var areaH = canvasH - marginTop - marginBottom;
 
   var items = offers.map(function (offer) {
-    var card = offer.ref.canvas;
-    return { offer: offer, ratio: card.width / card.height };
+    var cleanWidth = offer.ref.width || offer.ref.canvas.width;
+    var cleanHeight = offer.ref.height || offer.ref.canvas.height;
+
+    return {
+      offer: offer,
+      ratio: cleanWidth / cleanHeight
+    };
   });
 
   var ratioSumAll = items.reduce(function (s, it) { return s + it.ratio; }, 0);
@@ -3484,8 +5188,12 @@ function layoutOffers(canvasW, canvasH) {
   var scaledGap = gap * fitScale;
   totalContentH = totalContentH * fitScale;
 
-  // Центрируем весь блок по вертикали в отведённой области.
-  var y = areaY + (areaH - totalContentH) / 2;
+  var freeSpace = Math.max(0, areaH - totalContentH);
+
+  // Один ряд опускаем сильнее, несколько рядов — совсем немного
+  var verticalBalance = rows.length === 1 ? 0.38 : 0.20;
+
+  var y = areaY + freeSpace * verticalBalance;
 
   rows.forEach(function (row, rowIndex) {
     var rowHeight = rowHeights[rowIndex];
@@ -3512,7 +5220,14 @@ function layoutOffers(canvasW, canvasH) {
 function drawResult(ctx, canvasW, canvasH) {
   ctx.clearRect(0, 0, canvasW, canvasH);
 
-  if (bgImageForRender) {
+  var db = loadDB();
+  var preset = db.selectedBgSource === 'color' && COLOR_PRESETS[db.selectedColorPreset];
+
+  if (preset) {
+    // рисуем градиент заново под фактический размер результата —
+    // круг всегда идеально круглый и по центру, любой размер
+    paintColorGradient(ctx, canvasW, canvasH, preset.c1, preset.c2);
+  } else if (bgImageForRender) {
     var ir = bgImageForRender.width / bgImageForRender.height;
     var cr = canvasW / canvasH;
     var sx, sy, sw, sh;
@@ -3530,20 +5245,119 @@ function drawResult(ctx, canvasW, canvasH) {
     ctx.drawImage(bgImageForRender, sx, sy, sw, sh, 0, 0, canvasW, canvasH);
   }
 
+    drawNickname(ctx, canvasW, canvasH);
+
   window.layerState.offers.forEach(function (offer) {
     var card = offer.ref.canvas;
-    ctx.drawImage(card, offer.target.x, offer.target.y, offer.target.w, offer.target.h);
+    var padding = offer.ref.effectPadding || 0;
+
+    var cleanWidth = offer.ref.width || card.width;
+    var cleanHeight = offer.ref.height || card.height;
+
+    var scaleX = offer.target.w / cleanWidth;
+    var scaleY = offer.target.h / cleanHeight;
+
+    var paddingX = padding * scaleX;
+    var paddingY = padding * scaleY;
+
+    ctx.drawImage(
+      card,
+      offer.target.x - paddingX,
+      offer.target.y - paddingY,
+      offer.target.w + paddingX * 2,
+      offer.target.h + paddingY * 2
+    );
   });
 }
 
+function fitNicknameFontSize(ctx, text, fontFamily, maxWidth, minFont, startFont) {
+  var fontSize = startFont;
+  while (true) {
+    ctx.font = "normal " + fontSize + "px '" + fontFamily + "', 'Arial Rounded Bold', sans-serif";
+    if (ctx.measureText(text).width <= maxWidth || fontSize <= minFont) break;
+    fontSize -= 2;
+  }
+  return fontSize;
+}
+
+var NICKNAME_AREA_RATIO = 0.14;
+var OFFERS_TOP_RATIO = 0.17;
+var NICKNAME_SKEW = -0.18; // добавили сюда
+var NICKNAME_PADDING_RATIO = 0.12;
+
+
+var TEMPLATE_FONT = 'LilitaOneRus';
+var TEMPLATE_HEIGHT_RATIO = 0.06; // прежний, уменьшенный размер
+
+// Эталонная область — то, как LilitaOneRus рисует ЭТОТ ЖЕ текст.
+// Считаем заново под конкретный никнейм, поэтому длина текста учитывается сама собой.
+function getTemplateBox(text, canvasH) {
+  var tm = getNicknameMetrics(TEMPLATE_FONT, text);
+  var templateHeight = canvasH * TEMPLATE_HEIGHT_RATIO;
+  var templateFontSize = tm.testSize * (templateHeight / tm.height);
+  var templateWidth = tm.width * (templateFontSize / tm.testSize);
+  return { width: templateWidth, height: templateHeight };
+}
+
+function drawNickname(ctx, canvasW, canvasH) {
+  var db = loadDB();
+  if (!db.nickname) return;
+  if (!isNicknameActive()) return; // слой есть, но пользователь его выключил на этот раз
+
+  // Вся верхняя зона под ник
+  var areaHeight = canvasH * NICKNAME_AREA_RATIO;
+
+  // Отступы сверху (от края холста) и снизу (перед первым рядом акций)
+  var padding = areaHeight * NICKNAME_PADDING_RATIO;
+  var textSlotHeight = areaHeight - padding * 2;
+
+  var box = getTemplateBox(db.nickname, canvasH);
+  var metrics = getNicknameMetrics(window.layerState.nicknameFont, db.nickname);
+
+  // Подгоняем fontSize ЦЕЛИКОМ под ширину шаблона — без отдельного scaleX.
+  var fontSize = metrics.testSize * (box.width / metrics.width);
+  var naturalHeight = metrics.height * (fontSize / metrics.testSize);
+
+  var scaleY = 1;
+
+  if (naturalHeight > box.height) {
+    var idealScaleY = box.height / naturalHeight;
+    var COMPRESSION_SHARE = 0.6;
+    scaleY = 1 - (1 - idealScaleY) * COMPRESSION_SHARE;
+  }
+
+  var scaledHeight = naturalHeight * scaleY;
+
+  var extraY = scaledHeight > box.height
+    ? (scaledHeight - box.height) * 0.5
+    : 0;
+
+  var x = canvasW / 2;
+  var y = padding + textSlotHeight / 2 + extraY;
+
+  var styleIndex = db.nicknameStyleIndex || 0;
+
+  drawStyledText(
+    ctx, db.nickname, x, y, fontSize,
+    window.layerState.nicknameFont, styleIndex,
+    { skew: NICKNAME_SKEW, shadowScale: 0.8, scaleY: scaleY }
+  );
+}
+
 function showResultPage() {
+  generateSticky.classList.remove('is-visible');
   resultCanvas.classList.remove('is-ready');
   slidePage(brawlPage, resultPage, 'forward');
   drawResult(resultCanvas.getContext('2d'), resultCanvas.width, resultCanvas.height);
   requestAnimationFrame(function () { resultCanvas.classList.add('is-ready'); });
+
+  updateNicknamePanel();
+  renderStyleStrip();
+  renderFontStrip();
 }
 
 resultBackBtn.addEventListener('click', function () {
+  generateSticky.classList.toggle('is-visible', screens.length > 0);
   slidePage(resultPage, brawlPage, 'back');
 });
 
@@ -3578,22 +5392,27 @@ generateBtn.addEventListener('click', function () {
 
   var extractOptions = {
     priceScale: window.layerState.globalPriceScale,
-    priceFontFamily: window.layerState.offerPriceFont,
+    priceFontFamily: 'LilitaOneRus',
     priceColor: window.layerState.offerPriceColor
   };
 
-  bgPromise.then(function (bgImg) {
-    bgImageForRender = bgImg;
+  Promise.all([
+    bgPromise,
+    document.fonts.load("48px 'LilitaOneRus'")
+  ]).then(function (results) {
+    bgImageForRender = results[0];
 
     var idx = 0;
     function processNext() {
       if (idx >= screens.length) {
         layoutOffers(size.width, size.height);
 
-        generateOverlay.classList.remove('is-visible');
-        setTimeout(function () { generateOverlay.hidden = true; }, 300);
-
-        showResultPage(); // вместо показа канваса на этой же странице — переход на отдельную
+        var previewFontSize = Math.round(Math.min(size.width, size.height) * 0.08);
+        document.fonts.load(previewFontSize + "px '" + window.layerState.nicknameFont + "'").finally(function () {
+          generateOverlay.classList.remove('is-visible');
+          setTimeout(function () { generateOverlay.hidden = true; }, 300);
+          showResultPage();
+        });
         return;
       }
 
@@ -3622,6 +5441,291 @@ generateBtn.addEventListener('click', function () {
 
     processNext();
   });
+});
+
+var nicknamePanel = document.getElementById('nicknamePanel');
+var nicknamePanelHeader = document.getElementById('nicknamePanelHeader');
+var nicknamePanelTitle = document.getElementById('nicknamePanelTitle');
+var nicknamePanelBody = document.getElementById('nicknamePanelBody');
+var nicknameEnableSwitch = document.getElementById('nicknameEnableSwitch');
+
+var styleSubPanel = document.getElementById('styleSubPanel');
+var styleSubPanelToggle = document.getElementById('styleSubPanelToggle');
+var styleSubPanelBody = document.getElementById('styleSubPanelBody');
+
+var fontSubPanel = document.getElementById('fontSubPanel');
+var fontSubPanelToggle = document.getElementById('fontSubPanelToggle');
+var fontSubPanelBody = document.getElementById('fontSubPanelBody');
+
+var NICKNAME_TITLE_MAX_LENGTH = 18;
+
+function truncateNickname(nickname) {
+  if (nickname.length <= NICKNAME_TITLE_MAX_LENGTH) return nickname;
+  return nickname.slice(0, NICKNAME_TITLE_MAX_LENGTH - 1).trimEnd() + '…';
+}
+
+function setCollapsed(headerHostEl, bodyEl, collapsed) {
+  headerHostEl.classList.toggle('is-collapsed', collapsed);
+  bodyEl.classList.toggle('is-collapsed', collapsed);
+}
+
+// Временное (не сохраняемое между сессиями) состояние тумблера "Ник".
+// Сбрасывается на дефолт из чекбокса "эффекты" при каждой новой генерации.
+var nicknameSessionEnabled = null;
+
+function isNicknameActive() {
+  var db = loadDB();
+  if (!db.nickname) return false;
+  if (nicknameSessionEnabled === null) return !!db.effectsEnabled;
+  return nicknameSessionEnabled;
+}
+
+function updateNicknameSwitchUI() {
+  var enabled = isNicknameActive();
+  nicknameEnableSwitch.classList.toggle('is-on', enabled);
+  nicknameEnableSwitch.setAttribute('aria-pressed', enabled ? 'true' : 'false');
+  nicknamePanel.classList.toggle('is-nickname-off', !enabled);
+}
+
+function updateNicknamePanel() {
+  var db = loadDB();
+  var show = !!db.nickname;
+
+  nicknamePanel.hidden = !show;
+  if (!show) return;
+
+  // при каждом новом показе результата (новой генерации) тумблер ника
+  // заново наследует состояние чекбокса "эффекты"
+  nicknameSessionEnabled = !!db.effectsEnabled;
+
+  nicknamePanelTitle.textContent = 'Ник: ' + truncateNickname(db.nickname);
+
+  setCollapsed(nicknamePanel, nicknamePanelBody, !!db.nicknamePanelCollapsed);
+  setCollapsed(styleSubPanel, styleSubPanelBody, !!db.styleSubPanelCollapsed);
+  setCollapsed(fontSubPanel, fontSubPanelBody, !!db.fontSubPanelCollapsed);
+  updateNicknameSwitchUI();
+}
+
+// клик по шапке сворачивает панель, но не если попали в переключатель
+nicknamePanelHeader.addEventListener('click', function (e) {
+  if (e.target.closest('#nicknameEnableSwitch')) return;
+  var collapsed = !nicknamePanel.classList.contains('is-collapsed');
+  setCollapsed(nicknamePanel, nicknamePanelBody, collapsed);
+  saveDB({ nicknamePanelCollapsed: collapsed });
+});
+
+nicknameEnableSwitch.addEventListener('click', function (e) {
+  e.stopPropagation();
+  nicknameSessionEnabled = !isNicknameActive();
+  updateNicknameSwitchUI();
+
+  // акции пересчитываем — без ника им не нужен такой большой отступ сверху
+  layoutOffers(resultCanvas.width, resultCanvas.height);
+  drawResult(resultCanvas.getContext('2d'), resultCanvas.width, resultCanvas.height);
+});
+
+styleSubPanelToggle.addEventListener('click', function () {
+  var collapsed = !styleSubPanel.classList.contains('is-collapsed');
+  setCollapsed(styleSubPanel, styleSubPanelBody, collapsed);
+  saveDB({ styleSubPanelCollapsed: collapsed });
+});
+
+fontSubPanelToggle.addEventListener('click', function () {
+  var collapsed = !fontSubPanel.classList.contains('is-collapsed');
+  setCollapsed(fontSubPanel, fontSubPanelBody, collapsed);
+  saveDB({ fontSubPanelCollapsed: collapsed });
+});
+
+var styleStripSection = document.getElementById('styleStripSection');
+var styleStrip = document.getElementById('styleStrip');
+
+var STYLE_PREVIEW_TEXT = 'TEXT';
+var PREVIEW_HEIGHT_RATIO = 0.35;   // было 0.5, теперь на 30% меньше
+var PREVIEW_MAX_WIDTH_RATIO = 0.82;
+
+function renderStyleStrip() {
+  var db = loadDB();
+
+  if (!db.nickname) return;
+
+  styleStrip.innerHTML = '';
+
+  var selectedIndex = db.nicknameStyleIndex || 0;
+  var swatchW = 240;
+  var swatchH = 130;
+  
+  document.fonts.load("40px '" + window.layerState.nicknameFont + "'").finally(function () {
+    TEXT_STYLES.forEach(function (style, index) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'style-strip__item' + (index === selectedIndex ? ' is-selected' : '');
+      btn.dataset.index = index;
+
+      var swatchCanvas = document.createElement('canvas');
+      swatchCanvas.width = swatchW;
+      swatchCanvas.height = swatchH;
+      var sctx = swatchCanvas.getContext('2d');
+      sctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--surface-soft');
+      sctx.fillRect(0, 0, swatchW, swatchH);
+
+      var styleMetrics = getNicknameMetrics(window.layerState.nicknameFont, STYLE_PREVIEW_TEXT);
+
+      var previewFontSize = Math.round(
+        styleMetrics.testSize * (swatchH * PREVIEW_HEIGHT_RATIO / styleMetrics.height)
+      );
+
+      var naturalWidth =
+        styleMetrics.width * (previewFontSize / styleMetrics.testSize);
+
+      var maxPreviewWidth = swatchW * PREVIEW_MAX_WIDTH_RATIO;
+
+      if (naturalWidth > maxPreviewWidth) {
+        previewFontSize = Math.floor(
+          previewFontSize * (maxPreviewWidth / naturalWidth)
+        );
+      }
+
+      drawStyledText(
+        sctx, STYLE_PREVIEW_TEXT, swatchW / 2, swatchH / 2,
+        previewFontSize, window.layerState.nicknameFont, index,
+        { skew: NICKNAME_SKEW, shadowScale: 0.8 }
+      );
+      btn.appendChild(swatchCanvas);
+      styleStrip.appendChild(btn);
+    });
+  });
+}
+
+styleStrip.addEventListener('click', function (e) {
+  var btn = e.target.closest('.style-strip__item');
+  if (!btn) return;
+
+  var index = Number(btn.dataset.index);
+  saveDB({ nicknameStyleIndex: index });
+
+  styleStrip.querySelectorAll('.style-strip__item').forEach(function (el) {
+    el.classList.remove('is-selected');
+  });
+  btn.classList.add('is-selected');
+
+  drawResult(resultCanvas.getContext('2d'), resultCanvas.width, resultCanvas.height);
+});
+var FONT_HEIGHT_RATIO_CACHE = {};
+
+function getNicknameMetrics(fontFamily, text) {
+  var probe = document.createElement('canvas').getContext('2d');
+  var testSize = 200;
+
+  probe.font = testSize + "px '" + fontFamily + "', sans-serif";
+
+  var m = probe.measureText(text);
+
+  var width =
+    (m.actualBoundingBoxLeft || 0) +
+    (m.actualBoundingBoxRight || m.width);
+
+  var height =
+    (m.actualBoundingBoxAscent || testSize * 0.72) +
+    (m.actualBoundingBoxDescent || testSize * 0.12);
+
+  return {
+    testSize: testSize,
+    width: Math.max(1, width),
+    height: Math.max(1, height)
+  };
+}
+var FONT_CATALOG = [
+  { family: 'SupercellMagic',          label: 'Supercell' },
+  { family: 'LilitaOneRus',            label: 'Lilita' },
+  { family: 'PusiaBold',               label: 'Pusia' },
+  { family: 'BebasNeueCyrillic',       label: 'Bebas' },
+  { family: 'NunitoBlack',             label: 'Nunito' },
+  { family: 'AmericanCaptainCyrillic', label: 'American' },
+  { family: 'AlegreyaSansSCBlack',     label: 'Alegreya' },
+  { family: 'HackedCyr',               label: 'Hacked' },
+  { family: 'Font16103',               label: 'Classic' }
+];
+
+var fontStripSection = document.getElementById('fontStripSection');
+var fontStrip = document.getElementById('fontStrip');
+
+function renderFontStrip() {
+  var db = loadDB();
+
+  if (!db.nickname) return;
+  fontStrip.innerHTML = '';
+
+  var selectedFamily = window.layerState.nicknameFont;
+  var swatchW = 200, swatchH = 100;
+
+  Promise.allSettled(
+    FONT_CATALOG.map(function (f) { return document.fonts.load("40px '" + f.family + "'"); })
+  ).then(function () {
+    FONT_CATALOG.forEach(function (fontDef) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'style-strip__item' + (fontDef.family === selectedFamily ? ' is-selected' : '');
+      btn.dataset.family = fontDef.family;
+
+      var swatchCanvas = document.createElement('canvas');
+      swatchCanvas.width = swatchW;
+      swatchCanvas.height = swatchH;
+      var sctx = swatchCanvas.getContext('2d');
+      sctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--surface-soft');
+      sctx.fillRect(0, 0, swatchW, swatchH);
+
+      var metrics = getNicknameMetrics(
+        fontDef.family,
+        STYLE_PREVIEW_TEXT
+      );
+
+      var targetPreviewHeight = swatchH * PREVIEW_HEIGHT_RATIO;
+
+      var previewFontSize = Math.round(
+        metrics.testSize * (targetPreviewHeight / metrics.height)
+      );
+
+      var naturalWidth =
+        metrics.width * (previewFontSize / metrics.testSize);
+
+      var maxPreviewWidth = swatchW * PREVIEW_MAX_WIDTH_RATIO;
+
+      if (naturalWidth > maxPreviewWidth) {
+        previewFontSize = Math.floor(
+          previewFontSize * (maxPreviewWidth / naturalWidth)
+        );
+      }
+
+      sctx.save();
+      sctx.translate(swatchW / 2, swatchH / 2);
+      sctx.transform(1, 0, NICKNAME_SKEW, 1, 0, 0);
+      sctx.textAlign = 'center';
+      sctx.textBaseline = 'middle';
+      sctx.font = previewFontSize + "px '" + fontDef.family + "', sans-serif";
+      sctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text');
+      sctx.fillText(STYLE_PREVIEW_TEXT, 0, 0);
+      sctx.restore();
+
+      btn.appendChild(swatchCanvas);
+      fontStrip.appendChild(btn);
+    });
+  });
+}
+
+fontStrip.addEventListener('click', function (e) {
+  var btn = e.target.closest('.style-strip__item');
+  if (!btn) return;
+
+  window.layerState.nicknameFont = btn.dataset.family;
+  saveDB({ nicknameFontFamily: btn.dataset.family });
+
+  fontStrip.querySelectorAll('.style-strip__item').forEach(function (el) {
+    el.classList.remove('is-selected');
+  });
+  btn.classList.add('is-selected');
+
+  drawResult(resultCanvas.getContext('2d'), resultCanvas.width, resultCanvas.height);
+  renderStyleStrip(); // превью стилей должны обновиться под новый шрифт
 });
 </script>
 </body>
