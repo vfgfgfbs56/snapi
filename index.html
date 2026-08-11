@@ -25,13 +25,19 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=optional" rel="stylesheet">
 <style>
   :root {
     --radius-lg: 26px;
     --radius-md: 22px;
     --radius-pill: 999px;
     --ease: cubic-bezier(.4,0,.2,1);
+  }
+
+  img {
+    -webkit-user-drag: none;
+    user-drag: none;
+    -webkit-touch-callout: none;
   }
 
   @font-face {
@@ -141,7 +147,7 @@
     user-select: none;
   }
 
-  button, a, input {
+  button, a, input, label, [role="button"] {
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
     outline: none;
@@ -162,20 +168,12 @@
     font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
 
-    opacity: 0;
-    pointer-events: none;
+    opacity: 1;
+    pointer-events: auto;
 
     transition:
       background-color .3s var(--ease),
-      color .3s var(--ease),
-      opacity .18s var(--ease);
-
-    overflow-x: clip;
-  }
-
-  html.app-ready body {
-    opacity: 1;
-    pointer-events: auto;
+      color .3s var(--ease);
   }
 
   button { font-family: inherit; }
@@ -1857,7 +1855,7 @@
 
 .style-strip__item:active { transform: scale(.98); }
 .style-strip__item canvas { width: 100%; height: 100%; display: block; }
-.style-strip__item.is-selected { outline-color: var(--accent); }
+.style-strip__item.is-selected { box-shadow: inset 0 0 0 2px var(--accent); }
 .result-left {
   position: sticky;
   top: calc(12px + env(safe-area-inset-top));
@@ -3562,27 +3560,9 @@ function saveDB(data) {
 }
 
 function finishInitialBoot() {
-  var root = document.documentElement;
-
-  function reveal() {
-    root.classList.remove('booting');
-
-    requestAnimationFrame(function () {
-      root.classList.add('app-ready');
-    });
-  }
-
-  if (!document.fonts) {
-    reveal();
-    return;
-  }
-
-  Promise.all([
-    document.fonts.load('500 16px "Manrope"'),
-    document.fonts.load('600 16px "Manrope"'),
-    document.fonts.load('700 16px "Manrope"'),
-    document.fonts.load('800 16px "Manrope"')
-  ]).then(reveal, reveal);
+  requestAnimationFrame(function () {
+    document.documentElement.classList.remove('booting');
+  });
 }
 
 function splitChars(el) {
@@ -4168,6 +4148,7 @@ uploadInput.addEventListener('change', function () {
 })();
   document.addEventListener('contextmenu', e => e.preventDefault());
   document.addEventListener('copy', e => e.preventDefault());
+  document.addEventListener('dragstart', e => e.preventDefault());
 
   document.addEventListener('click', function (e) {
     var active = document.activeElement;
@@ -5727,6 +5708,42 @@ fontStrip.addEventListener('click', function (e) {
   drawResult(resultCanvas.getContext('2d'), resultCanvas.width, resultCanvas.height);
   renderStyleStrip(); // превью стилей должны обновиться под новый шрифт
 });
+
+function disableHoverOnTouchDevices() {
+  if (!window.matchMedia('(hover: none), (pointer: coarse)').matches) return;
+
+  function processRules(rules) {
+    for (let i = rules.length - 1; i >= 0; i--) {
+      const rule = rules[i];
+
+      if (rule.cssRules) {
+        processRules(rule.cssRules);
+        continue;
+      }
+
+      if (!rule.selectorText || !rule.selectorText.includes(':hover')) continue;
+
+      const selectors = rule.selectorText
+        .split(',')
+        .map(s => s.trim())
+        .filter(s => !s.includes(':hover'));
+
+      if (selectors.length) {
+        rule.selectorText = selectors.join(', ');
+      } else {
+        rule.parentStyleSheet.deleteRule(i);
+      }
+    }
+  }
+
+  Array.from(document.styleSheets).forEach(sheet => {
+    try {
+      processRules(sheet.cssRules);
+    } catch (e) {}
+  });
+}
+
+disableHoverOnTouchDevices();
 </script>
 </body>
 </html>
