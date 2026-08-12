@@ -1683,6 +1683,8 @@
 }
 
 .style-strip__item {
+  position: relative;
+
   width: 100%;
   height: auto;
   aspect-ratio: 2 / 1;
@@ -1693,9 +1695,17 @@
   cursor: pointer;
   background: var(--surface);
   overflow: hidden;
-  outline: 2px solid transparent;
-  outline-offset: -2px;
-  transition: transform .15s var(--ease), outline-color .15s var(--ease);
+}
+
+.style-strip__item.is-selected::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 3px solid var(--accent);
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 5;
+  box-sizing: border-box;
 }
 
 .nickname-panel {
@@ -1855,7 +1865,16 @@
 
 .style-strip__item:active { transform: scale(.98); }
 .style-strip__item canvas { width: 100%; height: 100%; display: block; }
-.style-strip__item.is-selected { box-shadow: inset 0 0 0 2px var(--accent); }
+.style-strip__item.is-selected::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 3px solid var(--accent);
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 5;
+  box-sizing: border-box;
+}
 .result-left {
   position: sticky;
   top: calc(12px + env(safe-area-inset-top));
