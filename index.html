@@ -8,7 +8,7 @@
 <title>Snapi</title>
 
 <script>
-  const DB_NAME = 'vysоre4п5jjy6_db';
+  const DB_NAME = 'vysоre4рп5jjy6_db';
 
   document.documentElement.classList.add('booting');
 
@@ -1643,6 +1643,8 @@
 }
 
 .result-wrap {
+  position: relative;
+
   margin: 20px 0 24px;
   display: flex;
   flex-direction: column;
@@ -1863,6 +1865,50 @@
   padding-bottom: 4px;
 }
 
+.price-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 4px 0 10px;
+}
+
+.price-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.price-row__label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-soft);
+  font-size: .9rem;
+  font-weight: 700;
+}
+
+.price-row__input {
+  flex: none;
+  width: 96px;
+  appearance: none;
+  border: none;
+  border-radius: 12px;
+  background: var(--surface-soft);
+  color: var(--text);
+  font: inherit;
+  font-size: .95rem;
+  text-align: center;
+  padding: 10px 12px;
+  outline: none;
+  transition: box-shadow .2s var(--ease);
+}
+
+.price-row__input::placeholder { color: var(--text-faint); }
+.price-row__input:focus { box-shadow: 0 0 0 2px var(--accent); }
+
 .style-strip__item:active { transform: scale(.98); }
 .style-strip__item canvas { width: 100%; height: 100%; display: block; }
 .style-strip__item.is-selected::after {
@@ -1946,6 +1992,10 @@
   gap: 20px;
 }
 
+#pricePanel {
+  margin: 0 0 20px;
+}
+
 @media (min-width: 860px) {
   .result-sidebar {
     gap: 32px;
@@ -1956,14 +2006,21 @@
   .result-main {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 340px;
+    grid-template-areas: "left sidebar";
     align-items: start;
     gap: 28px;
   }
 
+  .result-left-col {
+    grid-area: left;
+  }
+
   .result-left {
+    grid-area: left;
     display: flex;
     flex-direction: column;
     align-items: center;
+    position: sticky;
     top: 24px;
     align-self: start;
   }
@@ -1975,6 +2032,17 @@
   #resultCanvas {
     max-width: 480px;
   }
+
+  #pricePanel {
+    max-width: 480px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .result-sidebar {
+    grid-area: sidebar;
+  }
+
   .style-strip {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1987,6 +2055,9 @@
 #downloadResultBtn {
   padding: 14px 20px;
   font-size: .95rem;
+}
+.download-result__icon {
+  display: none;
 }
 .generate-sticky {
   position: fixed;
@@ -2014,6 +2085,120 @@
     opacity .3s var(--ease),
     transform .3s var(--ease),
     visibility .3s;
+}
+
+@media (max-width: 859px) {
+
+  #downloadResultBtn.is-collapsed {
+    width: 34px;
+    padding-left: 0;
+    padding-right: 0;
+    gap: 0;
+  }
+
+  #downloadResultBtn.is-collapsed .download-result__text {
+    max-width: 0;
+
+    opacity: 0;
+    filter: blur(6px);
+
+    transform: translateX(10px);
+
+    pointer-events: none;
+  }
+
+  #downloadResultBtn.is-collapsed .download-result__icon {
+    transform: scale(1);
+  }
+
+  #resultCanvas {
+    display: block;
+  }
+
+  #downloadResultBtn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 5;
+
+    width: 112px;
+    height: 34px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+
+    padding: 6px 10px;
+
+    border-radius: 999px;
+
+    background: rgba(0, 0, 0, .52);
+    color: #fff;
+
+    box-shadow: none;
+
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    white-space: nowrap;
+    overflow: hidden;
+
+    transition:
+      width .55s var(--ease),
+      padding .55s var(--ease),
+      gap .55s var(--ease),
+      background-color .25s var(--ease),
+      transform .2s var(--ease);
+  }
+
+  #downloadResultBtn:hover {
+    transform: none;
+    background: rgba(0, 0, 0, .62);
+    box-shadow: none;
+  }
+
+  #downloadResultBtn:active {
+    transform: scale(.96);
+  }
+
+  .download-result__text {
+    text-transform: lowercase;
+
+    max-width: 70px;
+    opacity: 1;
+    filter: blur(0);
+    transform: translateX(0);
+
+    overflow: hidden;
+
+    transition:
+      max-width .5s var(--ease),
+      opacity .3s var(--ease),
+      filter .4s var(--ease),
+      transform .45s var(--ease);
+  }
+
+  .download-result__icon {
+    display: block;
+
+    width: 18px;
+    height: 18px;
+    flex: 0 0 18px;
+
+    object-fit: contain;
+
+    filter: invert(1);
+    opacity: .95;
+
+    transform: scale(.94);
+
+    transition:
+      transform .55s var(--ease),
+      opacity .3s var(--ease);
+
+    pointer-events: none;
+  }
 }
 
 .generate-sticky::before {
@@ -2077,6 +2262,107 @@ body.page-scroll-locked {
   overflow: hidden;
   overscroll-behavior: none;
   touch-action: none;
+}
+@media (min-width: 860px) {
+  #pricePanelMobileSlot { display: none; }
+}
+
+.exit-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background: rgba(0, 0, 0, .55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  opacity: 0;
+  transition: opacity .22s var(--ease);
+}
+
+.exit-confirm-overlay[hidden] {
+  display: none;
+}
+
+.exit-confirm-overlay.is-visible {
+  opacity: 1;
+}
+
+.exit-confirm {
+  width: min(400px, 100%);
+  padding: 24px;
+
+  background: var(--bg);
+  border-radius: 26px;
+  box-shadow: var(--shadow);
+
+  transform: scale(.96);
+  transition: transform .22s var(--ease);
+}
+
+.exit-confirm-overlay.is-visible .exit-confirm {
+  transform: scale(1);
+}
+
+.exit-confirm h3 {
+  margin: 0 0 10px;
+  color: var(--text);
+  font-size: 1.15rem;
+}
+
+.exit-confirm p {
+  margin: 0 0 22px;
+  color: var(--text-muted);
+  font-size: .92rem;
+  line-height: 1.5;
+}
+
+.exit-confirm__buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.exit-confirm__buttons button {
+  flex: 1;
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 14px 18px;
+
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.exit-confirm__cancel {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.exit-confirm__leave {
+  background: var(--accent);
+  color: #fff;
+}
+
+.recovery-confirm__preview {
+  display: block;
+
+  width: 100%;
+  max-height: 220px;
+
+  object-fit: contain;
+
+  margin: 0 0 20px;
+
+  border-radius: 18px;
+  background: var(--surface-soft);
+
+  box-shadow: var(--shadow-sm);
 }
 </style>
 </head>
@@ -3390,12 +3676,41 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
   </header>
 
   <main class="result-main">
-    <div class="result-left">
+  <div class="result-left" id="resultLeft">
       <div class="result-wrap" id="resultWrap">
         <canvas id="resultCanvas"></canvas>
-        <button type="button" class="btn-primary" id="downloadResultBtn">Скачать</button>
+          <button type="button" class="btn-primary" id="downloadResultBtn">
+            <span class="download-result__text">Скачать</span>
+
+            <img
+              class="download-result__icon"
+              src="download.svg"
+              alt=""
+              aria-hidden="true"
+            >
+          </button>
       </div>
-    </div>
+
+      <section class="nickname-panel" id="pricePanel" hidden>
+      <div class="nickname-panel__header" id="pricePanelHeader">
+        <span class="nickname-panel__title">Цена акций</span>
+        <div class="nickname-panel__controls">
+          <span class="nickname-panel__chevron">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 9l6 6 6-6"></path>
+            </svg>
+          </span>
+        </div>
+      </div>
+      <div class="collapse-body" id="pricePanelBody">
+        <div class="nickname-panel__body-inner">
+          <div class="price-list" id="priceList"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="pricePanelMobileSlot"></div>
 
     <div class="result-sidebar">
       <section class="nickname-panel" id="nicknamePanel" hidden>
@@ -3560,6 +3875,62 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
   <p class="generate-overlay__text" id="generateOverlayText">Генерируется работа, подождите…</p>
 </div>
 
+<div class="exit-confirm-overlay" id="resultExitConfirm" hidden>
+  <div class="exit-confirm">
+    <h3>Вы действительно хотите вернуться назад?</h3>
+
+    <p>
+      Ваши изменения не будут сохранены.
+    </p>
+
+    <div class="exit-confirm__buttons">
+      <button type="button" class="exit-confirm__cancel" id="resultExitCancel">
+        Отмена
+      </button>
+
+      <button type="button" class="exit-confirm__leave" id="resultExitLeave">
+        Выйти
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="exit-confirm-overlay" id="resultRecoveryConfirm" hidden>
+  <div class="exit-confirm recovery-confirm">
+
+    <img
+      class="recovery-confirm__preview"
+      id="resultRecoveryPreview"
+      alt="Последняя несохранённая работа"
+    >
+
+    <h3>Вы недавно сгенерировали работу, но не скачали её.</h3>
+
+    <p>
+      Хотите вернуться к ней?
+    </p>
+
+    <div class="exit-confirm__buttons">
+      <button
+        type="button"
+        class="exit-confirm__leave"
+        id="resultRecoveryOpen"
+      >
+        Перейти
+      </button>
+
+      <button
+        type="button"
+        class="exit-confirm__cancel"
+        id="resultRecoveryCancel"
+      >
+        Отмена
+      </button>
+    </div>
+
+  </div>
+</div>
+
 <script src="brawl-stars-logic.js"></script>
 
 <script>
@@ -3663,16 +4034,44 @@ function goToStep(fromEl, toEl, after) {
   var overlay = document.getElementById('onboardingOverlay');
   var mainPage = document.getElementById('mainPage');
 
-  if (db.onboarded) {
-    overlay.hidden = true;
-    overlay.classList.remove('is-leaving');
+if (db.onboarded) {
+  overlay.hidden = true;
+  overlay.classList.remove('is-leaving');
 
-    mainPage.hidden = false;
-    mainPage.classList.remove('is-hidden');
+  var savedPageId =
+    sessionStorage.getItem('snapi_active_page') || 'mainPage';
 
-    finishInitialBoot();
-    return;
+  // Разрешаем восстановить только нормальные страницы.
+  if (
+    savedPageId !== 'mainPage' &&
+    savedPageId !== 'brawlPage'
+  ) {
+    savedPageId = 'mainPage';
   }
+
+  document.querySelectorAll('.app-page').forEach(function (page) {
+    page.hidden = true;
+    page.classList.add('is-hidden');
+
+    page.classList.remove(
+      'is-sliding',
+      'slide-center',
+      'slide-enter-forward',
+      'slide-enter-back',
+      'slide-exit-forward',
+      'slide-exit-back'
+    );
+  });
+
+  var savedPage =
+    document.getElementById(savedPageId) || mainPage;
+
+  savedPage.hidden = false;
+  savedPage.classList.remove('is-hidden');
+
+  finishInitialBoot();
+  return;
+}
 
   overlay.hidden = false;
   overlay.classList.remove('is-leaving');
@@ -3722,6 +4121,9 @@ function goToStep(fromEl, toEl, after) {
     if (!nickname) { nicknameInput.focus(); return; }
 
     saveDB({ onboarded: true, nickname: nickname });
+
+    sessionStorage.setItem('snapi_active_page', 'mainPage');
+
     welcomeTitle.textContent = 'Добро пожаловать, ' + nickname + '!';
     prepareStepText(stepWelcome);
 
@@ -4054,6 +4456,31 @@ function readScreenshotAsDataURL(file, cb) {
   reader.readAsDataURL(file);
 }
 
+function readFileAsDataURL(file, cb) {
+  var reader = new FileReader();
+
+  reader.onload = function () {
+    var dataUrl = reader.result;
+    var img = new Image();
+
+    img.onload = function () {
+      cb(dataUrl, img.naturalWidth, img.naturalHeight);
+    };
+
+    img.onerror = function () {
+      cb(dataUrl, 0, 0);
+    };
+
+    img.src = dataUrl;
+  };
+
+  reader.onerror = function () {
+    cb(null, 0, 0);
+  };
+
+  reader.readAsDataURL(file);
+}
+
 uploadInput.addEventListener('change', function () {
   if (uploadInput.files && uploadInput.files.length > 0) {
     readFileAsDataURL(uploadInput.files[0], function (dataUrl, w, h) {
@@ -4171,7 +4598,12 @@ uploadInput.addEventListener('change', function () {
 
   document.addEventListener('click', function (e) {
     var active = document.activeElement;
-    if (active && active.tagName === 'INPUT' && !e.target.closest('.input-wrap')) {
+    if (
+      active &&
+      active.tagName === 'INPUT' &&
+      !e.target.closest('.input-wrap') &&
+      !e.target.closest('.price-row')
+    ) {
       active.blur();
     }
   });
@@ -4179,7 +4611,7 @@ uploadInput.addEventListener('change', function () {
     document.addEventListener(evt, function (e) { e.preventDefault(); });
   });
 
-  var editTemplateBtn = document.getElementById('editTemplateBtn');
+var editTemplateBtn = document.getElementById('editTemplateBtn');
 var editChooseOverlay = document.getElementById('editChooseOverlay');
 var editNicknameOverlay = document.getElementById('editNicknameOverlay');
 var editBgOption = document.getElementById('editBgOption');
@@ -4242,17 +4674,25 @@ function getBgSize() {
 }
 
 function matchChipType(w, h) {
-  if (w === 1280 && h === 720 && !(loadDB().selectedBgSource === 'upload')) return 'telegram';
+  if (w === 1280 && h === 720) return 'telegram';
   if (w === 1280 && h === 960) return 'playerok';
+
   var bgSize = getBgSize();
+
   if (w === bgSize.width && h === bgSize.height) return 'bg';
+
   return null;
 }
 
 function renderSizeSelection() {
   var db = loadDB();
-  var sel = db.sizeSelection || { width: 1280, height: 720 };
-  var type = matchChipType(sel.width, sel.height);
+  var sel = db.sizeSelection || {
+    width: 1280,
+    height: 720,
+    type: 'telegram'
+  };
+
+  var type = sel.type || matchChipType(sel.width, sel.height);
 
   var bgSize = getBgSize();
   var bgChip = sizeChips.querySelector('.size-chip[data-type="bg"]');
@@ -4267,14 +4707,29 @@ function renderSizeSelection() {
 
 function applyDefaultSize() {
   var db = loadDB();
-  var w = 1280, h = 720;
 
-  if (db.selectedBgSource === 'upload' && db.uploadedBgWidth && db.uploadedBgHeight) {
+  var w = 1280;
+  var h = 720;
+  var type = 'telegram';
+
+  if (
+    db.selectedBgSource === 'upload' &&
+    db.uploadedBgWidth &&
+    db.uploadedBgHeight
+  ) {
     w = db.uploadedBgWidth;
     h = db.uploadedBgHeight;
+    type = 'bg';
   }
 
-  saveDB({ sizeSelection: { width: w, height: h } });
+  saveDB({
+    sizeSelection: {
+      width: w,
+      height: h,
+      type: type
+    }
+  });
+
   renderSizeSelection();
 }
 
@@ -4303,16 +4758,35 @@ sizeChips.addEventListener('click', function (e) {
     h = Number(chip.dataset.height);
   }
 
-  var db = loadDB();
-  var current = db.sizeSelection || { width: 1280, height: 720 };
+var db = loadDB();
 
-  if (current.width === w && current.height === h) {
-    showSizeToast();
-    return;
+var current = db.sizeSelection || {
+  width: 1280,
+  height: 720,
+  type: 'telegram'
+};
+
+var currentType =
+  current.type || matchChipType(current.width, current.height);
+
+if (
+  current.width === w &&
+  current.height === h &&
+  currentType === chip.dataset.type
+) {
+  showSizeToast();
+  return;
+}
+
+saveDB({
+  sizeSelection: {
+    width: w,
+    height: h,
+    type: chip.dataset.type
   }
+});
 
-  saveDB({ sizeSelection: { width: w, height: h } });
-  renderSizeSelection();
+renderSizeSelection();
 });
 
 var editBgPreview = document.getElementById('editBgPreview');
@@ -4428,6 +4902,21 @@ var slideToken = 0;
 
 function slidePage(hideEl, showEl, direction) {
   if (pageIsAnimating) return;
+
+  // Запоминаем текущий раздел вкладки.
+  // resultPage после перезагрузки открыть нельзя,
+  // потому что результат хранится в памяти, поэтому возвращаемся в Brawl Stars.
+  var pageToRemember =
+    showEl.id === 'resultPage'
+      ? 'brawlPage'
+      : showEl.id;
+
+  if (
+    pageToRemember === 'mainPage' ||
+    pageToRemember === 'brawlPage'
+  ) {
+    sessionStorage.setItem('snapi_active_page', pageToRemember);
+  }
 
   pageIsAnimating = true;
   window.scrollTo(0, 0);
@@ -4629,17 +5118,25 @@ screensInput.addEventListener('change', function () {
 
 var screenDragDepth = 0;
 
-// определяет, куда сейчас должен уйти перетащенный файл:
-// 'screens' — идёт загрузка скриншотов на странице Brawl Stars
-// 'bg' — пользователь на шаге 1 онбординга (выбор фона)
-// null — перетаскивание сейчас никуда не применимо
 function getActiveDropMode() {
+  var modalIsOpen =
+    (editChooseOverlay && !editChooseOverlay.hidden) ||
+    (editNicknameOverlay && !editNicknameOverlay.hidden) ||
+    (bgSheetOverlay && !bgSheetOverlay.hidden);
+
+  if (modalIsOpen) return null;
+
   if (!brawlPage.hidden) return 'screens';
 
   var onboardingOverlayEl = document.getElementById('onboardingOverlay');
   var step1El = document.querySelector('.onboarding-step[data-step="1"]');
 
-  if (onboardingOverlayEl && !onboardingOverlayEl.hidden && step1El && !step1El.hidden) {
+  if (
+    onboardingOverlayEl &&
+    !onboardingOverlayEl.hidden &&
+    step1El &&
+    !step1El.hidden
+  ) {
     return 'bg';
   }
 
@@ -5059,9 +5556,447 @@ window.layerState = {
   isBrawlPassMode: false,
   offerPriceFont: 'LilitaOneRus',
   offerPriceColor: '#ffffff',
+  offerPriceMax: 99999, 
   nicknameFont: loadDB().nicknameFontFamily || 'SupercellMagic',
   nicknameColor: '#ffffff'
 };
+
+var resultExitConfirm = document.getElementById('resultExitConfirm');
+var resultExitCancel = document.getElementById('resultExitCancel');
+var resultExitLeave = document.getElementById('resultExitLeave');
+
+function openResultExitConfirm() {
+  resultExitConfirm.hidden = false;
+
+  requestAnimationFrame(function () {
+    resultExitConfirm.classList.add('is-visible');
+  });
+}
+
+function closeResultExitConfirm() {
+  resultExitConfirm.classList.remove('is-visible');
+
+  setTimeout(function () {
+    if (!resultExitConfirm.classList.contains('is-visible')) {
+      resultExitConfirm.hidden = true;
+    }
+  }, 220);
+}
+
+resultExitCancel.addEventListener('click', function () {
+  closeResultExitConfirm();
+});
+
+resultExitLeave.addEventListener('click', function () {
+  closeResultExitConfirm();
+  leaveResultPage();
+});
+
+resultExitConfirm.addEventListener('click', function (e) {
+  if (e.target === resultExitConfirm) {
+    closeResultExitConfirm();
+  }
+});
+
+var resultRecoveryConfirm =
+  document.getElementById('resultRecoveryConfirm');
+
+var resultRecoveryPreview =
+  document.getElementById('resultRecoveryPreview');
+
+var resultRecoveryOpen =
+  document.getElementById('resultRecoveryOpen');
+
+var resultRecoveryCancel =
+  document.getElementById('resultRecoveryCancel');
+
+var pendingRecoveryWork = null;
+var recoveryPreviewUrl = null;
+
+var resultReturnPage = brawlPage;
+
+function openResultRecoveryConfirm(work) {
+  pendingRecoveryWork = work;
+
+  if (recoveryPreviewUrl) {
+    URL.revokeObjectURL(recoveryPreviewUrl);
+  }
+
+  recoveryPreviewUrl = URL.createObjectURL(work.blob);
+  resultRecoveryPreview.src = recoveryPreviewUrl;
+
+  resultRecoveryConfirm.hidden = false;
+
+  requestAnimationFrame(function () {
+    resultRecoveryConfirm.classList.add('is-visible');
+  });
+}
+
+function closeResultRecoveryConfirm() {
+  resultRecoveryConfirm.classList.remove('is-visible');
+
+  setTimeout(function () {
+    if (!resultRecoveryConfirm.classList.contains('is-visible')) {
+      resultRecoveryConfirm.hidden = true;
+    }
+  }, 220);
+}
+
+function restoreUnsavedResult(work) {
+  if (!work) return;
+
+  if (
+    !Array.isArray(work.screens) ||
+    work.screens.length === 0 ||
+    !work.state
+  ) {
+    // Это старая recovery-запись, созданная до поддержки слоёв
+    deleteUnsavedResult();
+    closeResultRecoveryConfirm();
+    return;
+  }
+
+  resultRecoveryRestoring = true;
+  resultWasDownloaded = false;
+
+  currentRecoveryWorkId =
+    work.id ||
+    work.createdAt ||
+    Date.now();
+
+  closeResultRecoveryConfirm();
+
+  generateOverlay.hidden = false;
+
+  requestAnimationFrame(function () {
+    generateOverlay.classList.add('is-visible');
+  });
+
+  generateOverlayText.textContent =
+    'Восстанавливаем работу…';
+
+  /*
+   * Возвращаем настройки именно той работы.
+   */
+  saveDB({
+    selectedBgSource: work.state.selectedBgSource,
+    selectedBg: work.state.selectedBg,
+    selectedColorPreset: work.state.selectedColorPreset,
+
+    uploadedBgDataUrl: work.state.uploadedBgDataUrl,
+    uploadedBgWidth: work.state.uploadedBgWidth,
+    uploadedBgHeight: work.state.uploadedBgHeight,
+
+    nickname: work.state.nickname,
+    nicknameStyleIndex: work.state.nicknameStyleIndex,
+    nicknameFontFamily: work.state.nicknameFontFamily,
+
+    effectsEnabled: work.state.effectsEnabled,
+
+    sizeSelection: work.state.sizeSelection
+  });
+
+  window.layerState.nicknameFont =
+    work.state.nicknameFontFamily || 'SupercellMagic';
+
+  /*
+   * Возвращаем исходные скриншоты.
+   */
+  screens = work.screens.slice();
+  renderScreens();
+
+  /*
+   * Очищаем старое состояние слоёв.
+   */
+  allGeneratedCards = [];
+  window.layerState.offers = [];
+
+  resultCanvas.width = work.width;
+  resultCanvas.height = work.height;
+
+  var db = loadDB();
+
+  var bgSrc = db.uploadedBgDataUrl
+    ? db.uploadedBgDataUrl
+    : (
+        db.selectedBg
+          ? 'bg/' + db.selectedBg + '.jpg'
+          : null
+      );
+
+  var bgPromise = bgSrc
+    ? loadImage(bgSrc)
+    : Promise.resolve(null);
+
+  var extractOptions = {
+    priceScale: window.layerState.globalPriceScale,
+    priceFontFamily: 'LilitaOneRus',
+    priceColor: window.layerState.offerPriceColor
+  };
+
+  Promise.all([
+    bgPromise,
+    document.fonts.load("48px 'LilitaOneRus'")
+  ])
+  .then(function (results) {
+    bgImageForRender = results[0];
+
+    var index = 0;
+
+    function processNextRecoveredScreen() {
+      if (index >= screens.length) {
+        finishRecoveredResult();
+        return;
+      }
+
+      generateOverlayText.textContent =
+        'Восстанавливаем слои ' +
+        (index + 1) +
+        ' из ' +
+        screens.length +
+        '…';
+
+      loadImage(screens[index])
+        .then(function (img) {
+          try {
+            var cards =
+              window.runMagicLogic(
+                img,
+                extractOptions
+              ) || [];
+
+            cards.forEach(function (card) {
+              allGeneratedCards.push(card);
+
+              window.layerState.offers.push({
+                ref: card,
+                target: {
+                  x: 0,
+                  y: 0,
+                  w: 0,
+                  h: 0
+                }
+              });
+            });
+          } catch (err) {
+            console.warn(
+              'Не удалось восстановить скриншот ' +
+              (index + 1),
+              err
+            );
+          }
+
+          index++;
+          processNextRecoveredScreen();
+        })
+        .catch(function (err) {
+          console.warn(
+            'Не удалось загрузить сохранённый скриншот ' +
+            (index + 1),
+            err
+          );
+
+          index++;
+          processNextRecoveredScreen();
+        });
+    }
+
+    processNextRecoveredScreen();
+  })
+  .catch(function (err) {
+    resultRecoveryRestoring = false;
+
+    generateOverlay.classList.remove('is-visible');
+
+    setTimeout(function () {
+      generateOverlay.hidden = true;
+    }, 300);
+
+    console.warn(
+      'Не удалось восстановить работу',
+      err
+    );
+  });
+
+  function finishRecoveredResult() {
+    /*
+     * Возвращаем сохранённые цены.
+     */
+    if (Array.isArray(work.prices)) {
+      window.layerState.offers.forEach(function (offer, index) {
+        if (work.prices[index] === undefined) return;
+
+        var raw = String(work.prices[index] || '');
+        var newPrice = raw === '' ? 'FREE' : raw;
+
+        window.redrawCardPrice(
+          offer.ref,
+          newPrice,
+          {
+            priceScale: window.layerState.globalPriceScale,
+            priceFontFamily: 'LilitaOneRus',
+            priceColor: window.layerState.offerPriceColor
+          }
+        );
+      });
+    }
+
+    /*
+     * Сначала создаём панели.
+     */
+    renderPricePanel();
+    updateNicknamePanel();
+    renderStyleStrip();
+    renderFontStrip();
+
+    /*
+     * updateNicknamePanel() устанавливает стандартное состояние,
+     * поэтому после него возвращаем состояние ника именно этой работы.
+     */
+    if (typeof work.nicknameEnabled === 'boolean') {
+      nicknameSessionEnabled =
+        work.nicknameEnabled;
+    }
+
+    updateNicknameSwitchUI();
+
+    /*
+     * Теперь заново рассчитываем расположение настоящих слоёв.
+     */
+    layoutOffers(
+      resultCanvas.width,
+      resultCanvas.height
+    );
+
+    drawResult(
+      resultCanvas.getContext('2d'),
+      resultCanvas.width,
+      resultCanvas.height
+    );
+
+    resultReturnPage = mainPageEl;
+
+    generateSticky.classList.remove('is-visible');
+
+    resultCanvas.classList.remove('is-ready');
+
+    generateOverlay.classList.remove('is-visible');
+
+    setTimeout(function () {
+      generateOverlay.hidden = true;
+    }, 300);
+
+    /*
+     * Восстановление закончено —
+     * теперь drawResult снова разрешено сохранять.
+     */
+    resultRecoveryRestoring = false;
+
+    slidePage(
+      mainPageEl,
+      resultPage,
+      'forward'
+    );
+
+    requestAnimationFrame(function () {
+      resultCanvas.classList.add('is-ready');
+    });
+
+    /*
+     * Сохраняем уже полностью восстановленное состояние.
+     */
+    scheduleUnsavedResultSave();
+  }
+}
+
+function checkUnsavedResultOnHome() {
+  var onboardingOverlayEl =
+    document.getElementById('onboardingOverlay');
+
+  // Показываем предложение только если перед пользователем главная.
+  if (mainPageEl.hidden) return;
+
+  if (
+    onboardingOverlayEl &&
+    !onboardingOverlayEl.hidden
+  ) {
+    return;
+  }
+
+  getUnsavedResult()
+    .then(function (work) {
+      if (!work || !work.blob) return;
+
+      // Пользователь уже отказался именно от этой работы
+      if (work.dismissed) return;
+
+      // Старые сохранения без данных слоёв больше не предлагаем
+      if (
+        !Array.isArray(work.screens) ||
+        work.screens.length === 0 ||
+        !work.state
+      ) {
+        deleteUnsavedResult();
+        return;
+      }
+
+      openResultRecoveryConfirm(work);
+    })
+    .catch(function (err) {
+      console.warn(
+        'Не удалось проверить последнюю работу',
+        err
+      );
+    });
+}
+
+resultRecoveryOpen.addEventListener('click', function () {
+  restoreUnsavedResult(pendingRecoveryWork);
+});
+
+resultRecoveryCancel.addEventListener('click', function () {
+  var work = pendingRecoveryWork;
+
+  closeResultRecoveryConfirm();
+
+  dismissUnsavedResult(work)
+    .catch(function (err) {
+      console.warn(
+        'Не удалось запомнить отказ от восстановления',
+        err
+      );
+    });
+
+  pendingRecoveryWork = null;
+});
+
+resultRecoveryConfirm.addEventListener('click', function (e) {
+  if (e.target === resultRecoveryConfirm) {
+    closeResultRecoveryConfirm();
+  }
+});
+
+window.addEventListener('load', function () {
+  checkUnsavedResultOnHome();
+});
+
+var downloadResultBtn = document.getElementById('downloadResultBtn');
+var downloadCollapseTimer = null;
+
+function startDownloadButtonAnimation() {
+  clearTimeout(downloadCollapseTimer);
+
+  // При новой генерации снова показываем полную плашку
+  downloadResultBtn.classList.remove('is-collapsed');
+
+  if (!window.matchMedia('(max-width: 859px)').matches) {
+    return;
+  }
+
+  downloadCollapseTimer = setTimeout(function () {
+    downloadResultBtn.classList.add('is-collapsed');
+  }, 6000);
+}
 
 var resultCanvas = document.getElementById('resultCanvas');
 var generateOverlay = document.getElementById('generateOverlay');
@@ -5071,6 +6006,236 @@ var bgImageForRender = null;
 var resultPage = document.getElementById('resultPage');
 var resultBackBtn = document.getElementById('resultBackBtn');
 var downloadResultBtn = document.getElementById('downloadResultBtn');
+
+var RESULT_RECOVERY_DB = 'snapi_result_recovery';
+var RESULT_RECOVERY_STORE = 'works';
+var RESULT_RECOVERY_KEY = 'last_unsaved_result';
+
+var resultRecoverySaveTimer = null;
+var resultRecoverySaveToken = 0;
+var resultRecoveryWriteQueue = Promise.resolve();
+
+var currentRecoveryWorkId = null;
+var resultRecoveryRestoring = false;
+
+function openResultRecoveryDB() {
+  return new Promise(function (resolve, reject) {
+    var request = indexedDB.open(RESULT_RECOVERY_DB, 1);
+
+    request.onupgradeneeded = function () {
+      var db = request.result;
+
+      if (!db.objectStoreNames.contains(RESULT_RECOVERY_STORE)) {
+        db.createObjectStore(RESULT_RECOVERY_STORE);
+      }
+    };
+
+    request.onsuccess = function () {
+      resolve(request.result);
+    };
+
+    request.onerror = function () {
+      reject(request.error);
+    };
+  });
+}
+
+function runRecoveryRequest(mode, callback) {
+  return openResultRecoveryDB().then(function (db) {
+    return new Promise(function (resolve, reject) {
+      var tx = db.transaction(RESULT_RECOVERY_STORE, mode);
+      var store = tx.objectStore(RESULT_RECOVERY_STORE);
+      var request = callback(store);
+      var result = null;
+
+      if (request) {
+        request.onsuccess = function () {
+          result = request.result;
+        };
+      }
+
+      tx.oncomplete = function () {
+        db.close();
+        resolve(result);
+      };
+
+      tx.onerror = function () {
+        var error = tx.error;
+        db.close();
+        reject(error);
+      };
+
+      tx.onabort = function () {
+        var error = tx.error;
+        db.close();
+        reject(error);
+      };
+    });
+  });
+}
+
+function queueRecoveryWrite(callback) {
+  resultRecoveryWriteQueue = resultRecoveryWriteQueue
+    .catch(function () {})
+    .then(callback);
+
+  return resultRecoveryWriteQueue;
+}
+
+function collectRecoveryPrices() {
+  return window.layerState.offers.map(function (offer, index) {
+    var input = priceList
+      ? priceList.querySelector(
+          '.price-row__input[data-offer-index="' + index + '"]'
+        )
+      : null;
+
+    if (input) {
+      return input.value.trim();
+    }
+
+    if (
+      offer.ref &&
+      offer.ref.price &&
+      offer.ref.price !== 'FREE'
+    ) {
+      return String(offer.ref.price);
+    }
+
+    return '';
+  });
+}
+
+function collectRecoveryState() {
+  var db = loadDB();
+
+  return {
+    screens: screens.slice(),
+
+    prices: collectRecoveryPrices(),
+
+    nicknameEnabled: isNicknameActive(),
+
+    db: {
+      selectedBgSource: db.selectedBgSource,
+      selectedBg: db.selectedBg,
+      selectedColorPreset: db.selectedColorPreset,
+
+      uploadedBgDataUrl: db.uploadedBgDataUrl,
+      uploadedBgWidth: db.uploadedBgWidth,
+      uploadedBgHeight: db.uploadedBgHeight,
+
+      nickname: db.nickname,
+      nicknameStyleIndex: db.nicknameStyleIndex || 0,
+      nicknameFontFamily: window.layerState.nicknameFont,
+
+      effectsEnabled: db.effectsEnabled,
+
+      sizeSelection: db.sizeSelection
+    }
+  };
+}
+
+function scheduleUnsavedResultSave() {
+  if (resultRecoveryRestoring) return;
+
+  resultRecoverySaveToken++;
+
+  var token = resultRecoverySaveToken;
+
+  clearTimeout(resultRecoverySaveTimer);
+
+  resultRecoverySaveTimer = setTimeout(function () {
+    if (token !== resultRecoverySaveToken) return;
+    if (resultWasDownloaded) return;
+    if (!resultCanvas.width || !resultCanvas.height) return;
+
+    var recoveryState = collectRecoveryState();
+
+    // Нет исходников — такую работу со слоями восстановить нельзя
+    if (!recoveryState.screens.length) return;
+
+    resultCanvas.toBlob(function (blob) {
+      if (!blob) return;
+      if (token !== resultRecoverySaveToken) return;
+      if (resultWasDownloaded) return;
+
+      if (!currentRecoveryWorkId) {
+        currentRecoveryWorkId = Date.now();
+      }
+
+      var work = {
+        id: currentRecoveryWorkId,
+
+        blob: blob,
+
+        width: resultCanvas.width,
+        height: resultCanvas.height,
+
+        screens: recoveryState.screens,
+        prices: recoveryState.prices,
+
+        nicknameEnabled: recoveryState.nicknameEnabled,
+        state: recoveryState.db,
+
+        dismissed: false,
+
+        createdAt: currentRecoveryWorkId
+      };
+
+      queueRecoveryWrite(function () {
+        return runRecoveryRequest('readwrite', function (store) {
+          return store.put(work, RESULT_RECOVERY_KEY);
+        });
+      }).catch(function (err) {
+        console.warn(
+          'Не удалось сохранить резервную копию результата',
+          err
+        );
+      });
+    }, 'image/png');
+  }, 250);
+}
+
+function dismissUnsavedResult(work) {
+  if (!work) return Promise.resolve();
+
+  resultRecoverySaveToken++;
+  clearTimeout(resultRecoverySaveTimer);
+
+  work.dismissed = true;
+
+  return queueRecoveryWrite(function () {
+    return runRecoveryRequest(
+      'readwrite',
+      function (store) {
+        return store.put(
+          work,
+          RESULT_RECOVERY_KEY
+        );
+      }
+    );
+  });
+}
+
+function getUnsavedResult() {
+  return runRecoveryRequest('readonly', function (store) {
+    return store.get(RESULT_RECOVERY_KEY);
+  });
+}
+
+function deleteUnsavedResult() {
+  resultRecoverySaveToken++;
+  clearTimeout(resultRecoverySaveTimer);
+
+  return queueRecoveryWrite(function () {
+    return runRecoveryRequest('readwrite', function (store) {
+      return store.delete(RESULT_RECOVERY_KEY);
+    });
+  }).catch(function (err) {
+    console.warn('Не удалось удалить резервную копию результата', err);
+  });
+}
 
 function loadImage(src) {
   return new Promise(function (resolve, reject) {
@@ -5268,6 +6433,7 @@ function drawResult(ctx, canvasW, canvasH) {
       offer.target.h + paddingY * 2
     );
   });
+  scheduleUnsavedResultSave();
 }
 
 function fitNicknameFontSize(ctx, text, fontFamily, maxWidth, minFont, startFont) {
@@ -5344,32 +6510,76 @@ function drawNickname(ctx, canvasW, canvasH) {
   );
 }
 
+var resultWasDownloaded = false;
+
 function showResultPage() {
+  resultWasDownloaded = false;
+  resultReturnPage = brawlPage;
+
   generateSticky.classList.remove('is-visible');
   resultCanvas.classList.remove('is-ready');
-  slidePage(brawlPage, resultPage, 'forward');
-  drawResult(resultCanvas.getContext('2d'), resultCanvas.width, resultCanvas.height);
-  requestAnimationFrame(function () { resultCanvas.classList.add('is-ready'); });
 
+  slidePage(brawlPage, resultPage, 'forward');
+
+  drawResult(
+    resultCanvas.getContext('2d'),
+    resultCanvas.width,
+    resultCanvas.height
+  );
+
+  requestAnimationFrame(function () {
+    resultCanvas.classList.add('is-ready');
+  });
+
+  startDownloadButtonAnimation();
+
+  renderPricePanel();
   updateNicknamePanel();
   renderStyleStrip();
   renderFontStrip();
 }
 
 resultBackBtn.addEventListener('click', function () {
-  generateSticky.classList.toggle('is-visible', screens.length > 0);
-  slidePage(resultPage, brawlPage, 'back');
+  if (!resultWasDownloaded) {
+    openResultExitConfirm();
+    return;
+  }
+
+  leaveResultPage();
 });
+
+function leaveResultPage() {
+  if (resultReturnPage === brawlPage) {
+    generateSticky.classList.toggle(
+      'is-visible',
+      screens.length > 0
+    );
+  } else {
+    generateSticky.classList.remove('is-visible');
+  }
+
+  slidePage(
+    resultPage,
+    resultReturnPage || brawlPage,
+    'back'
+  );
+}
 
 downloadResultBtn.addEventListener('click', function () {
   var link = document.createElement('a');
   link.download = 'snapi-result.png';
   link.href = resultCanvas.toDataURL('image/png');
   link.click();
+
+  resultWasDownloaded = true;
+  deleteUnsavedResult();
 });
 
 generateBtn.addEventListener('click', function () {
   if (screens.length === 0) return;
+
+  currentRecoveryWorkId = Date.now();
+  resultRecoveryRestoring = false;
 
   var db = loadDB();
   var size = db.sizeSelection || { width: 1280, height: 720 };
@@ -5442,6 +6652,25 @@ generateBtn.addEventListener('click', function () {
     processNext();
   });
 });
+
+var pricePanel = document.getElementById('pricePanel');
+var pricePanelHeader = document.getElementById('pricePanelHeader');
+var pricePanelBody = document.getElementById('pricePanelBody');
+var priceList = document.getElementById('priceList');
+
+var resultLeftEl = document.getElementById('resultLeft');
+var pricePanelMobileSlot = document.getElementById('pricePanelMobileSlot');
+var desktopMql = window.matchMedia('(min-width: 860px)');
+
+function relocatePricePanel() {
+  var target = desktopMql.matches ? resultLeftEl : pricePanelMobileSlot;
+  if (pricePanel.parentElement !== target) {
+    target.appendChild(pricePanel);
+  }
+}
+
+relocatePricePanel();
+desktopMql.addEventListener('change', relocatePricePanel);
 
 var nicknamePanel = document.getElementById('nicknamePanel');
 var nicknamePanelHeader = document.getElementById('nicknamePanelHeader');
@@ -5522,6 +6751,103 @@ nicknameEnableSwitch.addEventListener('click', function (e) {
   // акции пересчитываем — без ника им не нужен такой большой отступ сверху
   layoutOffers(resultCanvas.width, resultCanvas.height);
   drawResult(resultCanvas.getContext('2d'), resultCanvas.width, resultCanvas.height);
+});
+
+function clampPriceValue(raw) {
+  var digitsOnly = String(raw).replace(/[^0-9]/g, '');
+  if (digitsOnly === '') return '';
+  var num = Math.min(parseInt(digitsOnly, 10), window.layerState.offerPriceMax);
+  return String(num);
+}
+
+function renderPricePanel() {
+  var db = loadDB();
+  var offers = window.layerState.offers;
+
+  pricePanel.hidden = offers.length === 0;
+  if (offers.length === 0) return;
+
+  setCollapsed(pricePanel, pricePanelBody, !!db.pricePanelCollapsed);
+
+  priceList.innerHTML = '';
+
+  offers.forEach(function (offer, index) {
+    var row = document.createElement('div');
+    row.className = 'price-row';
+
+    var label = document.createElement('span');
+    label.className = 'price-row__label';
+    label.textContent = 'Акция ' + (index + 1);
+
+    var input = document.createElement('input');
+    input.type = 'text';
+    input.inputMode = 'numeric';     // цифровая клавиатура на мобильных
+    input.pattern = '[0-9]*';        // подстраховка для iOS/Android
+    input.autocomplete = 'off';
+    input.maxLength = String(window.layerState.offerPriceMax).length; // 5
+    input.className = 'price-row__input';
+    input.dataset.offerIndex = index;
+    input.placeholder = 'FREE';
+    input.value = (offer.ref.price && offer.ref.price !== 'FREE') ? offer.ref.price : '';
+
+    row.appendChild(label);
+    row.appendChild(input);
+    priceList.appendChild(row);
+  });
+}
+
+function applyPriceToOffer(index, rawValue) {
+  var offer = window.layerState.offers[index];
+  if (!offer) return;
+
+  var value = rawValue.trim();
+  var newPrice = value === '' ? 'FREE' : value;
+
+  window.redrawCardPrice(offer.ref, newPrice, {
+    priceScale: window.layerState.globalPriceScale,
+    priceFontFamily: 'LilitaOneRus',
+    priceColor: window.layerState.offerPriceColor
+  });
+
+  drawResult(resultCanvas.getContext('2d'), resultCanvas.width, resultCanvas.height);
+}
+
+// небольшой debounce на строку, чтобы при быстром наборе
+// не перерисовывать canvas на каждое нажатие клавиши подряд
+var priceInputTimers = {};
+
+priceList.addEventListener('input', function (e) {
+  var input = e.target.closest('.price-row__input');
+  if (!input) return;
+
+  var caretFromEnd = input.value.length - input.selectionStart;
+  input.value = clampPriceValue(input.value);
+
+  // возвращаем каретку на прежнюю позицию от конца строки
+  var pos = Math.max(0, input.value.length - caretFromEnd);
+  input.setSelectionRange(pos, pos);
+
+  var index = Number(input.dataset.offerIndex);
+
+  clearTimeout(priceInputTimers[index]);
+  priceInputTimers[index] = setTimeout(function () {
+    applyPriceToOffer(index, input.value);
+  }, 80);
+});
+
+priceList.addEventListener('change', function (e) {
+  var input = e.target.closest('.price-row__input');
+  if (!input) return;
+
+  var index = Number(input.dataset.offerIndex);
+  clearTimeout(priceInputTimers[index]);
+  applyPriceToOffer(index, input.value);
+});
+
+pricePanelHeader.addEventListener('click', function () {
+  var collapsed = !pricePanel.classList.contains('is-collapsed');
+  setCollapsed(pricePanel, pricePanelBody, collapsed);
+  saveDB({ pricePanelCollapsed: collapsed });
 });
 
 styleSubPanelToggle.addEventListener('click', function () {
