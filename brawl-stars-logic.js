@@ -1443,11 +1443,53 @@ function alphaBoxFilter(integral, mask, w, h, radius) {
    * @property {string} price
    */
 
+/**
+   * Перерисовывает цену уже вырезанной карточки — без повторной обработки
+   * скриншота целиком. Использует сохранённую "чистую" подложку
+   * (card.info.blankedImgData) и координаты ценника (textX/textY/boxHeight).
+   *
+   * @param {CutCard} card Карточка из processImages/runMagicLogic
+   * @param {string|number} newPrice Новое значение ("500", "FREE" и т.д.)
+   * @param {object} userOptions
+   * @returns {CutCard} та же карточка с обновлённым canvas/price
+   */
+  function redrawCardPrice(card, newPrice, userOptions = {}) {
+    if (!card || !card.info || !card.info.blankedImgData) {
+      throw new Error('У карточки нет данных для перерисовки цены.');
+    }
+
+    const options = { ...DEFAULT_OPTIONS, ...userOptions };
+    const { width, height, info } = card;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    if (!ctx) throw new Error('2D canvas context is unavailable.');
+
+    // Возвращаем карточку к состоянию "цена стёрта, текст ещё не нарисован".
+    ctx.putImageData(info.blankedImgData, 0, 0);
+
+    drawPriceText(ctx, width, height, newPrice, info, options);
+
+    const styledCard = addCardOutlineAndShadow(canvas);
+
+    card.canvas = styledCard.canvas;
+    card.renderWidth = styledCard.canvas.width;
+    card.renderHeight = styledCard.canvas.height;
+    card.effectPadding = styledCard.padding;
+    card.price = newPrice;
+
+    return card;
+  }
+
   const api = Object.freeze({
     processImages,
     runMagicLogic,
     autoReplacePrice,
     drawPriceText,
+    redrawCardPrice,
     loadImage,
   });
 
@@ -1458,6 +1500,7 @@ function alphaBoxFilter(integral, mask, w, h, radius) {
   if (!global.runMagicLogic) global.runMagicLogic = runMagicLogic;
   if (!global.autoReplacePrice) global.autoReplacePrice = autoReplacePrice;
   if (!global.drawPriceText) global.drawPriceText = drawPriceText;
+  if (!global.redrawCardPrice) global.redrawCardPrice = redrawCardPrice;
 
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = api;
