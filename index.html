@@ -4034,22 +4034,23 @@ function goToStep(fromEl, toEl, after) {
   var overlay = document.getElementById('onboardingOverlay');
   var mainPage = document.getElementById('mainPage');
 
-if (db.onboarded) {
-  overlay.hidden = true;
-  overlay.classList.remove('is-leaving');
+  if (db.onboarded) {
+    overlay.hidden = true;
+    overlay.classList.remove('is-leaving');
 
   var savedPageId =
-    sessionStorage.getItem('snapi_active_page') || 'mainPage';
+      sessionStorage.getItem('snapi_active_page') || 'mainPage';
 
-  // Разрешаем восстановить только нормальные страницы.
-  if (
-    savedPageId !== 'mainPage' &&
-    savedPageId !== 'brawlPage'
-  ) {
-    savedPageId = 'mainPage';
-  }
+    if (
+      savedPageId !== 'mainPage' &&
+      savedPageId !== 'brawlPage'
+    ) {
+      savedPageId = 'mainPage';
+    }
 
-  document.querySelectorAll('.app-page').forEach(function (page) {
+    window.__snapiRestoredPageId = savedPageId; // запоминаем для дальнейшей инициализации
+
+    document.querySelectorAll('.app-page').forEach(function (page) {
     page.hidden = true;
     page.classList.add('is-hidden');
 
@@ -5244,6 +5245,11 @@ screenDropArea.addEventListener('drop', function (e) {
 
 renderScreens();
 
+if (window.__snapiRestoredPageId === 'brawlPage') {
+  updateCurrentTemplateInfo();
+  renderSizeSelection();
+  syncEffectsCheckboxDefault();
+}
 
 // ---------- Глобальное окружение для extractor.js ----------
 var allGeneratedCards = [];
@@ -6566,13 +6572,38 @@ function leaveResultPage() {
 }
 
 downloadResultBtn.addEventListener('click', function () {
-  var link = document.createElement('a');
-  link.download = 'snapi-result.png';
-  link.href = resultCanvas.toDataURL('image/png');
-  link.click();
+  resultCanvas.toBlob(function (blob) {
+    if (!blob) return;
 
-  resultWasDownloaded = true;
-  deleteUnsavedResult();
+    var filename = 'snapi-result.png';
+
+    // Legacy IE/Edge
+    if (navigator.msSaveOrOpenBlob) {
+      navigator.msSaveOrOpenBlob(blob, filename);
+      resultWasDownloaded = true;
+      deleteUnsavedResult();
+      return;
+    }
+
+    var url = URL.createObjectURL(blob);
+    var link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.rel = 'noopener';
+
+    // Ссылка должна быть в DOM, иначе клик игнорируется рядом браузеров
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    // Отзываем объект чуть позже — чтобы браузер успел начать скачивание
+    setTimeout(function () {
+      URL.revokeObjectURL(url);
+    }, 1000);
+
+    resultWasDownloaded = true;
+    deleteUnsavedResult();
+  }, 'image/png');
 });
 
 generateBtn.addEventListener('click', function () {
