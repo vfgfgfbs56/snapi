@@ -291,39 +291,20 @@
 
       try {
         const blob = await canvasToBlob(canvas);
-        const file = new File([blob], fileName, { type: 'image/png' });
 
         /*
           iPhone / iPad:
-          Если браузер умеет делиться именно файлами, используем системное
-          окно. Там можно выбрать "Сохранить в Файлы", AirDrop и т.д.
+          Отправляем PNG напрямую в Cloudflare Worker.
+          Worker сразу возвращает файл как attachment,
+          поэтому Share Sheet больше не вызывается.
         */
-        if (
-          isIOS() &&
-          navigator.share &&
-          navigator.canShare &&
-          navigator.canShare({ files: [file] })
-        ) {
-          try {
-            await navigator.share({
-              files: [file],
-              title: 'Snapi',
-              text: 'Готовая работа Snapi'
-            });
-
-            setStatus('Работа передана в системное меню сохранения.', 'ok');
-            return;
-          } catch (shareError) {
-            // Пользователь мог закрыть Share Sheet.
-            if (shareError && shareError.name === 'AbortError') {
-              setStatus('Сохранение отменено.');
-              return;
-            }
-
-            // Если Share API не сработал — идём к обычному скачиванию.
-          }
+        if (isIOS()) {
+          submitIOSDownload(canvas);
+          setStatus('Скачивание запущено.', 'ok');
+          return;
         }
 
+        // Windows / Android — старая логика без изменений.
         triggerBlobDownload(blob, fileName);
         setStatus('Скачивание запущено.', 'ok');
 
@@ -356,6 +337,29 @@
         downloadBtn.disabled = false;
         downloadBtn.textContent = 'Скачать работу';
       }
+    }
+
+    function submitIOSDownload(canvasElement) {
+      const imageData = canvasElement.toDataURL('image/png');
+      const form = document.createElement('form');
+
+      form.method = 'POST';
+      form.action = 'https://snapi-download.cloudtoptop256.workers.dev/download';
+      form.style.display = 'none';
+
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'image';
+      input.value = imageData;
+
+      form.appendChild(input);
+      document.body.appendChild(form);
+
+      form.submit();
+
+      setTimeout(() => {
+        form.remove();
+      }, 1000);
     }
 
     function triggerBlobDownload(blob, fileName) {
