@@ -1620,8 +1620,30 @@
   transition: opacity .3s var(--ease);
 }
 
-.generate-overlay.is-visible { opacity: 1; pointer-events: auto; }
-.generate-overlay[hidden] { display: none; }
+.generate-overlay.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.generate-overlay[hidden] {
+  display: none;
+}
+
+
+/* Блокировка страницы именно во время скачивания */
+html.download-scroll-lock,
+body.download-scroll-lock {
+  overflow: hidden !important;
+  overscroll-behavior: none !important;
+}
+
+body.download-scroll-lock {
+  position: fixed;
+  left: 0;
+  right: 0;
+  width: 100%;
+  touch-action: none !important;
+}
 
 .generate-overlay__spinner {
   width: 54px;
@@ -1629,10 +1651,24 @@
   border-radius: 50%;
   border: 4px solid rgba(255, 255, 255, .25);
   border-top-color: #fff;
-  animation: spin .8s linear infinite;
+
+  animation: spin .7s linear infinite;
+
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  contain: layout paint;
 }
 
-@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin {
+  from {
+    transform: translateZ(0) rotate(0deg);
+  }
+
+  to {
+    transform: translateZ(0) rotate(360deg);
+  }
+}
 
 .generate-overlay__text {
   color: #fff;
@@ -5248,42 +5284,127 @@ function isIOS() {
   );
 }
 
-function submitIOSDownload(canvas, onDone) {
-  var imageData = canvas.toDataURL('image/png');
-  var form = document.createElement('form');
+function submitIOSDownload(canvas, onDone, onError) {
 
-  form.method = 'POST';
-  form.action = 'https://snapi-download.cloudtoptop256.workers.dev/download';
-  form.target = 'snapiDownloadFrame'; // грузим ответ в скрытый iframe, а не в текущую страницу
-  form.style.display = 'none';
+  canvas.toBlob(function (blob) {
 
-  var input = document.createElement('input');
-  input.type = 'hidden';
-  input.name = 'image';
-  input.value = imageData;
-  form.appendChild(input);
+    if (!blob) {
+      if (onError) onError();
+      return;
+    }
 
-  var frame = document.getElementById('snapiDownloadFrame');
-  var finished = false;
 
-  function finish() {
-    if (finished) return;
-    finished = true;
-    frame.removeEventListener('load', onFrameLoad);
-    form.remove();
-    if (onDone) onDone();
-  }
+    /*
+     * FileReader работает асинхронно.
+     * Поэтому интерфейс и spinner больше
+     * не зависают на canvas.toDataURL().
+     */
+    var reader = new FileReader();
 
-  function onFrameLoad() {
-    setTimeout(finish, 400); // даём браузеру показать системный диалог скачивания
-  }
+    reader.onerror = function () {
+      if (onError) onError();
+    };
 
-  frame.addEventListener('load', onFrameLoad);
 
-  document.body.appendChild(form);
-  form.submit();
+    reader.onload = function () {
 
-  setTimeout(finish, 6000); // страховка, если load не сработает
+      var form = document.createElement('form');
+
+      form.method = 'POST';
+      form.action =
+        'https://snapi-download.cloudtoptop256.workers.dev/download';
+
+      form.target = 'snapiDownloadFrame';
+      form.style.display = 'none';
+
+
+      var input = document.createElement('input');
+
+      input.type = 'hidden';
+      input.name = 'image';
+      input.value = reader.result;
+
+      form.appendChild(input);
+
+
+      var frame =
+        document.getElementById('snapiDownloadFrame');
+
+      var finished = false;
+
+
+      function cleanup() {
+        frame.removeEventListener(
+          'load',
+          onFrameLoad
+        );
+
+        frame.removeEventListener(
+          'error',
+          onFrameError
+        );
+
+        form.remove();
+      }
+
+
+      function finish() {
+        if (finished) return;
+
+        finished = true;
+
+        cleanup();
+
+        if (onDone) {
+          onDone();
+        }
+      }
+
+
+      function onFrameLoad() {
+        /*
+         * Worker уже обработал запрос
+         * и передал ответ браузеру.
+         *
+         * Никаких 400 мс / 6 секунд.
+         */
+        finish();
+      }
+
+
+      function onFrameError() {
+        if (finished) return;
+
+        finished = true;
+
+        cleanup();
+
+        if (onError) {
+          onError();
+        }
+      }
+
+
+      frame.addEventListener(
+        'load',
+        onFrameLoad
+      );
+
+      frame.addEventListener(
+        'error',
+        onFrameError
+      );
+
+
+      document.body.appendChild(form);
+
+      form.submit();
+    };
+
+
+    reader.readAsDataURL(blob);
+
+  }, 'image/png');
 }
 
 (function () {
@@ -7756,6 +7877,25 @@ function leaveResultPage() {
 }
 
 function downloadCanvasByDevice(canvas, filename, loadingText, onDone) {
+
+  var downloadScrollY =
+    window.scrollY ||
+    window.pageYOffset ||
+    0;
+
+
+  document.documentElement.classList.add(
+    'download-scroll-lock'
+  );
+
+  document.body.classList.add(
+    'download-scroll-lock'
+  );
+
+  document.body.style.top =
+    '-' + downloadScrollY + 'px';
+
+
   generateOverlayText.textContent =
     loadingText || 'Скачивание, подождите…';
 
@@ -7767,7 +7907,28 @@ function downloadCanvasByDevice(canvas, filename, loadingText, onDone) {
 
 
   function closeDownloadOverlay() {
-    generateOverlay.classList.remove('is-visible');
+
+    generateOverlay.classList.remove(
+      'is-visible'
+    );
+
+
+    document.documentElement.classList.remove(
+      'download-scroll-lock'
+    );
+
+    document.body.classList.remove(
+      'download-scroll-lock'
+    );
+
+    document.body.style.top = '';
+
+
+    window.scrollTo(
+      0,
+      downloadScrollY
+    );
+
 
     setTimeout(function () {
       generateOverlay.hidden = true;
@@ -7790,10 +7951,16 @@ function downloadCanvasByDevice(canvas, filename, loadingText, onDone) {
    * что и для всей работы.
    */
   if (isIOS()) {
+
     submitIOSDownload(
       canvas,
+
       function () {
         finish();
+      },
+
+      function () {
+        closeDownloadOverlay();
       }
     );
 
@@ -7843,10 +8010,7 @@ function downloadCanvasByDevice(canvas, filename, loadingText, onDone) {
       }, 1000);
     }
 
-
-    setTimeout(function () {
-      finish();
-    }, 500);
+    finish();
 
   }, 'image/png');
 }
