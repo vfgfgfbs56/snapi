@@ -27,8 +27,13 @@
     maxFiles: 6,
     replacementPrice: 'FREE',
     priceScale: 1,
+    priceScale: 1,
     priceFontFamily: 'LilitaOneRus',
     priceColor: '#ffffff',
+
+    cardOutlineSize: 3,
+    cardOutlineColor: '#ffffff',
+
     freePriceColor: '#3bf83b',
     onProgress: null,
     onCard: null,
@@ -702,8 +707,8 @@
         options,
       );
 
-      const styledCard = addCardOutlineAndShadow(canvas);
-
+      const styledCard =
+        addCardOutlineAndShadow(canvas, options);
       cards.push({
         canvas: styledCard.canvas,
 
@@ -1261,8 +1266,11 @@
 
     ctx.textAlign = 'left';
     ctx.textBaseline = 'alphabetic';
-    ctx.lineWidth = Math.max(2, Math.floor(fontSize * 0.075));
+    ctx.lineWidth =
+      Math.max(2, Math.floor(fontSize * 0.075));
+
     ctx.strokeStyle = '#000000';
+
     ctx.lineJoin = 'round';
 
     const drawTextParts = (offsetX, offsetY, fill, colour) => {
@@ -1291,8 +1299,13 @@
     drawTextParts(0, 0, true, mainColour);
   }
 
-  function addCardOutlineAndShadow(sourceCanvas) {
-  const outlineSize = 4;
+function addCardOutlineAndShadow(sourceCanvas, options = {}) {
+  const outlineSize =
+    Math.max(0, Number(options.cardOutlineSize) || 0);
+
+  const outlineColor =
+    options.cardOutlineColor || '#ffffff';
+
   const shadowBlur = 6;
   const shadowOffsetY = 26;
   const padding = outlineSize + shadowBlur + Math.abs(shadowOffsetY) + 2;
@@ -1311,7 +1324,7 @@
   // Создаём полностью белый силуэт акции.
   silhouetteCtx.drawImage(sourceCanvas, 0, 0);
   silhouetteCtx.globalCompositeOperation = 'source-in';
-  silhouetteCtx.fillStyle = '#ffffff';
+  silhouetteCtx.fillStyle = outlineColor;
   silhouetteCtx.fillRect(
     0,
     0,
@@ -1473,8 +1486,8 @@ function alphaBoxFilter(integral, mask, w, h, radius) {
 
     drawPriceText(ctx, width, height, newPrice, info, options);
 
-    const styledCard = addCardOutlineAndShadow(canvas);
-
+    const styledCard =
+      addCardOutlineAndShadow(canvas, options);
     card.canvas = styledCard.canvas;
     card.renderWidth = styledCard.canvas.width;
     card.renderHeight = styledCard.canvas.height;
