@@ -1667,6 +1667,30 @@
   opacity: 1;
 }
 
+.canvas-price-editor {
+  position: fixed;
+  z-index: 99999;
+
+  border: 2px solid var(--accent);
+  border-radius: 10px;
+
+  background: var(--surface);
+  color: var(--text);
+
+  font-family: 'LilitaOneRus', sans-serif;
+  font-weight: 700;
+  text-align: center;
+
+  outline: none;
+
+  padding: 4px 8px;
+
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, .22);
+
+  transform: translate(-50%, -50%);
+}
+
 .style-strip-section {
   margin: 0;
 }
@@ -1865,6 +1889,134 @@
   padding-bottom: 4px;
 }
 
+.nickname-adjust {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 8px 0 6px;
+}
+
+.nickname-adjust__row {
+  display: grid;
+  grid-template-columns: 52px 32px minmax(50px, 1fr) 32px 52px;
+  align-items: center;
+  gap: 6px;
+}
+
+.nickname-adjust__side {
+  color: var(--text-muted);
+  font-size: .72rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.nickname-adjust__side:first-child {
+  text-align: right;
+}
+
+.nickname-adjust__side:last-child {
+  text-align: left;
+}
+
+.nickname-adjust__btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+
+  display: grid;
+  place-items: center;
+
+  border: none;
+  border-radius: 50%;
+
+  background: var(--surface-soft);
+  color: var(--text-soft);
+
+  font: inherit;
+  font-size: 1.1rem;
+  font-weight: 700;
+
+  cursor: pointer;
+  transition:
+    background-color .18s var(--ease),
+    color .18s var(--ease),
+    transform .12s var(--ease);
+}
+
+.nickname-adjust__btn:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+.nickname-adjust__btn:active {
+  transform: scale(.9);
+}
+
+.nickname-adjust input[type="range"] {
+  width: 100%;
+  min-width: 0;
+  height: 24px;
+
+  appearance: none;
+  -webkit-appearance: none;
+
+  background: transparent;
+  cursor: pointer;
+  outline: none;
+}
+
+.nickname-adjust input[type="range"]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 5px;
+
+  background: #35a8ff;
+  border-radius: 999px;
+}
+
+.nickname-adjust input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+
+  width: 31px;
+  height: 18px;
+  margin-top: -5.8px;
+
+  background: #fff;
+  border: none;
+  border-radius: 999px;
+
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .12);
+
+  cursor: grab;
+}
+
+.nickname-adjust input[type="range"]:active::-webkit-slider-thumb {
+  cursor: grabbing;
+}
+
+
+.nickname-adjust input[type="range"]::-moz-range-track {
+  width: 100%;
+  height: 5px;
+
+  background: #35a8ff;
+  border-radius: 999px;
+  border: none;
+}
+
+.nickname-adjust input[type="range"]::-moz-range-thumb {
+  width: 31px;
+  height: 18px;
+
+  background: #fff;
+  border: none;
+  border-radius: 999px;
+
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .12);
+
+  cursor: grab;
+}
+
 .price-list {
   display: flex;
   flex-direction: column;
@@ -1872,11 +2024,257 @@
   padding: 4px 0 10px;
 }
 
+.price-outline-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 2px 0 8px;
+  margin-bottom: 2px;
+}
+
+.price-outline-controls__label {
+  flex: 1;
+  color: var(--text-muted);
+  font-size: .82rem;
+  font-weight: 700;
+}
+
+.price-outline-controls__stepper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.price-outline-controls__btn {
+  width: 30px;
+  height: 30px;
+
+  border: none;
+  border-radius: 50%;
+
+  background: var(--surface-soft);
+  color: var(--text-soft);
+
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.price-outline-controls__btn:active {
+  transform: scale(.9);
+}
+
+.price-outline-controls__value {
+  width: 20px;
+  text-align: center;
+
+  color: var(--text);
+  font-size: .9rem;
+  font-weight: 700;
+}
+
+.price-outline-controls__color {
+  width: 30px;
+  height: 30px;
+
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+
+  background: none;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.price-outline-controls__color::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.price-outline-controls__color::-webkit-color-swatch {
+  border: 2px solid var(--surface-soft);
+  border-radius: 50%;
+}
+
+.ios-icon-btn {
+  appearance: none;
+  border: none;
+  padding: 0;
+  background: transparent;
+
+  color: var(--text-soft);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 24px;
+  height: 24px;
+  flex: none;
+
+  cursor: pointer;
+}
+
+.ios-eye-icon {
+  position: relative;
+  color: var(--text-soft);
+
+  transition:
+    color .3s cubic-bezier(.4,0,.2,1),
+    opacity .25s var(--ease);
+}
+
+.ios-eye-icon.hidden {
+  color: var(--text-faint);
+}
+
+.ios-eye-icon .eye-icon-box {
+  position: relative;
+
+  width: 22px;
+  height: 22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: transform .15s ease;
+}
+
+.ios-eye-icon .eye-icon-box svg {
+  width: 22px;
+  height: 22px;
+  fill: currentColor;
+}
+
+.ios-eye-icon .eye-slash {
+  position: absolute;
+
+  left: 50%;
+  top: 50%;
+
+  width: 26px;
+  height: 5px;
+
+  transform:
+    translate(-50%, -50%)
+    rotate(-45deg);
+
+  transform-origin: center;
+  pointer-events: none;
+}
+
+.ios-eye-icon .eye-slash::before {
+  content: "";
+
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  border-radius: 3px;
+
+  background: linear-gradient(
+    to bottom,
+    var(--surface) 0 2px,
+    currentColor 2px 100%
+  );
+
+  transform: scaleX(0);
+  transform-origin: 100% 50%;
+
+  transition:
+    transform .3s cubic-bezier(.4,0,.2,1);
+}
+
+.ios-eye-icon.hidden .eye-slash::before {
+  transform: scaleX(1);
+  transform-origin: 0% 50%;
+
+  transition:
+    transform .34s cubic-bezier(.22,.8,.28,1);
+}
+
+.ios-eye-icon:active .eye-icon-box {
+  transform: scale(.85);
+}
+
+
+/* Выключенная акция в панели */
+.price-row.is-off .price-row__label {
+  opacity: .45;
+}
+
+.price-row.is-off .price-row__input {
+  opacity: .4;
+}
+
 .price-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+}
+
+.offer-download-btn {
+  flex: none;
+
+  color: var(--text-muted);
+
+  cursor: pointer;
+
+  transition:
+    color .18s var(--ease),
+    transform .18s var(--ease);
+}
+
+.offer-download-btn:hover {
+  color: var(--accent);
+}
+
+.offer-download-btn:active {
+  transform: scale(.84);
+}
+
+.offer-download-btn svg {
+  width: 19px;
+  height: 19px;
+}
+
+.price-row__drag {
+  cursor: grab;
+  touch-action: none;
+  color: var(--text-faint);
+}
+.price-row__drag:active { cursor: grabbing; }
+
+.price-row.is-dragging {
+  opacity: .98;
+
+  background: var(--surface);
+  box-shadow:
+    0 14px 32px rgba(0, 0, 0, .18);
+
+  z-index: 9999;
+  pointer-events: none;
+
+  transform: scale(1.018);
+}
+
+.price-row__placeholder {
+  width: 100%;
+  border-radius: 14px;
+
+  background:
+    color-mix(in srgb, var(--accent) 7%, transparent);
+
+  outline:
+    1.5px dashed
+    color-mix(in srgb, var(--accent) 35%, transparent);
+
+  outline-offset: -1.5px;
 }
 
 .price-row__label {
@@ -1938,7 +2336,7 @@
   position: absolute;
 
   top: -18px;
-  bottom: -45px;
+  bottom: -15px;
 
   left: 50%;
   width: calc(100vw + 20px);
@@ -1992,13 +2390,35 @@
   gap: 20px;
 }
 
+.result-actions {
+  width: 100%;
+
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+
+  margin: 0 0 12px;
+}
+
+.result-action-btn {
+  margin: 0;
+  padding: 13px 12px;
+  font-size: .88rem;
+
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 #pricePanel {
   margin: 0 0 20px;
 }
 
 @media (min-width: 860px) {
-  .result-sidebar {
-    gap: 32px;
+  .result-actions {
+    width: min(480px, 100%);
+    margin-inline: auto;
   }
 }
 
@@ -2113,6 +2533,10 @@
 
   #resultCanvas {
     display: block;
+
+    box-shadow:
+      0 2px 4px rgba(0, 0, 0, .18),
+      0 8px 14px -10px rgba(0, 0, 0, .45);
   }
 
   #downloadResultBtn {
@@ -2206,10 +2630,9 @@
   position: absolute;
 
   left: 50%;
-  bottom: -55px;
-
+  bottom: -15px;
+  height: calc(100% + 45px);
   width: calc(100% + 160px);
-  height: calc(100% + 125px);
 
   transform: translateX(-50%);
 
@@ -3691,6 +4114,31 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
           </button>
       </div>
 
+      <div class="result-actions" id="resultActions">
+        <button
+          type="button"
+          class="btn-secondary result-action-btn"
+          id="resultChangeBgBtn"
+        >
+          Изменить фон
+        </button>
+
+        <button
+          type="button"
+          class="btn-secondary result-action-btn"
+          id="resultAddScreenshotBtn"
+        >
+          Добавить скриншот
+        </button>
+
+        <input
+          type="file"
+          id="resultAddScreenshotInput"
+          accept="image/*"
+          hidden
+        >
+      </div>
+
       <section class="nickname-panel" id="pricePanel" hidden>
       <div class="nickname-panel__header" id="pricePanelHeader">
         <span class="nickname-panel__title">Цена акций</span>
@@ -3730,6 +4178,96 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
 
         <div class="collapse-body" id="nicknamePanelBody">
           <div class="nickname-panel__body-inner">
+
+            <div class="sub-panel" id="transformSubPanel">
+              <button type="button" class="sub-panel__header" id="transformSubPanelToggle">
+                <span class="sub-panel__title">Размер и положение</span>
+
+                <span class="sub-panel__chevron">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                       stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 9l6 6 6-6"></path>
+                  </svg>
+                </span>
+              </button>
+
+              <div class="collapse-body" id="transformSubPanelBody">
+                <div class="nickname-adjust" id="nicknameTransformControls">
+
+                  <div class="nickname-adjust__row">
+                    <span class="nickname-adjust__side">Меньше</span>
+
+                    <button type="button"
+                            class="nickname-adjust__btn"
+                            data-target="nicknameSizeRange"
+                            data-delta="-5">−</button>
+
+                    <input type="range"
+                           id="nicknameSizeRange"
+                           min="60"
+                           max="160"
+                           step="1"
+                           value="100">
+
+                    <button type="button"
+                            class="nickname-adjust__btn"
+                            data-target="nicknameSizeRange"
+                            data-delta="5">+</button>
+
+                    <span class="nickname-adjust__side">Больше</span>
+                  </div>
+
+
+                  <div class="nickname-adjust__row">
+                    <span class="nickname-adjust__side">Влево</span>
+
+                    <button type="button"
+                            class="nickname-adjust__btn"
+                            data-target="nicknameXRange"
+                            data-delta="-1">−</button>
+
+                    <input type="range"
+                           id="nicknameXRange"
+                           min="-25"
+                           max="25"
+                           step="1"
+                           value="0">
+
+                    <button type="button"
+                            class="nickname-adjust__btn"
+                            data-target="nicknameXRange"
+                            data-delta="1">+</button>
+
+                    <span class="nickname-adjust__side">Вправо</span>
+                  </div>
+
+
+                  <div class="nickname-adjust__row">
+                    <span class="nickname-adjust__side">Вниз</span>
+
+                    <button type="button"
+                            class="nickname-adjust__btn"
+                            data-target="nicknameYRange"
+                            data-delta="-3">−</button>
+
+                    <input type="range"
+                           id="nicknameYRange"
+                           min="-110"
+                           max="110"
+                           step="1"
+                           value="0">
+
+                    <button type="button"
+                            class="nickname-adjust__btn"
+                            data-target="nicknameYRange"
+                            data-delta="3">+</button>
+
+                    <span class="nickname-adjust__side">Вверх</span>
+                  </div>
+
+                </div>
+              </div>
+            </div>
 
             <div class="sub-panel" id="styleSubPanel">
               <button type="button" class="sub-panel__header" id="styleSubPanelToggle">
@@ -4421,7 +4959,13 @@ colorPresets.addEventListener('click', function (e) {
 
   updateBgSelectionUI('color');
   updateCurrentTemplateInfo();
-  applyDefaultSize();
+
+  if (!resultPage.hidden) {
+    refreshResultBackground();
+  } else {
+    applyDefaultSize();
+  }
+
   setTimeout(closeBgSheet, 200);
 });
 
@@ -4434,11 +4978,21 @@ bgGrid.addEventListener('click', function (e) {
   });
   item.classList.add('is-selected');
 
-  saveDB({ selectedBg: item.dataset.bg, selectedBgSource: 'fankit' });
-  updateBgSelectionUI('fankit');
-  updateCurrentTemplateInfo();
+saveDB({
+  selectedBg: item.dataset.bg,
+  selectedBgSource: 'fankit'
+});
+
+updateBgSelectionUI('fankit');
+updateCurrentTemplateInfo();
+
+if (!resultPage.hidden) {
+  refreshResultBackground();
+} else {
   applyDefaultSize();
-  setTimeout(closeBgSheet, 200);
+}
+
+setTimeout(closeBgSheet, 200);
 });
 
 uploadBtn.addEventListener('click', function () {
@@ -4487,11 +5041,25 @@ function readFileAsDataURL(file, cb) {
 uploadInput.addEventListener('change', function () {
   if (uploadInput.files && uploadInput.files.length > 0) {
     readFileAsDataURL(uploadInput.files[0], function (dataUrl, w, h) {
-      saveDB({ selectedBgSource: 'upload', uploadedBgDataUrl: dataUrl, uploadedBgWidth: w, uploadedBgHeight: h });
-      updateBgSelectionUI('upload');
-      updateCurrentTemplateInfo();
+    saveDB({
+      selectedBgSource: 'upload',
+      uploadedBgDataUrl: dataUrl,
+      uploadedBgWidth: w,
+      uploadedBgHeight: h
+    });
+
+    syncEffectsCheckboxDefault();
+
+    updateBgSelectionUI('upload');
+    updateCurrentTemplateInfo();
+
+    if (!resultPage.hidden) {
+      refreshResultBackground();
+    } else {
       applyDefaultSize();
-      closeBgSheet();
+    }
+
+    closeBgSheet();
     });
   }
 });
@@ -4644,11 +5212,13 @@ function submitIOSDownload(canvas, onDone) {
 
   document.addEventListener('click', function (e) {
     var active = document.activeElement;
+
     if (
       active &&
       active.tagName === 'INPUT' &&
       !e.target.closest('.input-wrap') &&
-      !e.target.closest('.price-row')
+      !e.target.closest('.price-row') &&
+      !e.target.closest('.canvas-price-editor')
     ) {
       active.blur();
     }
@@ -5074,13 +5644,19 @@ var effectsCheckbox = document.getElementById('effectsCheckbox');
 
 function syncEffectsCheckboxDefault() {
   var db = loadDB();
+
+  // Свой фон с устройства — эффекты автоматически выключаем
+  if (db.selectedBgSource === 'upload') {
+    effectsCheckbox.checked = false;
+    saveDB({ effectsEnabled: false });
+    return;
+  }
+
   if (db.effectsEnabled === undefined) {
-    // первый заход — задаём дефолт и сразу фиксируем его в базе
     var defaultValue = db.selectedBgSource === 'fankit';
     effectsCheckbox.checked = defaultValue;
     saveDB({ effectsEnabled: defaultValue });
   } else {
-    // пользователь уже когда-то явно переключал — уважаем его выбор
     effectsCheckbox.checked = db.effectsEnabled;
   }
 }
@@ -5121,10 +5697,25 @@ function renderScreens() {
 
   var hasScreens = screens.length > 0;
 
-  generateSticky.classList.toggle('is-visible', hasScreens);
+  var canShowGenerate =
+    hasScreens &&
+    brawlPage &&
+    !brawlPage.hidden;
 
-  generateBtn.classList.toggle('is-visible', hasScreens);
-  generateBtn.classList.toggle('is-appearing', !hasScreens);
+  generateSticky.classList.toggle(
+    'is-visible',
+    canShowGenerate
+  );
+
+  generateBtn.classList.toggle(
+    'is-visible',
+    canShowGenerate
+  );
+
+  generateBtn.classList.toggle(
+    'is-appearing',
+    !canShowGenerate
+  );
 
   screensUploadBtn.disabled = screens.length >= MAX_SCREENS;
   screensDropzone.style.opacity = screens.length >= MAX_SCREENS ? '.5' : '1';
@@ -5280,8 +5871,17 @@ screenDropArea.addEventListener('drop', function (e) {
       dt.items.add(file);
       uploadInput.files = dt.files;
       readFileAsDataURL(file, function (dataUrl, w, h) {
-        saveDB({ selectedBgSource: 'upload', uploadedBgDataUrl: dataUrl, uploadedBgWidth: w, uploadedBgHeight: h });
-        updateBgSelectionUI('upload');
+      saveDB({
+        selectedBgSource: 'upload',
+        uploadedBgDataUrl: dataUrl,
+        uploadedBgWidth: w,
+        uploadedBgHeight: h
+      });
+
+      syncEffectsCheckboxDefault();
+
+      updateBgSelectionUI('upload');
+      applyDefaultSize();
         applyDefaultSize();
       });
     }
@@ -5607,7 +6207,16 @@ window.layerState = {
   isBrawlPassMode: false,
   offerPriceFont: 'LilitaOneRus',
   offerPriceColor: '#ffffff',
-  offerPriceMax: 99999, 
+
+  offerOutlineSize:
+    loadDB().offerOutlineSize !== undefined
+      ? Number(loadDB().offerOutlineSize)
+      : 3,
+
+  offerOutlineColor:
+    loadDB().offerOutlineColor || '#ffffff',
+
+  offerPriceMax: 99999,
   nicknameFont: loadDB().nicknameFontFamily || 'SupercellMagic',
   nicknameColor: '#ffffff'
 };
@@ -5742,6 +6351,15 @@ function restoreUnsavedResult(work) {
     nicknameStyleIndex: work.state.nicknameStyleIndex,
     nicknameFontFamily: work.state.nicknameFontFamily,
 
+    nicknameManualScale:
+      work.state.nicknameManualScale || 1,
+
+    nicknameOffsetX:
+      work.state.nicknameOffsetX || 0,
+
+    nicknameOffsetY:
+      work.state.nicknameOffsetY || 0,
+
     effectsEnabled: work.state.effectsEnabled,
 
     sizeSelection: work.state.sizeSelection
@@ -5749,6 +6367,14 @@ function restoreUnsavedResult(work) {
 
   window.layerState.nicknameFont =
     work.state.nicknameFontFamily || 'SupercellMagic';
+
+  window.layerState.offerOutlineSize =
+    work.state.offerOutlineSize !== undefined
+      ? Number(work.state.offerOutlineSize)
+      : 3;
+
+  window.layerState.offerOutlineColor =
+    work.state.offerOutlineColor || '#ffffff';
 
   /*
    * Возвращаем исходные скриншоты.
@@ -5779,11 +6405,7 @@ function restoreUnsavedResult(work) {
     ? loadImage(bgSrc)
     : Promise.resolve(null);
 
-  var extractOptions = {
-    priceScale: window.layerState.globalPriceScale,
-    priceFontFamily: 'LilitaOneRus',
-    priceColor: window.layerState.offerPriceColor
-  };
+  var extractOptions = getPriceDrawOptions();
 
   Promise.all([
     bgPromise,
@@ -5821,6 +6443,9 @@ function restoreUnsavedResult(work) {
 
               window.layerState.offers.push({
                 ref: card,
+
+                visible: true,
+
                 target: {
                   x: 0,
                   y: 0,
@@ -5870,9 +6495,14 @@ function restoreUnsavedResult(work) {
   });
 
   function finishRecoveredResult() {
-    /*
-     * Возвращаем сохранённые цены.
-     */
+
+    if (Array.isArray(work.offerVisibility)) {
+      window.layerState.offers.forEach(function (offer, index) {
+        offer.visible =
+          work.offerVisibility[index] !== false;
+      });
+    }
+
     if (Array.isArray(work.prices)) {
       window.layerState.offers.forEach(function (offer, index) {
         if (work.prices[index] === undefined) return;
@@ -5883,11 +6513,7 @@ function restoreUnsavedResult(work) {
         window.redrawCardPrice(
           offer.ref,
           newPrice,
-          {
-            priceScale: window.layerState.globalPriceScale,
-            priceFontFamily: 'LilitaOneRus',
-            priceColor: window.layerState.offerPriceColor
-          }
+          getPriceDrawOptions()
         );
       });
     }
@@ -6058,6 +6684,144 @@ var resultPage = document.getElementById('resultPage');
 var resultBackBtn = document.getElementById('resultBackBtn');
 var downloadResultBtn = document.getElementById('downloadResultBtn');
 
+var resultChangeBgBtn =
+  document.getElementById('resultChangeBgBtn');
+
+var resultAddScreenshotBtn =
+  document.getElementById('resultAddScreenshotBtn');
+
+var resultAddScreenshotInput =
+  document.getElementById('resultAddScreenshotInput');
+
+
+resultChangeBgBtn.addEventListener('click', function () {
+  syncBgSheetSelection();
+  openBgSheet();
+});
+
+resultAddScreenshotBtn.addEventListener('click', function () {
+  resultAddScreenshotInput.click();
+});
+
+
+resultAddScreenshotInput.addEventListener('change', function () {
+  var file =
+    resultAddScreenshotInput.files &&
+    resultAddScreenshotInput.files[0];
+
+  resultAddScreenshotInput.value = '';
+
+  if (!file) return;
+  if (file.type.indexOf('image/') !== 0) return;
+
+  if (screens.length >= MAX_SCREENS) return;
+
+  generateOverlayText.textContent =
+    'Вырезаем акции из скриншота…';
+
+  generateOverlay.hidden = false;
+
+  requestAnimationFrame(function () {
+    generateOverlay.classList.add('is-visible');
+  });
+
+
+  readScreenshotAsDataURL(file, function (dataUrl) {
+    if (!dataUrl) {
+      finishAddResultScreenshot();
+      return;
+    }
+
+    loadImage(dataUrl)
+      .then(function (img) {
+        var cards = [];
+
+        try {
+          cards =
+            window.runMagicLogic(
+              img,
+              getPriceDrawOptions()
+            ) || [];
+        } catch (err) {
+          console.warn(
+            'Не удалось обработать новый скриншот',
+            err
+          );
+        }
+
+
+        if (!cards.length) {
+          finishAddResultScreenshot();
+          return;
+        }
+
+
+        /* сохраняем исходный скриншот */
+        screens.push(dataUrl);
+        renderScreens();
+
+
+        /* добавляем новые акции В КОНЕЦ */
+        cards.forEach(function (card) {
+          allGeneratedCards.push(card);
+
+          window.layerState.offers.push({
+            ref: card,
+            visible: true,
+
+            target: {
+              x: 0,
+              y: 0,
+              w: 0,
+              h: 0
+            }
+          });
+        });
+
+
+        resultWasDownloaded = false;
+
+
+        /* полностью пересчитываем ВСЕ акции */
+        layoutOffers(
+          resultCanvas.width,
+          resultCanvas.height
+        );
+
+
+        drawResult(
+          resultCanvas.getContext('2d'),
+          resultCanvas.width,
+          resultCanvas.height
+        );
+
+
+        /* добавляем новые акции в Цена акций */
+        renderPricePanel();
+
+
+        finishAddResultScreenshot();
+      })
+      .catch(function (err) {
+        console.warn(
+          'Не удалось загрузить новый скриншот',
+          err
+        );
+
+        finishAddResultScreenshot();
+      });
+  });
+});
+
+
+function finishAddResultScreenshot() {
+  generateOverlay.classList.remove('is-visible');
+
+  setTimeout(function () {
+    generateOverlay.hidden = true;
+  }, 300);
+}
+
 var RESULT_RECOVERY_DB = 'snapi_result_recovery';
 var RESULT_RECOVERY_STORE = 'works';
 var RESULT_RECOVERY_KEY = 'last_unsaved_result';
@@ -6157,6 +6921,12 @@ function collectRecoveryPrices() {
   });
 }
 
+function collectRecoveryOfferVisibility() {
+  return window.layerState.offers.map(function (offer) {
+    return offer.visible !== false;
+  });
+}
+
 function collectRecoveryState() {
   var db = loadDB();
 
@@ -6164,6 +6934,9 @@ function collectRecoveryState() {
     screens: screens.slice(),
 
     prices: collectRecoveryPrices(),
+
+    offerVisibility:
+      collectRecoveryOfferVisibility(),
 
     nicknameEnabled: isNicknameActive(),
 
@@ -6179,6 +6952,16 @@ function collectRecoveryState() {
       nickname: db.nickname,
       nicknameStyleIndex: db.nicknameStyleIndex || 0,
       nicknameFontFamily: window.layerState.nicknameFont,
+
+      nicknameManualScale: db.nicknameManualScale || 1,
+      nicknameOffsetX: db.nicknameOffsetX || 0,
+      nicknameOffsetY: db.nicknameOffsetY || 0,
+
+      offerOutlineSize:
+        window.layerState.offerOutlineSize,
+
+      offerOutlineColor:
+        window.layerState.offerOutlineColor,
 
       effectsEnabled: db.effectsEnabled,
 
@@ -6225,6 +7008,9 @@ function scheduleUnsavedResultSave() {
 
         screens: recoveryState.screens,
         prices: recoveryState.prices,
+
+        offerVisibility:
+          recoveryState.offerVisibility,
 
         nicknameEnabled: recoveryState.nicknameEnabled,
         state: recoveryState.db,
@@ -6288,6 +7074,67 @@ function deleteUnsavedResult() {
   });
 }
 
+function refreshResultBackground() {
+  if (!resultPage || resultPage.hidden) return;
+
+  var db = loadDB();
+  var bgSrc = null;
+
+  if (
+    db.selectedBgSource === 'upload' &&
+    db.uploadedBgDataUrl
+  ) {
+    bgSrc = db.uploadedBgDataUrl;
+  }
+
+  if (
+    db.selectedBgSource === 'fankit' &&
+    db.selectedBg
+  ) {
+    bgSrc = 'bg/' + db.selectedBg + '.jpg';
+  }
+
+  resultWasDownloaded = false;
+
+  if (db.selectedBgSource === 'color') {
+    bgImageForRender = null;
+
+    drawResult(
+      resultCanvas.getContext('2d'),
+      resultCanvas.width,
+      resultCanvas.height
+    );
+
+    return;
+  }
+
+  if (!bgSrc) {
+    bgImageForRender = null;
+
+    drawResult(
+      resultCanvas.getContext('2d'),
+      resultCanvas.width,
+      resultCanvas.height
+    );
+
+    return;
+  }
+
+  loadImage(bgSrc)
+    .then(function (img) {
+      bgImageForRender = img;
+
+      drawResult(
+        resultCanvas.getContext('2d'),
+        resultCanvas.width,
+        resultCanvas.height
+      );
+    })
+    .catch(function (err) {
+      console.warn('Не удалось обновить фон', err);
+    });
+}
+
 function loadImage(src) {
   return new Promise(function (resolve, reject) {
     var img = new Image();
@@ -6298,8 +7145,13 @@ function loadImage(src) {
 }
 
 function layoutOffers(canvasW, canvasH) {
-  var offers = window.layerState.offers;
+  var offers =
+    window.layerState.offers.filter(function (offer) {
+      return offer.visible !== false;
+    });
+
   var count = offers.length;
+
   if (count === 0) return;
 
   // Отступы: сверху — под будущий ник (если он включён), по бокам — просто воздух.
@@ -6464,6 +7316,8 @@ function drawResult(ctx, canvasW, canvasH) {
     drawNickname(ctx, canvasW, canvasH);
 
   window.layerState.offers.forEach(function (offer) {
+    if (offer.visible === false) return;
+
     var card = offer.ref.canvas;
     var padding = offer.ref.effectPadding || 0;
 
@@ -6506,10 +7360,10 @@ var NICKNAME_PADDING_RATIO = 0.12;
 var TEMPLATE_FONT = 'LilitaOneRus';
 var TEMPLATE_HEIGHT_RATIO = 0.06; // прежний, уменьшенный размер
 
-// Эталонная область — то, как LilitaOneRus рисует ЭТОТ ЖЕ текст.
-// Считаем заново под конкретный никнейм, поэтому длина текста учитывается сама собой.
 function getTemplateBox(text, canvasH) {
-  var tm = getNicknameMetrics(TEMPLATE_FONT, text);
+  // Меряем по КАПС-версии текста — иначе строчный ник (без высоких
+  // штрихов) даёт заниженный bounding box и получается мельче капса.
+  var tm = getNicknameMetrics(TEMPLATE_FONT, text.toUpperCase());
   var templateHeight = canvasH * TEMPLATE_HEIGHT_RATIO;
   var templateFontSize = tm.testSize * (templateHeight / tm.height);
   var templateWidth = tm.width * (templateFontSize / tm.testSize);
@@ -6529,7 +7383,9 @@ function drawNickname(ctx, canvasW, canvasH) {
   var textSlotHeight = areaHeight - padding * 2;
 
   var box = getTemplateBox(db.nickname, canvasH);
-  var metrics = getNicknameMetrics(window.layerState.nicknameFont, db.nickname);
+  // Тоже меряем по капсу — чтобы ширина считалась в тех же единицах,
+  // что и box.width, и строчный/смешанный ник не улетал в меньший fontSize.
+  var metrics = getNicknameMetrics(window.layerState.nicknameFont, db.nickname.toUpperCase());
 
   // Подгоняем fontSize ЦЕЛИКОМ под ширину шаблона — без отдельного scaleX.
   var fontSize = metrics.testSize * (box.width / metrics.width);
@@ -6548,16 +7404,40 @@ function drawNickname(ctx, canvasW, canvasH) {
   var extraY = scaledHeight > box.height
     ? (scaledHeight - box.height) * 0.5
     : 0;
+  var manualScale =
+    db.nicknameManualScale || 1;
 
-  var x = canvasW / 2;
-  var y = padding + textSlotHeight / 2 + extraY;
+  var offsetX =
+    db.nicknameOffsetX || 0;
+
+  var offsetY =
+    db.nicknameOffsetY || 0;
+
+
+  var x =
+    canvasW / 2 +
+    canvasW * offsetX;
+
+  var y =
+    padding +
+    textSlotHeight / 2 +
+    extraY -
+    canvasH * offsetY;
+
+
+  fontSize *= manualScale;
+
 
   var styleIndex = db.nicknameStyleIndex || 0;
 
   drawStyledText(
     ctx, db.nickname, x, y, fontSize,
     window.layerState.nicknameFont, styleIndex,
-    { skew: NICKNAME_SKEW, shadowScale: 0.8, scaleY: scaleY }
+    {
+      skew: NICKNAME_SKEW,
+      shadowScale: 0.8,
+      scaleY: scaleY
+    }
   );
 }
 
@@ -6616,52 +7496,115 @@ function leaveResultPage() {
   );
 }
 
-downloadResultBtn.addEventListener('click', function () {
-  var filename = 'snapi-result.png';
+function downloadCanvasByDevice(canvas, filename, loadingText, onDone) {
+  generateOverlayText.textContent =
+    loadingText || 'Скачивание, подождите…';
 
-  // Показываем то же окно "подождите", что и при генерации
-  generateOverlayText.textContent = 'Скачивание работы, подождите…';
   generateOverlay.hidden = false;
+
   requestAnimationFrame(function () {
     generateOverlay.classList.add('is-visible');
   });
 
+
   function closeDownloadOverlay() {
     generateOverlay.classList.remove('is-visible');
-    setTimeout(function () { generateOverlay.hidden = true; }, 300);
+
+    setTimeout(function () {
+      generateOverlay.hidden = true;
+    }, 300);
   }
 
+
+  function finish() {
+    closeDownloadOverlay();
+
+    if (onDone) {
+      onDone();
+    }
+  }
+
+
+  /*
+   * iPhone / iPad —
+   * используем тот же Worker,
+   * что и для всей работы.
+   */
   if (isIOS()) {
-    submitIOSDownload(resultCanvas, function () {
-      resultWasDownloaded = true;
-      deleteUnsavedResult();
-      closeDownloadOverlay();
-    });
+    submitIOSDownload(
+      canvas,
+      function () {
+        finish();
+      }
+    );
+
     return;
   }
 
-  resultCanvas.toBlob(function (blob) {
-    if (!blob) { closeDownloadOverlay(); return; }
+
+  /*
+   * Android / Windows / macOS
+   * и остальные устройства.
+   */
+  canvas.toBlob(function (blob) {
+    if (!blob) {
+      closeDownloadOverlay();
+      return;
+    }
+
 
     if (navigator.msSaveOrOpenBlob) {
-      navigator.msSaveOrOpenBlob(blob, filename);
+
+      navigator.msSaveOrOpenBlob(
+        blob,
+        filename
+      );
+
     } else {
-      var url = URL.createObjectURL(blob);
-      var link = document.createElement('a');
+
+      var url =
+        URL.createObjectURL(blob);
+
+      var link =
+        document.createElement('a');
+
       link.href = url;
       link.download = filename;
       link.rel = 'noopener';
+
       document.body.appendChild(link);
+
       link.click();
+
       document.body.removeChild(link);
-      setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+
+
+      setTimeout(function () {
+        URL.revokeObjectURL(url);
+      }, 1000);
     }
 
-    resultWasDownloaded = true;
-    deleteUnsavedResult();
 
-    setTimeout(closeDownloadOverlay, 500);
+    setTimeout(function () {
+      finish();
+    }, 500);
+
   }, 'image/png');
+}
+
+downloadResultBtn.addEventListener('click', function () {
+
+  downloadCanvasByDevice(
+    resultCanvas,
+    'snapi-result.png',
+    'Скачивание работы, подождите…',
+
+    function () {
+      resultWasDownloaded = true;
+      deleteUnsavedResult();
+    }
+  );
+
 });
 
 generateBtn.addEventListener('click', function () {
@@ -6689,11 +7632,7 @@ generateBtn.addEventListener('click', function () {
 
   var bgPromise = bgSrc ? loadImage(bgSrc) : Promise.resolve(null);
 
-  var extractOptions = {
-    priceScale: window.layerState.globalPriceScale,
-    priceFontFamily: 'LilitaOneRus',
-    priceColor: window.layerState.offerPriceColor
-  };
+  var extractOptions = getPriceDrawOptions();
 
   Promise.all([
     bgPromise,
@@ -6723,6 +7662,7 @@ generateBtn.addEventListener('click', function () {
             allGeneratedCards.push(card);
             window.layerState.offers.push({
               ref: card,
+              visible: true,
               target: { x: 0, y: 0, w: 0, h: 0 }
             });
           });
@@ -6749,10 +7689,20 @@ var priceList = document.getElementById('priceList');
 
 var resultLeftEl = document.getElementById('resultLeft');
 var pricePanelMobileSlot = document.getElementById('pricePanelMobileSlot');
+var resultActions = document.getElementById('resultActions');
+
 var desktopMql = window.matchMedia('(min-width: 860px)');
 
 function relocatePricePanel() {
-  var target = desktopMql.matches ? resultLeftEl : pricePanelMobileSlot;
+  var target =
+    desktopMql.matches
+      ? resultLeftEl
+      : pricePanelMobileSlot;
+
+  if (resultActions.parentElement !== target) {
+    target.appendChild(resultActions);
+  }
+
   if (pricePanel.parentElement !== target) {
     target.appendChild(pricePanel);
   }
@@ -6774,6 +7724,15 @@ var styleSubPanelBody = document.getElementById('styleSubPanelBody');
 var fontSubPanel = document.getElementById('fontSubPanel');
 var fontSubPanelToggle = document.getElementById('fontSubPanelToggle');
 var fontSubPanelBody = document.getElementById('fontSubPanelBody');
+
+var transformSubPanel = document.getElementById('transformSubPanel');
+var transformSubPanelToggle = document.getElementById('transformSubPanelToggle');
+var transformSubPanelBody = document.getElementById('transformSubPanelBody');
+
+var nicknameTransformControls = document.getElementById('nicknameTransformControls');
+var nicknameSizeRange = document.getElementById('nicknameSizeRange');
+var nicknameXRange = document.getElementById('nicknameXRange');
+var nicknameYRange = document.getElementById('nicknameYRange');
 
 var NICKNAME_TITLE_MAX_LENGTH = 18;
 
@@ -6805,6 +7764,22 @@ function updateNicknameSwitchUI() {
   nicknamePanel.classList.toggle('is-nickname-off', !enabled);
 }
 
+function syncNicknameTransformControls() {
+  var db = loadDB();
+
+  nicknameSizeRange.value = Math.round(
+    (db.nicknameManualScale || 1) * 100
+  );
+
+  nicknameXRange.value = Math.round(
+    (db.nicknameOffsetX || 0) * 100
+  );
+
+  nicknameYRange.value = Math.round(
+    (db.nicknameOffsetY || 0) * 100
+  );
+}
+
 function updateNicknamePanel() {
   var db = loadDB();
   var show = !!db.nickname;
@@ -6821,6 +7796,13 @@ function updateNicknamePanel() {
   setCollapsed(nicknamePanel, nicknamePanelBody, !!db.nicknamePanelCollapsed);
   setCollapsed(styleSubPanel, styleSubPanelBody, !!db.styleSubPanelCollapsed);
   setCollapsed(fontSubPanel, fontSubPanelBody, !!db.fontSubPanelCollapsed);
+  setCollapsed(
+    transformSubPanel,
+    transformSubPanelBody,
+    !!db.transformSubPanelCollapsed
+  );
+
+  syncNicknameTransformControls();
   updateNicknameSwitchUI();
 }
 
@@ -6849,6 +7831,24 @@ function clampPriceValue(raw) {
   return String(num);
 }
 
+const eyeVisibleSVG = `
+<svg viewBox="0 0 512 512" fill="currentColor" aria-hidden="true">
+  <g transform="translate(0,512) scale(0.1,-0.1)">
+    <path d="M2405 4300 c-863 -44 -1660 -505 -2148 -1245 -90 -138 -250 -453 -250 -495 0 -42 160 -357 250 -495 409 -620 1033 -1046 1748 -1194 342 -70 762 -71 1107 -1 713 145 1343 575 1750 1195 92 140 251 453 251 495 0 42 -159 357 -250 495 -216 327 -483 594 -808 808 -135 88 -391 218 -539 272 -231 85 -534 150 -748 160 -62 3 -138 7 -168 8 -30 2 -118 0 -195 -3z m356 -595 c416 -73 764 -372 901 -775 78 -232 78 -508 0 -740 -117 -345 -387 -615 -732 -732 -171 -58 -391 -75 -570 -43 -480 84 -861 465 -945 944 -32 178 -15 400 43 571 136 400 481 699 894 774 100 19 307 19 409 1z"/>
+    <path d="M2430 3246 c-154 -34 -250 -85 -360 -196 -142 -141 -204 -290 -204 -485 0 -131 17 -204 76 -325 81 -166 259 -307 448 -357 87 -23 253 -23 340 0 244 64 444 264 507 507 23 88 23 254 0 340 -50 190 -191 367 -357 448 -47 23 -112 49 -145 57 -85 23 -227 27 -305 11z"/>
+  </g>
+</svg>`;
+
+function getEyeSVG() {
+  return `
+    <span class="eye-icon-box">
+      ${eyeVisibleSVG}
+    </span>
+
+    <span class="eye-slash"></span>
+  `;
+}
+
 function renderPricePanel() {
   var db = loadDB();
   var offers = window.layerState.offers;
@@ -6858,17 +7858,91 @@ function renderPricePanel() {
 
   setCollapsed(pricePanel, pricePanelBody, !!db.pricePanelCollapsed);
 
-  priceList.innerHTML = '';
+priceList.innerHTML = '';
 
-  offers.forEach(function (offer, index) {
-    var row = document.createElement('div');
-    row.className = 'price-row';
+var outlineControls = document.createElement('div');
 
-    var label = document.createElement('span');
-    label.className = 'price-row__label';
-    label.textContent = 'Акция ' + (index + 1);
+outlineControls.className = 'price-outline-controls';
 
-    var input = document.createElement('input');
+outlineControls.innerHTML = `
+  <span class="price-outline-controls__label">Обводка акции</span>
+
+  <div class="price-outline-controls__stepper">
+    <button
+      type="button"
+      class="price-outline-controls__btn"
+      data-card-outline-delta="-1"
+    >−</button>
+
+    <span class="price-outline-controls__value">
+      ${window.layerState.offerOutlineSize}
+    </span>
+
+    <button
+      type="button"
+      class="price-outline-controls__btn"
+      data-card-outline-delta="1"
+    >+</button>
+  </div>
+
+  <input
+    type="color"
+    class="price-outline-controls__color"
+    value="${window.layerState.offerOutlineColor}"
+    aria-label="Цвет обводки акции"
+  >
+`;
+
+priceList.appendChild(outlineControls);
+
+
+offers.forEach(function (offer, index) {
+  var visible = offer.visible !== false;
+
+  var row = document.createElement('div');
+  row.className =
+    'price-row' + (visible ? '' : ' is-off');
+  row.dataset.offerIndex = index;
+
+
+  var drag = document.createElement('button');
+  drag.type = 'button';
+  drag.className = 'ios-icon-btn price-row__drag';
+  drag.setAttribute('aria-label', 'Переместить акцию ' + (index + 1));
+  drag.innerHTML =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">' +
+      '<line x1="4" y1="7" x2="20" y2="7"></line>' +
+      '<line x1="4" y1="12" x2="20" y2="12"></line>' +
+      '<line x1="4" y1="17" x2="20" y2="17"></line>' +
+    '</svg>';
+
+
+  var eye = document.createElement('button');
+
+  eye.type = 'button';
+
+  eye.className =
+    'ios-icon-btn ios-eye-icon offer-eye-btn' +
+    (visible ? '' : ' hidden');
+
+  eye.dataset.offerIndex = index;
+
+  eye.setAttribute(
+    'aria-label',
+    visible
+      ? 'Скрыть акцию ' + (index + 1)
+      : 'Показать акцию ' + (index + 1)
+  );
+
+  eye.innerHTML = getEyeSVG();
+
+
+  var label = document.createElement('span');
+  label.className = 'price-row__label';
+  label.textContent = 'Акция ' + (index + 1);
+
+
+  var input = document.createElement('input');
     input.type = 'text';
     input.inputMode = 'numeric';     // цифровая клавиатура на мобильных
     input.pattern = '[0-9]*';        // подстраховка для iOS/Android
@@ -6877,12 +7951,91 @@ function renderPricePanel() {
     input.className = 'price-row__input';
     input.dataset.offerIndex = index;
     input.placeholder = 'FREE';
-    input.value = (offer.ref.price && offer.ref.price !== 'FREE') ? offer.ref.price : '';
+    input.value =
+      (offer.ref.price && offer.ref.price !== 'FREE')
+        ? offer.ref.price
+        : '';
 
-    row.appendChild(label);
-    row.appendChild(input);
-    priceList.appendChild(row);
+    input.disabled = !visible;
+
+
+var download = document.createElement('button');
+
+download.type = 'button';
+download.className =
+  'ios-icon-btn offer-download-btn';
+
+download.dataset.offerIndex = index;
+
+download.setAttribute(
+  'aria-label',
+  'Скачать акцию ' + (index + 1)
+);
+
+download.innerHTML = `
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M12 3v12"></path>
+    <path d="m7 10 5 5 5-5"></path>
+    <path d="M5 20h14"></path>
+  </svg>
+`;
+
+
+row.appendChild(drag);
+row.appendChild(eye);
+row.appendChild(label);
+row.appendChild(input);
+row.appendChild(download);
+
+priceList.appendChild(row);
   });
+}
+
+function getPriceDrawOptions() {
+  return {
+    priceScale: window.layerState.globalPriceScale,
+    priceFontFamily: 'LilitaOneRus',
+    priceColor: window.layerState.offerPriceColor,
+
+    cardOutlineSize:
+      window.layerState.offerOutlineSize,
+
+    cardOutlineColor:
+      window.layerState.offerOutlineColor
+  };
+}
+
+
+function redrawAllOfferPrices() {
+  window.layerState.offers.forEach(function (offer) {
+    if (!offer || !offer.ref) return;
+
+    var price =
+      offer.ref.price &&
+      offer.ref.price !== ''
+        ? offer.ref.price
+        : 'FREE';
+
+    window.redrawCardPrice(
+      offer.ref,
+      price,
+      getPriceDrawOptions()
+    );
+  });
+
+  drawResult(
+    resultCanvas.getContext('2d'),
+    resultCanvas.width,
+    resultCanvas.height
+  );
 }
 
 function applyPriceToOffer(index, rawValue) {
@@ -6892,20 +8045,482 @@ function applyPriceToOffer(index, rawValue) {
   var value = rawValue.trim();
   var newPrice = value === '' ? 'FREE' : value;
 
-  window.redrawCardPrice(offer.ref, newPrice, {
-    priceScale: window.layerState.globalPriceScale,
-    priceFontFamily: 'LilitaOneRus',
-    priceColor: window.layerState.offerPriceColor
-  });
-
+  window.redrawCardPrice(
+    offer.ref,
+    newPrice,
+    getPriceDrawOptions()
+  );
   drawResult(resultCanvas.getContext('2d'), resultCanvas.width, resultCanvas.height);
 }
 
-// небольшой debounce на строку, чтобы при быстром наборе
-// не перерисовывать canvas на каждое нажатие клавиши подряд
+var canvasPriceMouseMode =
+  window.matchMedia(
+    '(hover: hover) and (pointer: fine)'
+  ).matches;
+
+
+function getCanvasMousePosition(e) {
+  var rect = resultCanvas.getBoundingClientRect();
+
+  return {
+    x:
+      (e.clientX - rect.left) *
+      (resultCanvas.width / rect.width),
+
+    y:
+      (e.clientY - rect.top) *
+      (resultCanvas.height / rect.height)
+  };
+}
+
+function downloadOfferLayer(index) {
+  var offer =
+    window.layerState.offers[index];
+
+  if (
+    !offer ||
+    !offer.ref ||
+    !offer.ref.canvas
+  ) {
+    return;
+  }
+
+  downloadCanvasByDevice(
+    offer.ref.canvas,
+    'snapi-offer-' + (index + 1) + '.png',
+    'Скачивание акции, подождите…'
+  );
+}
+
+function getOfferPriceHit(index) {
+  var offer = window.layerState.offers[index];
+
+  if (
+    !offer ||
+    offer.visible === false ||
+    !offer.target
+  ) {
+    return null;
+  }
+
+  var t = offer.target;
+
+  /*
+   * Зона цены в нижней части акции.
+   * Она специально немного больше самого текста,
+   * чтобы по цене было удобно попадать мышкой.
+   */
+  return {
+    x: t.x + t.w * 0.16,
+    y: t.y + t.h * 0.70,
+    w: t.w * 0.68,
+    h: t.h * 0.28
+  };
+}
+
+
+function getOfferPriceAtPoint(x, y) {
+  for (
+    var i = window.layerState.offers.length - 1;
+    i >= 0;
+    i--
+  ) {
+    var hit = getOfferPriceHit(i);
+
+    if (!hit) continue;
+
+    if (
+      x >= hit.x &&
+      x <= hit.x + hit.w &&
+      y >= hit.y &&
+      y <= hit.y + hit.h
+    ) {
+      return {
+        index: i,
+        hit: hit
+      };
+    }
+  }
+
+  return null;
+}
+
+
+function openCanvasPriceEditor(index, hit) {
+  var oldEditor =
+    document.querySelector('.canvas-price-editor');
+
+  if (oldEditor) {
+    oldEditor.remove();
+  }
+
+
+  var offer =
+    window.layerState.offers[index];
+
+  if (!offer) return;
+
+
+  var canvasRect =
+    resultCanvas.getBoundingClientRect();
+
+  var scaleX =
+    canvasRect.width / resultCanvas.width;
+
+  var scaleY =
+    canvasRect.height / resultCanvas.height;
+
+
+  var input =
+    document.createElement('input');
+
+  input.type = 'text';
+  input.inputMode = 'numeric';
+  input.pattern = '[0-9]*';
+  input.autocomplete = 'off';
+
+  input.maxLength =
+    String(
+      window.layerState.offerPriceMax
+    ).length;
+
+  input.className =
+    'canvas-price-editor';
+
+
+  input.value =
+    (
+      offer.ref.price &&
+      offer.ref.price !== 'FREE'
+    )
+      ? offer.ref.price
+      : '';
+
+
+  /*
+   * Ставим поле прямо поверх цены.
+   */
+  input.style.left =
+    (
+      canvasRect.left +
+      (hit.x + hit.w / 2) * scaleX
+    ) + 'px';
+
+  input.style.top =
+    (
+      canvasRect.top +
+      (hit.y + hit.h / 2) * scaleY
+    ) + 'px';
+
+  input.style.width =
+    Math.max(
+      70,
+      hit.w * scaleX
+    ) + 'px';
+
+  input.style.height =
+    Math.max(
+      34,
+      hit.h * scaleY
+    ) + 'px';
+
+  input.style.fontSize =
+    Math.max(
+      16,
+      hit.h * scaleY * .45
+    ) + 'px';
+
+
+  document.body.appendChild(input);
+
+  input.focus();
+  input.select();
+
+
+  var finished = false;
+
+
+  function save() {
+    if (finished) return;
+
+    finished = true;
+
+    var value =
+      clampPriceValue(input.value);
+
+    input.remove();
+
+
+    applyPriceToOffer(
+      index,
+      value
+    );
+
+
+    /*
+     * Синхронизируем поле цены
+     * в панели слоёв.
+     */
+    var panelInput =
+      priceList.querySelector(
+        '.price-row__input[data-offer-index="' +
+        index +
+        '"]'
+      );
+
+    if (panelInput) {
+      panelInput.value = value;
+    }
+  }
+
+
+  input.addEventListener(
+    'input',
+    function () {
+      input.value =
+        clampPriceValue(input.value);
+    }
+  );
+
+
+  input.addEventListener(
+    'keydown',
+    function (e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        save();
+      }
+
+      if (e.key === 'Escape') {
+        finished = true;
+        input.remove();
+      }
+    }
+  );
+
+
+  input.addEventListener(
+    'blur',
+    save
+  );
+}
+
+if (canvasPriceMouseMode) {
+
+  resultCanvas.addEventListener(
+    'mousemove',
+    function (e) {
+      var p =
+        getCanvasMousePosition(e);
+
+      var price =
+        getOfferPriceAtPoint(
+          p.x,
+          p.y
+        );
+
+      resultCanvas.style.cursor =
+        price
+          ? 'text'
+          : 'default';
+    }
+  );
+
+
+  resultCanvas.addEventListener(
+    'mouseleave',
+    function () {
+      resultCanvas.style.cursor =
+        'default';
+    }
+  );
+
+
+  resultCanvas.addEventListener(
+    'click',
+    function (e) {
+      var p =
+        getCanvasMousePosition(e);
+
+      var price =
+        getOfferPriceAtPoint(
+          p.x,
+          p.y
+        );
+
+      if (!price) return;
+
+      e.stopPropagation();
+
+      openCanvasPriceEditor(
+        price.index,
+        price.hit
+      );
+    }
+  );
+
+}
+
+function reorderOffers(newOrderOldIndices) {
+  window.layerState.offers = newOrderOldIndices.map(function (oldIndex) {
+    return window.layerState.offers[oldIndex];
+  });
+
+  layoutOffers(resultCanvas.width, resultCanvas.height);
+  drawResult(resultCanvas.getContext('2d'), resultCanvas.width, resultCanvas.height);
+  renderPricePanel();
+}
+
 var priceInputTimers = {};
 
+priceList.addEventListener('click', function (e) {
+
+var outlineBtn =
+  e.target.closest('[data-card-outline-delta]');
+
+if (outlineBtn) {
+  e.preventDefault();
+
+  var delta =
+    Number(outlineBtn.dataset.cardOutlineDelta);
+
+  var next =
+    window.layerState.offerOutlineSize + delta;
+
+  next = Math.max(0, Math.min(10, next));
+
+  window.layerState.offerOutlineSize = next;
+
+  saveDB({
+    offerOutlineSize: next
+  });
+
+  var valueEl =
+    priceList.querySelector(
+      '.price-outline-controls__value'
+    );
+
+  if (valueEl) {
+    valueEl.textContent = next;
+  }
+
+  redrawAllOfferPrices();
+  return;
+}
+
+
+  /* ---------- скачать отдельную акцию ---------- */
+
+  var download =
+    e.target.closest('.offer-download-btn');
+
+  if (download) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    var downloadIndex =
+      Number(download.dataset.offerIndex);
+
+    downloadOfferLayer(downloadIndex);
+
+    return;
+  }
+
+
+  /* ---------- скрыть / показать акцию ---------- */
+
+  var eye =
+    e.target.closest('.offer-eye-btn');
+
+  if (!eye) return;
+
+  var index =
+    Number(eye.dataset.offerIndex);
+
+  var offer =
+    window.layerState.offers[index];
+
+  if (!offer) return;
+
+  // дальше твой старый код глаза БЕЗ ИЗМЕНЕНИЙ
+
+
+  var wasVisible =
+    offer.visible !== false;
+
+  offer.visible =
+    !wasVisible;
+
+
+  /* Не пересоздаём кнопку:
+     класс меняется на существующей,
+     поэтому анимация линии проигрывается плавно */
+  eye.classList.toggle(
+    'hidden',
+    !offer.visible
+  );
+
+  eye.setAttribute(
+    'aria-label',
+    offer.visible
+      ? 'Скрыть акцию ' + (index + 1)
+      : 'Показать акцию ' + (index + 1)
+  );
+
+
+  var row =
+    eye.closest('.price-row');
+
+  if (row) {
+    row.classList.toggle(
+      'is-off',
+      !offer.visible
+    );
+
+    var input =
+      row.querySelector('.price-row__input');
+
+    if (input) {
+      input.disabled =
+        !offer.visible;
+    }
+  }
+
+
+  /* Пересобираем расположение только
+     из оставшихся видимых акций */
+  layoutOffers(
+    resultCanvas.width,
+    resultCanvas.height
+  );
+
+
+  drawResult(
+    resultCanvas.getContext('2d'),
+    resultCanvas.width,
+    resultCanvas.height
+  );
+});
+
 priceList.addEventListener('input', function (e) {
+
+  var colorInput =
+    e.target.closest('.price-outline-controls__color');
+
+    if (colorInput) {
+      window.layerState.offerOutlineColor =
+        colorInput.value;
+
+      saveDB({
+        offerOutlineColor:
+          colorInput.value
+      });
+
+      redrawAllOfferPrices();
+      return;
+    }
+
+
   var input = e.target.closest('.price-row__input');
   if (!input) return;
 
@@ -6933,6 +8548,239 @@ priceList.addEventListener('change', function (e) {
   applyPriceToOffer(index, input.value);
 });
 
+priceList.addEventListener('pointerdown', function (e) {
+  var handle = e.target.closest('.price-row__drag');
+  if (!handle) return;
+
+  e.preventDefault();
+
+  var row = handle.closest('.price-row');
+  var pointerId = e.pointerId;
+
+  var startRect = row.getBoundingClientRect();
+  var grabOffsetY = e.clientY - startRect.top;
+
+
+  /* ---------- создаём магнитное место ---------- */
+
+  var placeholder = document.createElement('div');
+
+  placeholder.className = 'price-row__placeholder';
+  placeholder.style.height = startRect.height + 'px';
+
+  priceList.insertBefore(placeholder, row);
+
+
+  /* ---------- "берём" настоящий слой ---------- */
+
+  row.classList.add('is-dragging');
+
+  row.style.position = 'fixed';
+  row.style.left = startRect.left + 'px';
+  row.style.top = startRect.top + 'px';
+  row.style.width = startRect.width + 'px';
+  row.style.margin = '0';
+
+  document.body.appendChild(row);
+
+
+  /*
+   * Плавно раздвигаем остальные слои.
+   * Это даёт эффект магнитного списка.
+   */
+  function getPositions() {
+    var map = new Map();
+
+    Array.prototype.forEach.call(
+      priceList.querySelectorAll('.price-row'),
+      function (item) {
+        map.set(
+          item,
+          item.getBoundingClientRect().top
+        );
+      }
+    );
+
+    return map;
+  }
+
+
+  function animatePositions(oldPositions) {
+    Array.prototype.forEach.call(
+      priceList.querySelectorAll('.price-row'),
+      function (item) {
+        var oldTop = oldPositions.get(item);
+
+        if (oldTop == null) return;
+
+        var newTop =
+          item.getBoundingClientRect().top;
+
+        var delta = oldTop - newTop;
+
+        if (Math.abs(delta) < 1) return;
+
+        item.animate(
+          [
+            {
+              transform:
+                'translateY(' + delta + 'px)'
+            },
+            {
+              transform: 'translateY(0)'
+            }
+          ],
+          {
+            duration: 180,
+            easing:
+              'cubic-bezier(.22,.8,.28,1)'
+          }
+        );
+      }
+    );
+  }
+
+
+  function movePlaceholder(pointerY) {
+    var rows = Array.prototype.slice.call(
+      priceList.querySelectorAll('.price-row')
+    );
+
+    var afterRow = rows.find(function (item) {
+      var rect = item.getBoundingClientRect();
+
+      return pointerY <
+        rect.top + rect.height / 2;
+    });
+
+    var oldPositions = getPositions();
+
+
+    if (afterRow) {
+      priceList.insertBefore(
+        placeholder,
+        afterRow
+      );
+    } else {
+      priceList.appendChild(placeholder);
+    }
+
+
+    animatePositions(oldPositions);
+  }
+
+
+  function onMove(ev) {
+    if (ev.pointerId !== pointerId) return;
+
+    /*
+     * Сам прямоугольник теперь реально
+     * следует за пальцем / курсором.
+     */
+    row.style.top =
+      (ev.clientY - grabOffsetY) + 'px';
+
+    movePlaceholder(ev.clientY);
+  }
+
+
+  function onUp(ev) {
+    if (
+      ev &&
+      ev.pointerId !== undefined &&
+      ev.pointerId !== pointerId
+    ) {
+      return;
+    }
+
+    document.removeEventListener(
+      'pointermove',
+      onMove
+    );
+
+    document.removeEventListener(
+      'pointerup',
+      onUp
+    );
+
+    document.removeEventListener(
+      'pointercancel',
+      onUp
+    );
+
+
+    /* ---------- магнитим к конечному месту ---------- */
+
+    var targetRect =
+      placeholder.getBoundingClientRect();
+
+    row.style.transition =
+      'top .18s cubic-bezier(.22,.8,.28,1), ' +
+      'left .18s cubic-bezier(.22,.8,.28,1), ' +
+      'transform .18s cubic-bezier(.22,.8,.28,1)';
+
+    row.style.top =
+      targetRect.top + 'px';
+
+    row.style.left =
+      targetRect.left + 'px';
+
+    row.style.transform =
+      'scale(1)';
+
+
+    setTimeout(function () {
+
+      priceList.insertBefore(
+        row,
+        placeholder
+      );
+
+      placeholder.remove();
+
+      row.classList.remove('is-dragging');
+
+      row.style.position = '';
+      row.style.left = '';
+      row.style.top = '';
+      row.style.width = '';
+      row.style.margin = '';
+      row.style.transform = '';
+      row.style.transition = '';
+
+
+      var newOrder =
+        Array.prototype.map.call(
+          priceList.querySelectorAll('.price-row'),
+          function (item) {
+            return Number(
+              item.dataset.offerIndex
+            );
+          }
+        );
+
+      reorderOffers(newOrder);
+
+    }, 180);
+  }
+
+
+  document.addEventListener(
+    'pointermove',
+    onMove
+  );
+
+  document.addEventListener(
+    'pointerup',
+    onUp
+  );
+
+  document.addEventListener(
+    'pointercancel',
+    onUp
+  );
+});
+
 pricePanelHeader.addEventListener('click', function () {
   var collapsed = !pricePanel.classList.contains('is-collapsed');
   setCollapsed(pricePanel, pricePanelBody, collapsed);
@@ -6949,6 +8797,71 @@ fontSubPanelToggle.addEventListener('click', function () {
   var collapsed = !fontSubPanel.classList.contains('is-collapsed');
   setCollapsed(fontSubPanel, fontSubPanelBody, collapsed);
   saveDB({ fontSubPanelCollapsed: collapsed });
+});
+
+transformSubPanelToggle.addEventListener('click', function () {
+  var collapsed =
+    !transformSubPanel.classList.contains('is-collapsed');
+
+  setCollapsed(
+    transformSubPanel,
+    transformSubPanelBody,
+    collapsed
+  );
+
+  saveDB({
+    transformSubPanelCollapsed: collapsed
+  });
+});
+
+function applyNicknameTransformControls() {
+  saveDB({
+    nicknameManualScale:
+      Number(nicknameSizeRange.value) / 100,
+
+    nicknameOffsetX:
+      Number(nicknameXRange.value) / 100,
+
+    nicknameOffsetY:
+      Number(nicknameYRange.value) / 100
+  });
+
+  drawResult(
+    resultCanvas.getContext('2d'),
+    resultCanvas.width,
+    resultCanvas.height
+  );
+}
+
+
+nicknameTransformControls.addEventListener('input', function (e) {
+  if (e.target.type !== 'range') return;
+
+  applyNicknameTransformControls();
+});
+
+
+nicknameTransformControls.addEventListener('click', function (e) {
+  var btn = e.target.closest('.nickname-adjust__btn');
+  if (!btn) return;
+
+  var range =
+    document.getElementById(btn.dataset.target);
+
+  if (!range) return;
+
+  var next =
+    Number(range.value) +
+    Number(btn.dataset.delta);
+
+  next = Math.max(
+    Number(range.min),
+    Math.min(Number(range.max), next)
+  );
+
+  range.value = next;
+
+  applyNicknameTransformControls();
 });
 
 var styleStripSection = document.getElementById('styleStripSection');
