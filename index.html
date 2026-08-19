@@ -1898,9 +1898,16 @@
 
 .nickname-adjust__row {
   display: grid;
-  grid-template-columns: 52px 32px minmax(50px, 1fr) 32px 52px;
+  grid-template-columns:
+    minmax(56px, 1fr)
+    32px
+    minmax(90px, 2fr)
+    32px
+    minmax(56px, 1fr);
+
   align-items: center;
   gap: 6px;
+  width: 100%;
 }
 
 .nickname-adjust__side {
@@ -1911,11 +1918,11 @@
 }
 
 .nickname-adjust__side:first-child {
-  text-align: right;
+  text-align: left;
 }
 
 .nickname-adjust__side:last-child {
-  text-align: left;
+  text-align: right;
 }
 
 .nickname-adjust__btn {
@@ -2076,22 +2083,48 @@
   font-weight: 700;
 }
 
-.price-outline-controls__color {
+.price-outline-controls__color-wrap {
+  position: relative;
+
   width: 40px;
   height: 40px;
   flex: none;
 
-  padding: 4px;
-  border: none;
+  display: block;
   border-radius: 50%;
-
-  background: transparent;
   overflow: hidden;
+
+  cursor: pointer;
+}
+
+.price-outline-controls__color-preview {
+  position: absolute;
+  inset: 4px;
+
+  border-radius: 50%;
+  background: var(--outline-color);
+
+  border: 2px solid var(--surface-soft);
+
+  pointer-events: none;
+}
+
+.price-outline-controls__color {
+  position: absolute;
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  opacity: 0;
   cursor: pointer;
 
-  touch-action: manipulation;
-  -webkit-appearance: none;
-  appearance: none;
+  border: 0;
+  padding: 0;
+
+  /* ВАЖНО: Safari оставляем нативный input */
+  -webkit-appearance: auto;
+  appearance: auto;
 }
 
 .price-outline-controls__color::-webkit-color-swatch-wrapper {
@@ -4172,7 +4205,131 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
       </div>
       <div class="collapse-body" id="pricePanelBody">
         <div class="nickname-panel__body-inner">
+
+          <div class="sub-panel" id="offersTransformSubPanel">
+            <button
+              type="button"
+              class="sub-panel__header"
+              id="offersTransformSubPanelToggle"
+            >
+              <span class="sub-panel__title">Размер и положение</span>
+
+              <span class="sub-panel__chevron">
+                <svg viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round">
+                  <path d="M6 9l6 6 6-6"></path>
+                </svg>
+              </span>
+            </button>
+
+            <div
+              class="collapse-body"
+              id="offersTransformSubPanelBody"
+            >
+              <div
+                class="nickname-adjust"
+                id="offersTransformControls"
+              >
+
+                <div class="nickname-adjust__row">
+                  <span class="nickname-adjust__side">Меньше</span>
+
+                  <button
+                    type="button"
+                    class="nickname-adjust__btn"
+                    data-target="offersSizeRange"
+                    data-delta="-5"
+                  >−</button>
+
+                  <input
+                    type="range"
+                    id="offersSizeRange"
+                    min="60"
+                    max="160"
+                    step="1"
+                    value="100"
+                  >
+
+                  <button
+                    type="button"
+                    class="nickname-adjust__btn"
+                    data-target="offersSizeRange"
+                    data-delta="5"
+                  >+</button>
+
+                  <span class="nickname-adjust__side">Больше</span>
+                </div>
+
+
+                <div class="nickname-adjust__row">
+                  <span class="nickname-adjust__side">Влево</span>
+
+                  <button
+                    type="button"
+                    class="nickname-adjust__btn"
+                    data-target="offersXRange"
+                    data-delta="-1"
+                  >−</button>
+
+                  <input
+                    type="range"
+                    id="offersXRange"
+                    min="-25"
+                    max="25"
+                    step="1"
+                    value="0"
+                  >
+
+                  <button
+                    type="button"
+                    class="nickname-adjust__btn"
+                    data-target="offersXRange"
+                    data-delta="1"
+                  >+</button>
+
+                  <span class="nickname-adjust__side">Вправо</span>
+                </div>
+
+
+                <div class="nickname-adjust__row">
+                  <span class="nickname-adjust__side">Вниз</span>
+
+                  <button
+                    type="button"
+                    class="nickname-adjust__btn"
+                    data-target="offersYRange"
+                    data-delta="-3"
+                  >−</button>
+
+                  <input
+                    type="range"
+                    id="offersYRange"
+                    min="-110"
+                    max="110"
+                    step="1"
+                    value="0"
+                  >
+
+                  <button
+                    type="button"
+                    class="nickname-adjust__btn"
+                    data-target="offersYRange"
+                    data-delta="3"
+                  >+</button>
+
+                  <span class="nickname-adjust__side">Вверх</span>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
           <div class="price-list" id="priceList"></div>
+
         </div>
       </div>
     </section>
@@ -6225,6 +6382,10 @@ window.layerState = {
   offers: [],
   globalPriceScale: 1,
   isBrawlPassMode: false,
+
+  offersManualScale: 1,
+  offersOffsetX: 0,
+  offersOffsetY: 0,
   offerPriceFont: 'LilitaOneRus',
   offerPriceColor: '#ffffff',
 
@@ -6380,9 +6541,11 @@ function restoreUnsavedResult(work) {
     nicknameOffsetY:
       work.state.nicknameOffsetY || 0,
 
-    effectsEnabled: work.state.effectsEnabled,
+    effectsEnabled:
+      work.state.effectsEnabled,
 
-    sizeSelection: work.state.sizeSelection
+    sizeSelection:
+      work.state.sizeSelection
   });
 
   window.layerState.nicknameFont =
@@ -6983,6 +7146,15 @@ function collectRecoveryState() {
       offerOutlineColor:
         window.layerState.offerOutlineColor,
 
+      offersManualScale:
+        db.offersManualScale || 1,
+
+      offersOffsetX:
+        db.offersOffsetX || 0,
+
+      offersOffsetY:
+        db.offersOffsetY || 0,
+
       effectsEnabled: db.effectsEnabled,
 
       sizeSelection: db.sizeSelection
@@ -7283,26 +7455,93 @@ function layoutOffers(canvasW, canvasH) {
 
   var y = areaY + freeSpace * verticalBalance;
 
-  rows.forEach(function (row, rowIndex) {
-    var rowHeight = rowHeights[rowIndex];
-    var rowWidth = row.ratioSum * rowHeight + scaledGap * (row.items.length - 1);
-    var x = areaX + (areaW - rowWidth) / 2;
+rows.forEach(function (row, rowIndex) {
+  var rowHeight = rowHeights[rowIndex];
 
-    row.items.forEach(function (item) {
-      var w = item.ratio * rowHeight;
-      var h = rowHeight;
-      var offer = item.offer;
+  var rowWidth =
+    row.ratioSum * rowHeight +
+    scaledGap * (row.items.length - 1);
 
-      offer.target.x = x;
-      offer.target.y = y;
-      offer.target.w = w;
-      offer.target.h = h;
+  var x =
+    areaX +
+    (areaW - rowWidth) / 2;
 
-      x += w + scaledGap;
-    });
+  row.items.forEach(function (item) {
+    var w = item.ratio * rowHeight;
+    var h = rowHeight;
+    var offer = item.offer;
 
-    y += rowHeight + scaledGap;
+    offer.target.x = x;
+    offer.target.y = y;
+    offer.target.w = w;
+    offer.target.h = h;
+
+    x += w + scaledGap;
   });
+
+  y += rowHeight + scaledGap;
+});
+
+
+/* ---------- общий размер и положение всех акций ---------- */
+
+var manualScale =
+  window.layerState.offersManualScale || 1;
+
+var offsetX =
+  (window.layerState.offersOffsetX || 0) * canvasW;
+
+var offsetY =
+  -(window.layerState.offersOffsetY || 0) * canvasH;
+
+
+/* находим центр ВСЕЙ группы акций */
+
+var minX = Infinity;
+var minY = Infinity;
+var maxX = -Infinity;
+var maxY = -Infinity;
+
+offers.forEach(function (offer) {
+  minX = Math.min(minX, offer.target.x);
+  minY = Math.min(minY, offer.target.y);
+
+  maxX = Math.max(
+    maxX,
+    offer.target.x + offer.target.w
+  );
+
+  maxY = Math.max(
+    maxY,
+    offer.target.y + offer.target.h
+  );
+});
+
+var centerX =
+  (minX + maxX) / 2;
+
+var centerY =
+  (minY + maxY) / 2;
+
+
+/* масштабируем всю композицию относительно её центра */
+
+offers.forEach(function (offer) {
+  var t = offer.target;
+
+  t.x =
+    centerX +
+    (t.x - centerX) * manualScale +
+    offsetX;
+
+  t.y =
+    centerY +
+    (t.y - centerY) * manualScale +
+    offsetY;
+
+  t.w *= manualScale;
+  t.h *= manualScale;
+});
 }
 
 function drawResult(ctx, canvasW, canvasH) {
@@ -7749,10 +7988,39 @@ var transformSubPanel = document.getElementById('transformSubPanel');
 var transformSubPanelToggle = document.getElementById('transformSubPanelToggle');
 var transformSubPanelBody = document.getElementById('transformSubPanelBody');
 
-var nicknameTransformControls = document.getElementById('nicknameTransformControls');
-var nicknameSizeRange = document.getElementById('nicknameSizeRange');
-var nicknameXRange = document.getElementById('nicknameXRange');
-var nicknameYRange = document.getElementById('nicknameYRange');
+var nicknameTransformControls =
+  document.getElementById('nicknameTransformControls');
+
+var nicknameSizeRange =
+  document.getElementById('nicknameSizeRange');
+
+var nicknameXRange =
+  document.getElementById('nicknameXRange');
+
+var nicknameYRange =
+  document.getElementById('nicknameYRange');
+
+
+var offersTransformSubPanel =
+  document.getElementById('offersTransformSubPanel');
+
+var offersTransformSubPanelToggle =
+  document.getElementById('offersTransformSubPanelToggle');
+
+var offersTransformSubPanelBody =
+  document.getElementById('offersTransformSubPanelBody');
+
+var offersTransformControls =
+  document.getElementById('offersTransformControls');
+
+var offersSizeRange =
+  document.getElementById('offersSizeRange');
+
+var offersXRange =
+  document.getElementById('offersXRange');
+
+var offersYRange =
+  document.getElementById('offersYRange');
 
 var NICKNAME_TITLE_MAX_LENGTH = 18;
 
@@ -7766,8 +8034,27 @@ function setCollapsed(headerHostEl, bodyEl, collapsed) {
   bodyEl.classList.toggle('is-collapsed', collapsed);
 }
 
-// Временное (не сохраняемое между сессиями) состояние тумблера "Ник".
-// Сбрасывается на дефолт из чекбокса "эффекты" при каждой новой генерации.
+offersTransformSubPanelToggle.addEventListener(
+  'click',
+  function () {
+    var collapsed =
+      !offersTransformSubPanel.classList.contains(
+        'is-collapsed'
+      );
+
+    setCollapsed(
+      offersTransformSubPanel,
+      offersTransformSubPanelBody,
+      collapsed
+    );
+
+    saveDB({
+      offersTransformSubPanelCollapsed:
+        collapsed
+    });
+  }
+);
+
 var nicknameSessionEnabled = null;
 
 function isNicknameActive() {
@@ -7797,6 +8084,21 @@ function syncNicknameTransformControls() {
 
   nicknameYRange.value = Math.round(
     (db.nicknameOffsetY || 0) * 100
+  );
+}
+
+
+function syncOffersTransformControls() {
+  offersSizeRange.value = Math.round(
+    window.layerState.offersManualScale * 100
+  );
+
+  offersXRange.value = Math.round(
+    window.layerState.offersOffsetX * 100
+  );
+
+  offersYRange.value = Math.round(
+    window.layerState.offersOffsetY * 100
   );
 }
 
@@ -7876,7 +8178,19 @@ function renderPricePanel() {
   pricePanel.hidden = offers.length === 0;
   if (offers.length === 0) return;
 
-  setCollapsed(pricePanel, pricePanelBody, !!db.pricePanelCollapsed);
+  setCollapsed(
+    pricePanel,
+    pricePanelBody,
+    !!db.pricePanelCollapsed
+  );
+
+  setCollapsed(
+    offersTransformSubPanel,
+    offersTransformSubPanelBody,
+    !!db.offersTransformSubPanelCollapsed
+  );
+
+  syncOffersTransformControls();
 
 priceList.innerHTML = '';
 
@@ -7905,12 +8219,19 @@ outlineControls.innerHTML = `
     >+</button>
   </div>
 
-  <input
-    type="color"
-    class="price-outline-controls__color"
-    value="${window.layerState.offerOutlineColor}"
-    aria-label="Цвет обводки акции"
+  <label
+    class="price-outline-controls__color-wrap"
+    style="--outline-color:${window.layerState.offerOutlineColor}"
   >
+    <span class="price-outline-controls__color-preview"></span>
+
+    <input
+      type="color"
+      class="price-outline-controls__color"
+      value="${window.layerState.offerOutlineColor}"
+      aria-label="Цвет обводки акции"
+    >
+  </label>
 `;
 
 priceList.appendChild(outlineControls);
@@ -8532,9 +8853,18 @@ priceList.addEventListener('input', function (e) {
         colorInput.value;
 
       saveDB({
-        offerOutlineColor:
-          colorInput.value
+        offerOutlineColor: colorInput.value
       });
+
+      var colorWrap =
+        colorInput.closest('.price-outline-controls__color-wrap');
+
+      if (colorWrap) {
+        colorWrap.style.setProperty(
+          '--outline-color',
+          colorInput.value
+        );
+      }
 
       redrawAllOfferPrices();
       return;
@@ -8563,17 +8893,27 @@ priceList.addEventListener('change', function (e) {
   var colorInput =
     e.target.closest('.price-outline-controls__color');
 
-  if (colorInput) {
-    window.layerState.offerOutlineColor =
-      colorInput.value;
+    if (colorInput) {
+      window.layerState.offerOutlineColor =
+        colorInput.value;
 
-    saveDB({
-      offerOutlineColor: colorInput.value
-    });
+      saveDB({
+        offerOutlineColor: colorInput.value
+      });
 
-    redrawAllOfferPrices();
-    return;
-  }
+      var colorWrap =
+        colorInput.closest('.price-outline-controls__color-wrap');
+
+      if (colorWrap) {
+        colorWrap.style.setProperty(
+          '--outline-color',
+          colorInput.value
+        );
+      }
+
+      redrawAllOfferPrices();
+      return;
+    }
 
   var input = e.target.closest('.price-row__input');
   if (!input) return;
@@ -8854,6 +9194,8 @@ transformSubPanelToggle.addEventListener('click', function () {
   });
 });
 
+
+
 function applyNicknameTransformControls() {
   saveDB({
     nicknameManualScale:
@@ -8881,28 +9223,71 @@ nicknameTransformControls.addEventListener('input', function (e) {
 });
 
 
-nicknameTransformControls.addEventListener('click', function (e) {
-  var btn = e.target.closest('.nickname-adjust__btn');
-  if (!btn) return;
+function applyOffersTransformControls() {
+  window.layerState.offersManualScale =
+    Number(offersSizeRange.value) / 100;
 
-  var range =
-    document.getElementById(btn.dataset.target);
+  window.layerState.offersOffsetX =
+    Number(offersXRange.value) / 100;
 
-  if (!range) return;
+  window.layerState.offersOffsetY =
+    Number(offersYRange.value) / 100;
 
-  var next =
-    Number(range.value) +
-    Number(btn.dataset.delta);
-
-  next = Math.max(
-    Number(range.min),
-    Math.min(Number(range.max), next)
+  layoutOffers(
+    resultCanvas.width,
+    resultCanvas.height
   );
 
-  range.value = next;
+  drawResult(
+    resultCanvas.getContext('2d'),
+    resultCanvas.width,
+    resultCanvas.height
+  );
+}
 
-  applyNicknameTransformControls();
-});
+
+offersTransformControls.addEventListener(
+  'input',
+  function (e) {
+    if (e.target.type !== 'range') return;
+
+    applyOffersTransformControls();
+  }
+);
+
+
+offersTransformControls.addEventListener(
+  'click',
+  function (e) {
+    var btn =
+      e.target.closest('.nickname-adjust__btn');
+
+    if (!btn) return;
+
+    var range =
+      document.getElementById(
+        btn.dataset.target
+      );
+
+    if (!range) return;
+
+    var next =
+      Number(range.value) +
+      Number(btn.dataset.delta);
+
+    next = Math.max(
+      Number(range.min),
+      Math.min(
+        Number(range.max),
+        next
+      )
+    );
+
+    range.value = next;
+
+    applyOffersTransformControls();
+  }
+);
 
 var styleStripSection = document.getElementById('styleStripSection');
 var styleStrip = document.getElementById('styleStrip');
