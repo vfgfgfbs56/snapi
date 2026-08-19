@@ -158,16 +158,7 @@
   html {
     background: var(--bg);
     color-scheme: light dark;
-    overflow-x: hidden;
-    width: 100%;
-    max-width: 100%;
-  }
-
-  body {
-    width: 100%;
-    max-width: 100%;
-    overflow-x: hidden;
-    overscroll-behavior-x: none;
+    overflow-x: clip;
   }
 
   body {
@@ -1060,12 +1051,6 @@
 }
 
 .app-page[hidden] { display: none; }
-
-#resultPage {
-  max-width: 100%;
-  touch-action: pan-y;
-  overscroll-behavior-x: none;
-}
 
 .page-stack {
   position: relative;
@@ -2092,29 +2077,21 @@
 }
 
 .price-outline-controls__color {
-  -webkit-appearance: none;
-  appearance: none;
+  width: 40px;
+  height: 40px;
+  flex: none;
 
-  display: block;
-  flex: 0 0 36px;
-
-  width: 36px;
-  min-width: 36px;
-  height: 36px;
-  min-height: 36px;
-
-  padding: 0;
+  padding: 4px;
   border: none;
   border-radius: 50%;
 
   background: transparent;
   overflow: hidden;
-
   cursor: pointer;
-  touch-action: manipulation;
 
-  position: relative;
-  z-index: 2;
+  touch-action: manipulation;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .price-outline-controls__color::-webkit-color-swatch-wrapper {
@@ -2122,11 +2099,6 @@
 }
 
 .price-outline-controls__color::-webkit-color-swatch {
-  border: 2px solid var(--surface-soft);
-  border-radius: 50%;
-}
-
-.price-outline-controls__color::-moz-color-swatch {
   border: 2px solid var(--surface-soft);
   border-radius: 50%;
 }
@@ -2280,15 +2252,21 @@
   cursor: grab;
   touch-action: none;
   color: var(--text-muted);
+
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .price-row__drag svg {
   display: block;
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   flex: none;
+
+  stroke: currentColor;
   pointer-events: none;
 }
+
 .price-row__drag:active { cursor: grabbing; }
 
 .price-row.is-dragging {
@@ -8582,12 +8560,32 @@ priceList.addEventListener('input', function (e) {
 });
 
 priceList.addEventListener('change', function (e) {
+  var colorInput =
+    e.target.closest('.price-outline-controls__color');
+
+  if (colorInput) {
+    window.layerState.offerOutlineColor =
+      colorInput.value;
+
+    saveDB({
+      offerOutlineColor: colorInput.value
+    });
+
+    redrawAllOfferPrices();
+    return;
+  }
+
   var input = e.target.closest('.price-row__input');
   if (!input) return;
 
   var index = Number(input.dataset.offerIndex);
+
   clearTimeout(priceInputTimers[index]);
-  applyPriceToOffer(index, input.value);
+
+  applyPriceToOffer(
+    index,
+    input.value
+  );
 });
 
 priceList.addEventListener('pointerdown', function (e) {
