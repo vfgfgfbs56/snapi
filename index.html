@@ -8,7 +8,7 @@
 <title>Snapi</title>
 
 <script>
-  const DB_NAME = 'vysоre4рп5jjy6_db';
+  const DB_NAME = 'vysовre44рп5jjy6_db';
 
   document.documentElement.classList.add('booting');
 
@@ -464,6 +464,10 @@
   }
 
   .onboarding-step[hidden] {
+    display: none;
+  }
+
+  #onboardingCard[hidden] {
     display: none;
   }
 
@@ -1004,7 +1008,7 @@
 .sheet-choice__preview img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
 }
 
@@ -1078,7 +1082,7 @@
 }
 
 .app-page.slide-enter-back {
-  transform: translateX(100vw) !important;
+  transform: translateX(-100vw) !important;
   opacity: 1 !important;
 }
 
@@ -1095,7 +1099,7 @@
 }
 
 .app-page.slide-exit-back {
-  transform: translateX(-100vw) !important;
+  transform: translateX(100vw) !important;
   filter: blur(12px) !important;
   opacity: 0 !important;
 }
@@ -1429,7 +1433,7 @@
 .current-template__thumb img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
 }
 
@@ -1678,9 +1682,69 @@ body.download-scroll-lock {
   padding: 0 20px;
 }
 
+.generate-overlay__hide-btn {
+  appearance: none;
+  border: none;
+  background: rgba(255, 255, 255, .14);
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  font-size: .9rem;
+  padding: 12px 28px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: background-color .2s var(--ease), transform .15s var(--ease);
+}
+.generate-overlay__hide-btn:hover { background: rgba(255, 255, 255, .24); }
+.generate-overlay__hide-btn:active { transform: scale(.95); }
+
+.icon-morph {
+  position: relative;
+  flex: none;
+}
+.icon-morph__icon,
+.icon-morph__spinner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity .35s var(--ease), transform .35s var(--ease), filter .35s var(--ease);
+}
+.icon-morph__icon svg { width: 100%; height: 100%; }
+.icon-morph__icon {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+  filter: blur(0);
+}
+.icon-morph__spinner {
+  opacity: 0;
+  transform: scale(.4) rotate(-90deg);
+  filter: blur(3px);
+}
+.icon-morph__spinner-ring {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, .28);
+  border-top-color: currentColor;
+  box-sizing: border-box;
+  animation: spin .7s linear infinite; /* keyframes spin уже есть в файле, переиспользуем */
+}
+.icon-morph.is-loading .icon-morph__icon {
+  opacity: 0;
+  transform: scale(.4) rotate(90deg);
+  filter: blur(3px);
+}
+.icon-morph.is-loading .icon-morph__spinner {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+  filter: blur(0);
+}
+
 .result-wrap {
   position: relative;
-
+  z-index: 5;
   margin: 20px 0 24px;
   display: flex;
   flex-direction: column;
@@ -1775,6 +1839,10 @@ body.download-scroll-lock {
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   overflow: hidden;
+}
+
+#pricePanel {
+  overflow: visible;
 }
 
 .nickname-panel__header {
@@ -1874,6 +1942,20 @@ body.download-scroll-lock {
 .collapse-body.is-collapsed {
   max-height: 0;
   opacity: 0;
+}
+
+#pricePanelBody,
+#pricePanel .nickname-panel__body-inner {
+  overflow: visible;
+}
+
+.price-outline-controls {
+  position: relative;
+  z-index: 20;
+}
+
+.outline-color-popover {
+  z-index: 100;
 }
 
 .nickname-panel__body-inner {
@@ -2068,12 +2150,14 @@ body.download-scroll-lock {
 }
 
 .price-outline-controls {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   gap: 10px;
-
   padding: 2px 0 8px;
   margin-bottom: 2px;
+  overflow: visible;
 }
 
 .price-outline-controls__label {
@@ -2127,9 +2211,12 @@ body.download-scroll-lock {
   flex: none;
 
   display: block;
-  border-radius: 50%;
-  overflow: hidden;
 
+  border: none;
+  padding: 0;
+  background: transparent;
+
+  border-radius: 50%;
   cursor: pointer;
 }
 
@@ -2143,33 +2230,189 @@ body.download-scroll-lock {
   border: 2px solid var(--surface-soft);
 
   pointer-events: none;
+
+  transition:
+    transform .18s var(--ease),
+    background-color .18s var(--ease);
 }
 
-.price-outline-controls__color {
-  position: absolute;
-  inset: 0;
+.price-outline-controls__color-wrap:active
+.price-outline-controls__color-preview {
+  transform: scale(.88);
+}
 
-  width: 100%;
-  height: 100%;
+
+/* ---------- наша плажка выбора цвета ---------- */
+
+.outline-color-popover {
+  position: absolute;
+
+  right: -6px;
+  top: auto;
+  bottom: calc(100% + 8px);
+
+  z-index: 50;
+
+  width: 190px;
+
+  padding: 12px 14px 14px;
+
+  background: var(--bg);
+  border-radius: 18px;
+
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, .24);
 
   opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+
+  transform:
+    translateY(8px)
+    scale(.96);
+
+  transform-origin: bottom right;
+
+  transition:
+    opacity .2s var(--ease),
+    transform .2s var(--ease),
+    visibility 0s linear .2s;
+}
+
+.outline-color-popover.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+
+  transform:
+    translateY(0)
+    scale(1);
+
+  transition-delay: 0s;
+}
+
+
+.outline-color-popover::before {
+  content: '';
+
+  position: absolute;
+
+  top: auto;
+  bottom: -6px;
+  right: 18px;
+
+  width: 13px;
+  height: 13px;
+
+  background: var(--bg);
+  border-radius: 3px;
+
+  transform: rotate(45deg);
+}
+
+#pricePanelBody:not(.is-collapsed) {
+  overflow: visible;
+}
+
+.outline-color-popover__title {
+  position: relative;
+  z-index: 1;
+
+  display: block;
+
+  margin-bottom: 10px;
+
+  color: var(--accent-strong);
+
+  font-size: .82rem;
+  font-weight: 600;
+}
+
+
+.outline-color-popover__colors {
+  position: relative;
+  z-index: 1;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 10px;
+}
+
+
+.outline-color-choice {
+  position: relative;
+
+  width: 42px;
+  height: 42px;
+
+  flex: none;
+
+  border: none;
+  padding: 0;
+
+  border-radius: 50%;
+
   cursor: pointer;
 
-  border: 0;
-  padding: 0;
-
-  /* ВАЖНО: Safari оставляем нативный input */
-  -webkit-appearance: auto;
-  appearance: auto;
+  transition:
+    transform .16s var(--ease),
+    box-shadow .16s var(--ease);
 }
 
-.price-outline-controls__color::-webkit-color-swatch-wrapper {
-  padding: 0;
+.outline-color-choice:active {
+  transform: scale(.88);
 }
 
-.price-outline-controls__color::-webkit-color-swatch {
-  border: 2px solid var(--surface-soft);
-  border-radius: 50%;
+
+.outline-color-choice--white {
+  background: #ffffff;
+
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, .08);
+}
+
+
+.outline-color-choice--black {
+  background: #000000;
+
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, .08);
+}
+
+
+.outline-color-choice--custom {
+  background:
+    radial-gradient(
+      circle at center,
+      #ffffff 0%,
+      rgba(255, 255, 255, 0.8) 20%,
+      rgba(255, 255, 255, 0) 60%
+    ),
+    conic-gradient(
+      #ff0000,
+      #ffff00,
+      #00ff00,
+      #00ffff,
+      #0000ff,
+      #ff00ff,
+      #ff0000
+    );
+}
+
+
+/* настоящий input остаётся только для "любой цвет" */
+
+.outline-color-native {
+  position: fixed;
+
+  width: 1px;
+  height: 1px;
+
+  opacity: 0;
+
+  pointer-events: none;
 }
 
 .ios-icon-btn {
@@ -2312,7 +2555,7 @@ body.download-scroll-lock {
   transform: scale(.84);
 }
 
-.offer-download-btn svg {
+.offer-download-btn .icon-morph {
   width: 19px;
   height: 19px;
 }
@@ -2562,11 +2805,18 @@ body.download-scroll-lock {
   }
 }
 #downloadResultBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
   padding: 14px 20px;
   font-size: .95rem;
 }
 .download-result__icon {
-  display: none;
+  width: 17px;
+  height: 17px;
+  flex: none;
 }
 .generate-sticky {
   position: fixed;
@@ -2693,24 +2943,16 @@ body.download-scroll-lock {
   }
 
   .download-result__icon {
-    display: block;
-
     width: 18px;
     height: 18px;
     flex: 0 0 18px;
 
-    object-fit: contain;
-
-    filter: invert(1);
     opacity: .95;
-
     transform: scale(.94);
 
     transition:
       transform .55s var(--ease),
       opacity .3s var(--ease);
-
-    pointer-events: none;
   }
 }
 
@@ -2876,13 +3118,122 @@ body.page-scroll-locked {
 
   box-shadow: var(--shadow-sm);
 }
+
+.start-screen{
+  position:absolute; inset:0; overflow:hidden;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--bg);
+  opacity:1; transform:scale(1);
+  transition:opacity .5s var(--ease), transform .5s var(--ease);
+}
+.start-screen.is-leaving{ opacity:0; transform:scale(1.04); pointer-events:none; }
+
+.start-screen__bg{
+  position:absolute; top:-50%; left:-30%; width:200%; height:250%;
+  display:flex; gap:clamp(10px,2vw,18px);
+  transform:rotate(-8deg);
+}
+.start-screen__col{
+  flex:1; display:flex; flex-direction:column; gap:clamp(10px,2vw,18px);
+  will-change:transform;
+}
+.start-screen__col img{
+  width:100%; display:block; border-radius:18px;
+  box-shadow:0 10px 24px rgba(0,0,0,.35);
+  aspect-ratio: 4 / 3;   /* фиксируем высоту ДО загрузки — без этого высота двух половин колонки на миг не совпадает и даёт видимый "шов/рывок" при переходе на 50% */
+  object-fit:cover;
+  opacity:.6;            /* картинки сами по себе бледнее — фон меньше спорит с текстом */
+}
+
+@media (max-width: 640px) {
+  .start-screen__bg{ top:-60%; left:-40%; width:230%; height:280%; }
+}
+
+.start-screen__fade{
+  position:absolute; inset:0;
+  background:radial-gradient(ellipse at center,
+    color-mix(in srgb, var(--bg) 62%, transparent) 0%,
+    color-mix(in srgb, var(--bg) 88%, transparent) 42%,
+    var(--bg) 82%);
+}
+
+.start-screen__content{
+  position:relative; z-index:2; max-width:420px;
+  display:flex; flex-direction:column; align-items:center; text-align:center;
+  padding:24px;
+}
+.start-screen__icon{
+  width:clamp(80px,18vw,120px); height:clamp(80px,18vw,120px);
+  margin-bottom:22px; filter:drop-shadow(0 10px 20px rgba(0,0,0,.35));
+  opacity:0; transform:translateY(18px) scale(.9);
+  animation:startScreenFadeUp .6s var(--ease) .1s forwards;
+}
+.start-screen__title{
+  margin:0 0 14px; font-weight:800;
+  font-size:clamp(2.1rem,1.5rem+3vw,2.9rem);
+  color:var(--accent-strong);
+  opacity:0; transform:translateY(18px);
+  animation:startScreenFadeUp .6s var(--ease) .22s forwards;
+}
+.start-screen__desc{
+  margin:0 0 34px; color:var(--text-soft);
+  font-size:1rem; line-height:1.6;
+  opacity:0; transform:translateY(18px);
+  animation:startScreenFadeUp .6s var(--ease) .34s forwards;
+}
+.start-screen__btn{
+  width:100%;
+  position:relative;
+  overflow:hidden;
+  opacity:0; transform:translateY(18px);
+  animation:startScreenFadeUp .6s var(--ease) .46s forwards;
+}
+
+.start-screen__btn::after{
+  content:'';
+  position:absolute;
+  top:-40%;
+  left:-60%;
+  width:40%;
+  height:180%;
+  background:linear-gradient(115deg,
+    transparent 0%,
+    rgba(255,255,255,.6) 50%,
+    transparent 100%);
+  filter:blur(7px);
+  transform:skewX(-20deg);
+  pointer-events:none;
+  animation:startBtnShine 3s ease-in-out infinite;
+}
+
+@keyframes startBtnShine{
+  0%    { left:-60%; }
+  32%   { left:140%; }
+  100%  { left:140%; }
+}
+@keyframes startScreenFadeUp{
+  to{ opacity:1; transform:translateY(0) scale(1); }
+}
 </style>
 </head>
 
 <body>
 
 <div class="onboarding-overlay" id="onboardingOverlay" hidden>
-  <div class="onboarding-card">
+
+  <div class="start-screen" id="startScreen">
+    <div class="start-screen__bg" id="startScreenBg" aria-hidden="true"></div>
+    <div class="start-screen__fade"></div>
+
+    <div class="start-screen__content">
+      <img class="start-screen__icon" src="favicon.png" alt="Snapi">
+      <h1 class="start-screen__title">Snapi</h1>
+      <p class="start-screen__desc">Сервис, который быстро и бесплатно решит вашу рутинную задачу</p>
+      <button type="button" class="btn-primary start-screen__btn" id="startScreenBtn">Начать</button>
+    </div>
+  </div>
+
+  <div class="onboarding-card" id="onboardingCard" hidden>
 
     <div class="onboarding-step" data-step="1">
       <div class="step-text">
@@ -4192,14 +4543,18 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
       <div class="result-wrap" id="resultWrap">
         <canvas id="resultCanvas"></canvas>
           <button type="button" class="btn-primary" id="downloadResultBtn">
-            <span class="download-result__text">Скачать</span>
+            <span class="icon-morph download-result__icon" aria-hidden="true">
+              <span class="icon-morph__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 3v12"></path>
+                  <path d="m7 10 5 5 5-5"></path>
+                  <path d="M5 20h14"></path>
+                </svg>
+              </span>
+              <span class="icon-morph__spinner"><span class="icon-morph__spinner-ring"></span></span>
+            </span>
 
-            <img
-              class="download-result__icon"
-              src="download.svg"
-              alt=""
-              aria-hidden="true"
-            >
+            <span class="download-result__text">Скачать</span>
           </button>
       </div>
 
@@ -4241,6 +4596,8 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
       </div>
       <div class="collapse-body" id="pricePanelBody">
         <div class="nickname-panel__body-inner">
+
+          <div class="price-list" id="priceList"></div>
 
           <div class="sub-panel" id="offersTransformSubPanel">
             <button
@@ -4363,8 +4720,6 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
               </div>
             </div>
           </div>
-
-          <div class="price-list" id="priceList"></div>
 
         </div>
       </div>
@@ -4624,6 +4979,7 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
 <div class="generate-overlay" id="generateOverlay" hidden>
   <div class="generate-overlay__spinner"></div>
   <p class="generate-overlay__text" id="generateOverlayText">Генерируется работа, подождите…</p>
+  <button type="button" class="generate-overlay__hide-btn" id="generateOverlayHideBtn">Скрыть</button>
 </div>
 
 <iframe name="snapiDownloadFrame" id="snapiDownloadFrame" style="display:none" aria-hidden="true"></iframe>
@@ -4782,6 +5138,57 @@ function goToStep(fromEl, toEl, after) {
   }, duration);
 }
 
+function buildStartScreenBg() {
+  var bg = document.getElementById('startScreenBg');
+  if (!bg || bg.childElementCount) return;
+
+  var isMobile = window.innerWidth <= 640;
+  var COLS = isMobile ? 3 : 5;
+  var TILES_PER_HALF = isMobile ? 10 : 6;
+  var SPEEDS = [16, 12, 19, 11, 15]; // px в секунду — разная скорость колонок
+
+  var cols = [];
+
+  for (var c = 0; c < COLS; c++) {
+    var col = document.createElement('div');
+    col.className = 'start-screen__col';
+
+    for (var half = 0; half < 2; half++) {
+      for (var i = 0; i < TILES_PER_HALF; i++) {
+        var img = document.createElement('img');
+        img.src = 'banner/banner_1.jpg';
+        img.alt = '';
+        img.loading = 'lazy';
+        col.appendChild(img);
+      }
+    }
+    bg.appendChild(col);
+    cols.push({ el: col, speed: SPEEDS[c % SPEEDS.length] });
+  }
+
+  var startTime = null;
+
+  function tick(now) {
+    if (startTime === null) startTime = now;
+    var elapsed = (now - startTime) / 1000;
+
+    cols.forEach(function (item) {
+      var half = item.el.scrollHeight / 2; // высота одной "половины" (набора тайлов)
+      if (!half) return;
+
+      // позиция всегда считается от абсолютного времени —
+      // даже после долгой паузы вкладки браузер просто досчитает
+      // правильное смещение, а не перезапустит анимацию с нуля
+      var offset = (elapsed * item.speed) % half;
+      item.el.style.transform = 'translateY(-' + offset + 'px)';
+    });
+
+    requestAnimationFrame(tick);
+  }
+
+  requestAnimationFrame(tick);
+}
+
 (function () {
   var db = loadDB();
   var overlay = document.getElementById('onboardingOverlay');
@@ -4842,6 +5249,20 @@ function goToStep(fromEl, toEl, after) {
   var stepWelcome = overlay.querySelector('[data-step="welcome"]');
   var nicknameInput = document.getElementById('nicknameInput');
   var welcomeTitle = document.getElementById('welcomeTitle');
+
+  var startScreen = document.getElementById('startScreen');
+  var onboardingCard = document.getElementById('onboardingCard');
+  var startScreenBtn = document.getElementById('startScreenBtn');
+
+  buildStartScreenBg();
+
+  startScreenBtn.addEventListener('click', function () {
+    startScreen.classList.add('is-leaving');
+    setTimeout(function () {
+      startScreen.hidden = true;
+      onboardingCard.hidden = false;
+    }, 550);
+  });
 
   var caseToggle = document.getElementById('caseToggle');
   var isUpper = false;
@@ -5230,18 +5651,38 @@ function readFileAsDataURL(file, cb) {
   var reader = new FileReader();
 
   reader.onload = function () {
-    var dataUrl = reader.result;
+    var originalDataUrl = reader.result;
     var img = new Image();
 
     img.onload = function () {
-      cb(dataUrl, img.naturalWidth, img.naturalHeight);
+      var w = img.naturalWidth;
+      var h = img.naturalHeight;
+
+      // Маленькие файлы оставляем как есть
+      if (originalDataUrl.length < 900000) {
+        cb(originalDataUrl, w, h);
+        return;
+      }
+
+      // Большие фоны сжимаем, но размер изображения НЕ меняем
+      var canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+
+      var compressedDataUrl =
+        canvas.toDataURL('image/webp', 0.82);
+
+      cb(compressedDataUrl, w, h);
     };
 
     img.onerror = function () {
-      cb(dataUrl, 0, 0);
+      cb(null, 0, 0);
     };
 
-    img.src = dataUrl;
+    img.src = originalDataUrl;
   };
 
   reader.onerror = function () {
@@ -6551,6 +6992,13 @@ resultExitCancel.addEventListener('click', function () {
 
 resultExitLeave.addEventListener('click', function () {
   closeResultExitConfirm();
+
+  getUnsavedResult().then(function (work) {
+    if (work) return dismissUnsavedResult(work);
+  }).catch(function (err) {
+    console.warn('Не удалось пометить работу как отклонённую', err);
+  });
+
   leaveResultPage();
 });
 
@@ -6697,13 +7145,21 @@ function restoreUnsavedResult(work) {
 
   var db = loadDB();
 
-  var bgSrc = db.uploadedBgDataUrl
-    ? db.uploadedBgDataUrl
-    : (
-        db.selectedBg
-          ? 'bg/' + db.selectedBg + '.jpg'
-          : null
-      );
+  var bgSrc = null;
+
+  if (
+    (db.selectedBgSource === 'upload' ||
+    db.selectedBgSource === 'color') &&
+    db.uploadedBgDataUrl
+  ) {
+    bgSrc = db.uploadedBgDataUrl;
+  }
+  else if (
+    db.selectedBgSource === 'fankit' &&
+    db.selectedBg
+  ) {
+    bgSrc = 'bg/' + db.selectedBg + '.jpg';
+  }
 
   var bgPromise = bgSrc
     ? loadImage(bgSrc)
@@ -6799,6 +7255,16 @@ function restoreUnsavedResult(work) {
   });
 
   function finishRecoveredResult() {
+    var previewFontSize = Math.round(
+      Math.min(resultCanvas.width, resultCanvas.height) * 0.08
+    );
+
+    document.fonts.load(
+      previewFontSize + "px '" + window.layerState.nicknameFont + "'"
+    ).finally(runFinishRecoveredResult);
+  }
+
+  function runFinishRecoveredResult() {
 
     if (Array.isArray(work.offerVisibility)) {
       window.layerState.offers.forEach(function (offer, index) {
@@ -6982,7 +7448,49 @@ function startDownloadButtonAnimation() {
 var resultCanvas = document.getElementById('resultCanvas');
 var generateOverlay = document.getElementById('generateOverlay');
 var generateOverlayText = document.getElementById('generateOverlayText');
+var generateOverlayHideBtn = document.getElementById('generateOverlayHideBtn');
 var bgImageForRender = null;
+
+function setButtonIconLoading(btn, isLoading) {
+  if (!btn) return;
+  var morph = btn.querySelector('.icon-morph');
+  if (!morph) return;
+  morph.classList.toggle('is-loading', isLoading);
+}
+
+// Скрывает окно ожидания визуально, НЕ останавливая сам процесс —
+// он был запущен раньше и продолжает работать в фоне независимо от этого.
+function hideGenerateOverlayVisually() {
+  if (generateOverlay.hidden) return;
+
+  generateOverlay.classList.remove('is-visible');
+
+  if (document.body.classList.contains('download-scroll-lock')) {
+    var savedScrollY = Number(document.body.dataset.downloadScrollY || 0);
+
+    document.documentElement.classList.remove('download-scroll-lock');
+    document.body.classList.remove('download-scroll-lock');
+    document.body.style.top = '';
+    delete document.body.dataset.downloadScrollY;
+
+    window.scrollTo(0, savedScrollY);
+  }
+
+  setTimeout(function () {
+    if (!generateOverlay.classList.contains('is-visible')) {
+      generateOverlay.hidden = true;
+    }
+  }, 300);
+}
+
+// тап в любое место окна
+generateOverlay.addEventListener('click', hideGenerateOverlayVisually);
+
+// кнопка «Скрыть» внизу
+generateOverlayHideBtn.addEventListener('click', function (e) {
+  e.stopPropagation();
+  hideGenerateOverlayVisually();
+});
 
 var resultPage = document.getElementById('resultPage');
 var resultBackBtn = document.getElementById('resultBackBtn');
@@ -7393,11 +7901,19 @@ function refreshResultBackground() {
   var db = loadDB();
   var bgSrc = null;
 
+  // Каждый новый фон сразу меняет размер самой работы
+  var newWidth = 1280;
+  var newHeight = 720;
+  var newType = 'bg';
+
   if (
     db.selectedBgSource === 'upload' &&
     db.uploadedBgDataUrl
   ) {
     bgSrc = db.uploadedBgDataUrl;
+
+    newWidth = Number(db.uploadedBgWidth) || 1280;
+    newHeight = Number(db.uploadedBgHeight) || 720;
   }
 
   if (
@@ -7405,7 +7921,25 @@ function refreshResultBackground() {
     db.selectedBg
   ) {
     bgSrc = 'bg/' + db.selectedBg + '.jpg';
+
+    newWidth = 1280;
+    newHeight = 720;
   }
+
+  // Меняем реальный размер canvas
+  resultCanvas.width = newWidth;
+  resultCanvas.height = newHeight;
+
+  // И размер результата в настройках
+  saveDB({
+    sizeSelection: {
+      width: newWidth,
+      height: newHeight,
+      type: newType
+    }
+  });
+
+  renderSizeSelection();
 
   resultWasDownloaded = false;
 
@@ -7851,6 +8385,9 @@ function showResultPage() {
 }
 
 resultBackBtn.addEventListener('click', function () {
+
+  closeOutlineColorPicker();
+
   if (!resultWasDownloaded) {
     openResultExitConfirm();
     return;
@@ -7876,7 +8413,7 @@ function leaveResultPage() {
   );
 }
 
-function downloadCanvasByDevice(canvas, filename, loadingText, onDone) {
+function downloadCanvasByDevice(canvas, filename, loadingText, onDone, triggerBtn) {
 
   var downloadScrollY =
     window.scrollY ||
@@ -7892,6 +8429,8 @@ function downloadCanvasByDevice(canvas, filename, loadingText, onDone) {
     'download-scroll-lock'
   );
 
+  document.body.dataset.downloadScrollY = downloadScrollY;
+
   document.body.style.top =
     '-' + downloadScrollY + 'px';
 
@@ -7900,6 +8439,9 @@ function downloadCanvasByDevice(canvas, filename, loadingText, onDone) {
     loadingText || 'Скачивание, подождите…';
 
   generateOverlay.hidden = false;
+
+  // на кнопке-источнике сразу морфим иконку в спиннер
+  setButtonIconLoading(triggerBtn, true);
 
   requestAnimationFrame(function () {
     generateOverlay.classList.add('is-visible');
@@ -7912,22 +8454,25 @@ function downloadCanvasByDevice(canvas, filename, loadingText, onDone) {
       'is-visible'
     );
 
+    // если пользователь уже скрыл окно вручную — скролл и лок
+    // уже сняты, повторно дёргать их не нужно (иначе будет рывок)
+    if (document.body.classList.contains('download-scroll-lock')) {
+      document.documentElement.classList.remove(
+        'download-scroll-lock'
+      );
 
-    document.documentElement.classList.remove(
-      'download-scroll-lock'
-    );
+      document.body.classList.remove(
+        'download-scroll-lock'
+      );
 
-    document.body.classList.remove(
-      'download-scroll-lock'
-    );
+      document.body.style.top = '';
+      delete document.body.dataset.downloadScrollY;
 
-    document.body.style.top = '';
-
-
-    window.scrollTo(
-      0,
-      downloadScrollY
-    );
+      window.scrollTo(
+        0,
+        downloadScrollY
+      );
+    }
 
 
     setTimeout(function () {
@@ -7939,10 +8484,15 @@ function downloadCanvasByDevice(canvas, filename, loadingText, onDone) {
   function finish() {
     closeDownloadOverlay();
 
+    // иконка возвращается только тогда, когда работа РЕАЛЬНО завершена —
+    // независимо от того, было окно видимо или скрыто пользователем
+    setButtonIconLoading(triggerBtn, false);
+
     if (onDone) {
       onDone();
     }
   }
+
 
 
   /*
@@ -8025,7 +8575,9 @@ downloadResultBtn.addEventListener('click', function () {
     function () {
       resultWasDownloaded = true;
       deleteUnsavedResult();
-    }
+    },
+
+    downloadResultBtn
   );
 
 });
@@ -8036,11 +8588,29 @@ generateBtn.addEventListener('click', function () {
   currentRecoveryWorkId = Date.now();
   resultRecoveryRestoring = false;
 
-  var db = loadDB();
-  var size = db.sizeSelection || { width: 1280, height: 720 };
-  var bgSrc = db.uploadedBgDataUrl
-    ? db.uploadedBgDataUrl
-    : (db.selectedBg ? 'bg/' + db.selectedBg + '.jpg' : null);
+var db = loadDB();
+var size = db.sizeSelection || { width: 1280, height: 720 };
+
+var bgSrc = null;
+
+if (
+  db.selectedBgSource === 'upload' &&
+  db.uploadedBgDataUrl
+) {
+  bgSrc = db.uploadedBgDataUrl;
+}
+else if (
+  db.selectedBgSource === 'color' &&
+  db.uploadedBgDataUrl
+) {
+  bgSrc = db.uploadedBgDataUrl;
+}
+else if (
+  db.selectedBgSource === 'fankit' &&
+  db.selectedBg
+) {
+  bgSrc = 'bg/' + db.selectedBg + '.jpg';
+}
 
   allGeneratedCards = [];
   window.layerState.offers = [];
@@ -8351,7 +8921,7 @@ function renderPricePanel() {
   setCollapsed(
     offersTransformSubPanel,
     offersTransformSubPanelBody,
-    !!db.offersTransformSubPanelCollapsed
+    db.offersTransformSubPanelCollapsed !== false
   );
 
   syncOffersTransformControls();
@@ -8363,7 +8933,7 @@ var outlineControls = document.createElement('div');
 outlineControls.className = 'price-outline-controls';
 
 outlineControls.innerHTML = `
-  <span class="price-outline-controls__label">Обводка акции</span>
+  <span class="price-outline-controls__label">Обводка акций</span>
 
   <div class="price-outline-controls__stepper">
     <button
@@ -8383,19 +8953,51 @@ outlineControls.innerHTML = `
     >+</button>
   </div>
 
-  <label
+  <button
+    type="button"
     class="price-outline-controls__color-wrap"
     style="--outline-color:${window.layerState.offerOutlineColor}"
+    aria-label="Выбрать цвет обводки"
   >
     <span class="price-outline-controls__color-preview"></span>
+  </button>
 
-    <input
-      type="color"
-      class="price-outline-controls__color"
-      value="${window.layerState.offerOutlineColor}"
-      aria-label="Цвет обводки акции"
-    >
-  </label>
+  <div class="outline-color-popover">
+    <span class="outline-color-popover__title">
+      Выберите цвет
+    </span>
+
+    <div class="outline-color-popover__colors">
+
+      <button
+        type="button"
+        class="outline-color-choice outline-color-choice--white"
+        data-outline-color="#ffffff"
+        aria-label="Белый"
+      ></button>
+
+      <button
+        type="button"
+        class="outline-color-choice outline-color-choice--black"
+        data-outline-color="#000000"
+        aria-label="Чёрный"
+      ></button>
+
+      <button
+        type="button"
+        class="outline-color-choice outline-color-choice--custom"
+        data-outline-custom
+        aria-label="Любой цвет"
+      ></button>
+
+      <input
+        type="color"
+        class="outline-color-native"
+        value="${window.layerState.offerOutlineColor}"
+      >
+
+    </div>
+  </div>
 `;
 
 priceList.appendChild(outlineControls);
@@ -8478,19 +9080,24 @@ download.setAttribute(
 );
 
 download.innerHTML = `
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    stroke-width="2"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-    aria-hidden="true"
-  >
-    <path d="M12 3v12"></path>
-    <path d="m7 10 5 5 5-5"></path>
-    <path d="M5 20h14"></path>
-  </svg>
+  <span class="icon-morph">
+    <span class="icon-morph__icon">
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M12 3v12"></path>
+        <path d="m7 10 5 5 5-5"></path>
+        <path d="M5 20h14"></path>
+      </svg>
+    </span>
+    <span class="icon-morph__spinner"><span class="icon-morph__spinner-ring"></span></span>
+  </span>
 `;
 
 
@@ -8590,10 +9197,16 @@ function downloadOfferLayer(index) {
     return;
   }
 
+  var triggerBtn = priceList.querySelector(
+    '.offer-download-btn[data-offer-index="' + index + '"]'
+  );
+
   downloadCanvasByDevice(
     offer.ref.canvas,
     'snapi-offer-' + (index + 1) + '.png',
-    'Скачивание акции, подождите…'
+    'Скачивание акции, подождите…',
+    null,
+    triggerBtn
   );
 }
 
@@ -8878,7 +9491,119 @@ function reorderOffers(newOrderOldIndices) {
 
 var priceInputTimers = {};
 
+function closeOutlineColorPicker() {
+  var picker =
+    priceList.querySelector(
+      '.outline-color-popover'
+    );
+
+  if (picker) {
+    picker.classList.remove('is-open');
+  }
+}
+
+
+function applyOfferOutlineColor(color) {
+  window.layerState.offerOutlineColor =
+    color;
+
+  saveDB({
+    offerOutlineColor: color
+  });
+
+
+  var colorButton =
+    priceList.querySelector(
+      '.price-outline-controls__color-wrap'
+    );
+
+  if (colorButton) {
+    colorButton.style.setProperty(
+      '--outline-color',
+      color
+    );
+  }
+
+
+  var nativeInput =
+    priceList.querySelector(
+      '.outline-color-native'
+    );
+
+  if (nativeInput) {
+    nativeInput.value = color;
+  }
+
+
+  redrawAllOfferPrices();
+}
+
 priceList.addEventListener('click', function (e) {
+
+  /* ---------- открыть / закрыть выбор цвета ---------- */
+
+  var colorButton =
+    e.target.closest(
+      '.price-outline-controls__color-wrap'
+    );
+
+  if (colorButton) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    var picker =
+      priceList.querySelector(
+        '.outline-color-popover'
+      );
+
+    if (picker) {
+      picker.classList.toggle('is-open');
+    }
+
+    return;
+  }
+
+
+  /* ---------- белый / чёрный ---------- */
+
+  var presetColor =
+    e.target.closest('[data-outline-color]');
+
+  if (presetColor) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    applyOfferOutlineColor(
+      presetColor.dataset.outlineColor
+    );
+
+    closeOutlineColorPicker();
+
+    return;
+  }
+
+
+  /* ---------- любой цвет ---------- */
+
+  var customColor =
+    e.target.closest('[data-outline-custom]');
+
+  if (customColor) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    var nativeInput =
+      priceList.querySelector(
+        '.outline-color-native'
+      );
+
+    if (nativeInput) {
+      nativeInput.click();
+    }
+
+    return;
+  }
+
 
 var outlineBtn =
   e.target.closest('[data-card-outline-delta]');
@@ -9010,29 +9735,15 @@ if (outlineBtn) {
 priceList.addEventListener('input', function (e) {
 
   var colorInput =
-    e.target.closest('.price-outline-controls__color');
+    e.target.closest('.outline-color-native');
 
-    if (colorInput) {
-      window.layerState.offerOutlineColor =
-        colorInput.value;
+  if (colorInput) {
+    applyOfferOutlineColor(
+      colorInput.value
+    );
 
-      saveDB({
-        offerOutlineColor: colorInput.value
-      });
-
-      var colorWrap =
-        colorInput.closest('.price-outline-controls__color-wrap');
-
-      if (colorWrap) {
-        colorWrap.style.setProperty(
-          '--outline-color',
-          colorInput.value
-        );
-      }
-
-      redrawAllOfferPrices();
-      return;
-    }
+    return;
+  }
 
 
   var input = e.target.closest('.price-row__input');
@@ -9055,29 +9766,17 @@ priceList.addEventListener('input', function (e) {
 
 priceList.addEventListener('change', function (e) {
   var colorInput =
-    e.target.closest('.price-outline-controls__color');
+    e.target.closest('.outline-color-native');
 
-    if (colorInput) {
-      window.layerState.offerOutlineColor =
-        colorInput.value;
+  if (colorInput) {
+    applyOfferOutlineColor(
+      colorInput.value
+    );
 
-      saveDB({
-        offerOutlineColor: colorInput.value
-      });
+    closeOutlineColorPicker();
 
-      var colorWrap =
-        colorInput.closest('.price-outline-controls__color-wrap');
-
-      if (colorWrap) {
-        colorWrap.style.setProperty(
-          '--outline-color',
-          colorInput.value
-        );
-      }
-
-      redrawAllOfferPrices();
-      return;
-    }
+    return;
+  }
 
   var input = e.target.closest('.price-row__input');
   if (!input) return;
@@ -9091,6 +9790,31 @@ priceList.addEventListener('change', function (e) {
     input.value
   );
 });
+
+document.addEventListener(
+  'pointerdown',
+  function (e) {
+
+    if (
+      e.target.closest(
+        '.outline-color-popover'
+      ) ||
+      e.target.closest(
+        '.price-outline-controls__color-wrap'
+      )
+    ) {
+      return;
+    }
+
+    closeOutlineColorPicker();
+  }
+);
+
+window.addEventListener(
+  'scroll',
+  closeOutlineColorPicker,
+  { passive: true, capture: true }
+);
 
 priceList.addEventListener('pointerdown', function (e) {
   var handle = e.target.closest('.price-row__drag');
@@ -9678,6 +10402,71 @@ function disableHoverOnTouchDevices() {
     } catch (e) {}
   });
 }
+
+(function () {
+  var SWIPE_MIN_DISTANCE = 70;   // минимальная длина свайпа по X
+  var SWIPE_MAX_OFF_AXIS = 60;   // максимальное отклонение по Y
+  var SWIPE_MAX_TIME = 600;      // мс, чтобы отличить свайп от медленного скролла
+
+  var startX = 0, startY = 0, startTime = 0, tracking = false;
+
+  // на этих элементах свайп не должен перехватываться —
+  // там свои жесты (слайдеры, drag акций, свайп фонов и т.д.)
+  var IGNORE_SELECTOR =
+    'input, button, a, .price-row, .nickname-adjust, ' +
+    '.size-chips, .style-strip, .games-grid, .bg-sheet, ' +
+    '.exit-confirm-overlay, .generate-overlay, #resultCanvas';
+
+  function getSwipeBackTarget() {
+    if (pageIsAnimating) return false;
+
+    var overlayOpen = [
+      'onboardingOverlay', 'bgSheetOverlay', 'editChooseOverlay',
+      'editNicknameOverlay', 'generateOverlay',
+      'resultExitConfirm', 'resultRecoveryConfirm'
+    ].some(function (id) {
+      var el = document.getElementById(id);
+      return el && !el.hidden;
+    });
+    if (overlayOpen) return false;
+
+    if (!brawlPage.hidden) return 'brawlPage';
+    if (!resultPage.hidden) return 'resultPage';
+    return false;
+  }
+
+  document.addEventListener('touchstart', function (e) {
+    if (e.touches.length !== 1) return;
+    if (e.target.closest(IGNORE_SELECTOR)) return;
+    if (!getSwipeBackTarget()) return;
+
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    startTime = Date.now();
+    tracking = true;
+  }, { passive: true });
+
+  document.addEventListener('touchend', function (e) {
+    if (!tracking) return;
+    tracking = false;
+
+    var t = e.changedTouches[0];
+    var deltaX = t.clientX - startX;
+    var deltaY = t.clientY - startY;
+    var deltaTime = Date.now() - startTime;
+
+    if (deltaTime > SWIPE_MAX_TIME) return;
+    if (Math.abs(deltaY) > SWIPE_MAX_OFF_AXIS) return;
+    if (deltaX > -SWIPE_MIN_DISTANCE) return; // нужен свайп именно влево
+
+    var target = getSwipeBackTarget();
+    if (target === 'brawlPage') {
+      brawlBackBtn.click();
+    } else if (target === 'resultPage') {
+      resultBackBtn.click();
+    }
+  }, { passive: true });
+})();
 
 disableHoverOnTouchDevices();
 </script>
