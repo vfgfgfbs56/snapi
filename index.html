@@ -8354,8 +8354,10 @@ function getDotsVariant(canvasW, canvasH) {
 var dotsImageCache = { l: null, h: null };
 var dotsImageLoading = { l: false, h: false };
 
-function ensureDotsImage(variant, onReady) {
-  if (dotsImageCache[variant]) { onReady(dotsImageCache[variant]); return; }
+function ensureDotsImage(variant, onLoaded) {
+  // картинка уже готова — рисование произойдёт синхронно
+  // сразу после этого вызова в drawDotsLayer, повторный onLoaded не нужен
+  if (dotsImageCache[variant]) return;
   if (dotsImageLoading[variant]) return;
 
   dotsImageLoading[variant] = true;
@@ -8364,7 +8366,7 @@ function ensureDotsImage(variant, onReady) {
   loadImage(src).then(function (img) {
     dotsImageCache[variant] = img;
     dotsImageLoading[variant] = false;
-    onReady(img);
+    if (onLoaded) onLoaded(img);
   }).catch(function (err) {
     dotsImageLoading[variant] = false;
     var resolvedUrl = new URL(src, window.location.href).href;
