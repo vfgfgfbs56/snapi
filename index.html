@@ -8,7 +8,7 @@
 <title>Snapi</title>
 
 <script>
-  const DB_NAME = 'vysовsre44рп5jjy6_db';
+  const DB_NAME = 'vyssовre44рп5jjy6_db';
 
   document.documentElement.classList.add('booting');
 
@@ -870,46 +870,6 @@
   grid-template-columns: repeat(2, 1fr);
   gap: 14px;
   padding-bottom: 10px;
-}
-
-.bg-sheet__number {
-  position: absolute;
-  left: 8px;
-  bottom: 8px;
-  z-index: 2;
-
-  padding: 4px 7px;
-  border-radius: 999px;
-
-  background: rgba(0, 0, 0, .58);
-  color: #fff;
-
-  font-size: .72rem;
-  font-weight: 800;
-  line-height: 1;
-  pointer-events: none;
-
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-}
-
-.bg-sheet__mark {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 2;
-
-  padding: 4px 7px;
-  border-radius: 999px;
-
-  background: var(--accent);
-  color: #fff;
-
-  font-size: .68rem;
-  font-weight: 800;
-  line-height: 1;
-
-  pointer-events: none;
 }
 
 .bg-sheet__item {
@@ -5536,14 +5496,6 @@ var bgSheetOverlay = document.getElementById('bgSheetOverlay');
 var bgGrid = document.getElementById('bgGrid');
 var fankitBtn = document.getElementById('fankitBtn');
 
-// Дополнительные пометки для нужных фонов.
-// Если знак не нужен — просто не добавляй номер сюда.
-var BG_MARKS = {
-  108: 'NEW',
-  // 107: '★',
-  // 52: '🔥'
-};
-
 function normalizeFankitBgId(value) {
   if (!value) return '';
 
@@ -5577,22 +5529,7 @@ for (var i = 108; i >= 1; i--) {
     img.alt = 'Фон ' + n;
     img.loading = 'lazy';
 
-    // Номер фона
-    var numberBadge = document.createElement('span');
-    numberBadge.className = 'bg-sheet__number';
-    numberBadge.textContent = '#' + n;
-
     item.appendChild(img);
-    item.appendChild(numberBadge);
-
-    // Необязательная ручная пометка
-    if (BG_MARKS[n]) {
-      var mark = document.createElement('span');
-      mark.className = 'bg-sheet__mark';
-      mark.textContent = BG_MARKS[n];
-
-      item.appendChild(mark);
-    }
 
     bgGrid.appendChild(item);
   })(i);
