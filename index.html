@@ -8,7 +8,7 @@
 <title>Snapi</title>
 
 <script>
-  const DB_NAME = 'vysовre44рп5jjy6_db';
+  const DB_NAME = 'vysовsre44рп5jjy6_db';
 
   document.documentElement.classList.add('booting');
 
@@ -870,6 +870,46 @@
   grid-template-columns: repeat(2, 1fr);
   gap: 14px;
   padding-bottom: 10px;
+}
+
+.bg-sheet__number {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  z-index: 2;
+
+  padding: 4px 7px;
+  border-radius: 999px;
+
+  background: rgba(0, 0, 0, .58);
+  color: #fff;
+
+  font-size: .72rem;
+  font-weight: 800;
+  line-height: 1;
+  pointer-events: none;
+
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.bg-sheet__mark {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+
+  padding: 4px 7px;
+  border-radius: 999px;
+
+  background: var(--accent);
+  color: #fff;
+
+  font-size: .68rem;
+  font-weight: 800;
+  line-height: 1;
+
+  pointer-events: none;
 }
 
 .bg-sheet__item {
@@ -3218,6 +3258,28 @@ body.page-scroll-locked {
   flex: none;
 }
 
+.detailing-opacity-title {
+  margin: 2px 0 10px;
+  color: var(--text-muted);
+  font-size: .82rem;
+  font-weight: 600;
+}
+
+.detailing-opacity-row {
+  gap: 8px;
+}
+
+.detailing-opacity-sign {
+  flex: none;
+  width: 14px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+  user-select: none;
+}
+
 .price-row__opacity {
   flex: 1;
   min-width: 0;
@@ -4935,11 +4997,43 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
         </div>
         <div class="collapse-body" id="detailingPanelBody">
           <div class="nickname-panel__body-inner">
-            <div class="price-row" id="dotsLayerRow">
-              <button type="button" class="ios-icon-btn ios-eye-icon" id="dotsEyeBtn" aria-label="Скрыть точки"></button>
-              <span class="price-row__label price-row__label--fixed">Точки</span>
-              <input type="range" class="price-row__opacity" id="dotsOpacityRange" min="0" max="100" step="1" value="60">
+
+            <div class="detailing-opacity-title">
+              изменить прозрачность
             </div>
+
+            <div class="price-row detailing-opacity-row" id="dotsLayerRow">
+              <button type="button" class="ios-icon-btn ios-eye-icon" id="dotsEyeBtn" aria-label="Скрыть точки"></button>
+
+              <span class="price-row__label price-row__label--fixed">Точки</span>
+
+            <button
+              type="button"
+              class="nickname-adjust__btn"
+              data-target="dotsOpacityRange"
+              data-delta="-5"
+              aria-label="Уменьшить прозрачность"
+            >−</button>
+
+            <input
+              type="range"
+              class="price-row__opacity"
+              id="dotsOpacityRange"
+              min="0"
+              max="100"
+              step="1"
+              value="60"
+            >
+
+            <button
+              type="button"
+              class="nickname-adjust__btn"
+              data-target="dotsOpacityRange"
+              data-delta="5"
+              aria-label="Увеличить прозрачность"
+            >+</button>
+            </div>
+
           </div>
         </div>
       </section>
@@ -5442,19 +5536,64 @@ var bgSheetOverlay = document.getElementById('bgSheetOverlay');
 var bgGrid = document.getElementById('bgGrid');
 var fankitBtn = document.getElementById('fankitBtn');
 
-for (var i = 1; i <= 23; i++) {
+// Дополнительные пометки для нужных фонов.
+// Если знак не нужен — просто не добавляй номер сюда.
+var BG_MARKS = {
+  108: 'NEW',
+  // 107: '★',
+  // 52: '🔥'
+};
+
+function normalizeFankitBgId(value) {
+  if (!value) return '';
+
+  var number = String(value)
+    .replace(/^bg_?/, '');
+
+  return 'bg_' + number;
+}
+
+function getFankitBgSrc(value) {
+  var id = normalizeFankitBgId(value);
+
+  return id
+    ? 'bg/' + id + '.png'
+    : '';
+}
+
+
+// Новые фоны идут от 108 к 1
+for (var i = 108; i >= 1; i--) {
   (function (n) {
+    var id = 'bg_' + n;
+
     var item = document.createElement('button');
     item.type = 'button';
     item.className = 'bg-sheet__item';
-    item.dataset.bg = 'bg' + n;
+    item.dataset.bg = id;
 
     var img = document.createElement('img');
-    img.src = 'bg/bg' + n + '.jpg';
+    img.src = getFankitBgSrc(id);
     img.alt = 'Фон ' + n;
     img.loading = 'lazy';
 
+    // Номер фона
+    var numberBadge = document.createElement('span');
+    numberBadge.className = 'bg-sheet__number';
+    numberBadge.textContent = '#' + n;
+
     item.appendChild(img);
+    item.appendChild(numberBadge);
+
+    // Необязательная ручная пометка
+    if (BG_MARKS[n]) {
+      var mark = document.createElement('span');
+      mark.className = 'bg-sheet__mark';
+      mark.textContent = BG_MARKS[n];
+
+      item.appendChild(mark);
+    }
+
     bgGrid.appendChild(item);
   })(i);
 }
@@ -6086,7 +6225,11 @@ function closeSheet(overlay) {
 function syncBgSheetSelection() {
   var db = loadDB();
   bgGrid.querySelectorAll('.bg-sheet__item').forEach(function (el) {
-    el.classList.toggle('is-selected', db.selectedBgSource === 'fankit' && el.dataset.bg === db.selectedBg);
+    el.classList.toggle(
+      'is-selected',
+      db.selectedBgSource === 'fankit' &&
+      el.dataset.bg === normalizeFankitBgId(db.selectedBg)
+    );
   });
   colorPresets.querySelectorAll('.color-preset').forEach(function (el) {
     el.classList.toggle('is-selected', db.selectedBgSource === 'color' && el.dataset.color === db.selectedColorPreset);
@@ -6225,7 +6368,7 @@ function renderBgThumb(container, db) {
   container.innerHTML = '';
   if (db.selectedBgSource === 'fankit' && db.selectedBg) {
     var img = document.createElement('img');
-    img.src = 'bg/' + db.selectedBg + '.jpg';
+    img.src = getFankitBgSrc(db.selectedBg);
     img.alt = 'Текущий фон';
     container.appendChild(img);
     return true;
@@ -6456,27 +6599,87 @@ var generateSticky = document.querySelector('.generate-sticky');
 
 var effectsCheckbox = document.getElementById('effectsCheckbox');
 
+function disableDotsLayer() {
+  saveDB({ dotsEnabled: false });
+
+  // layerState создаётся ниже по файлу,
+  // поэтому проверяем, существует ли он уже.
+  if (window.layerState) {
+    window.layerState.dotsEnabled = false;
+  }
+
+  // Если панель результата уже существует — сразу обновляем глазок.
+  if (
+    window.layerState &&
+    typeof detailingPanel !== 'undefined' &&
+    detailingPanel
+  ) {
+    updateDetailingPanel();
+  }
+
+  // Если мы сейчас прямо на странице результата —
+  // сразу убираем точки с canvas.
+  if (
+    window.layerState &&
+    typeof resultPage !== 'undefined' &&
+    resultPage &&
+    !resultPage.hidden &&
+    typeof resultCanvas !== 'undefined' &&
+    resultCanvas
+  ) {
+    drawResult(
+      resultCanvas.getContext('2d'),
+      resultCanvas.width,
+      resultCanvas.height
+    );
+  }
+}
+
 function syncEffectsCheckboxDefault() {
   var db = loadDB();
 
-  // Свой фон с устройства — эффекты автоматически выключаем
+  // Свой фон с устройства:
+  // эффекты OFF + точки OFF
   if (db.selectedBgSource === 'upload') {
     effectsCheckbox.checked = false;
-    saveDB({ effectsEnabled: false });
+
+    saveDB({
+      effectsEnabled: false
+    });
+
+    disableDotsLayer();
     return;
   }
 
   if (db.effectsEnabled === undefined) {
-    var defaultValue = db.selectedBgSource === 'fankit';
+    var defaultValue =
+      db.selectedBgSource === 'fankit';
+
     effectsCheckbox.checked = defaultValue;
-    saveDB({ effectsEnabled: defaultValue });
+
+    saveDB({
+      effectsEnabled: defaultValue
+    });
   } else {
-    effectsCheckbox.checked = db.effectsEnabled;
+    effectsCheckbox.checked =
+      !!db.effectsEnabled;
+  }
+
+  // Главное правило:
+  // эффекты выключены → точки тоже выключены.
+  if (!effectsCheckbox.checked) {
+    disableDotsLayer();
   }
 }
 
 effectsCheckbox.addEventListener('change', function () {
-  saveDB({ effectsEnabled: effectsCheckbox.checked });
+  saveDB({
+    effectsEnabled: effectsCheckbox.checked
+  });
+
+  if (!effectsCheckbox.checked) {
+    disableDotsLayer();
+  }
 });
 
 var screensClearBtn = document.getElementById('screensClearBtn');
@@ -7243,7 +7446,7 @@ function restoreUnsavedResult(work) {
     db.selectedBgSource === 'fankit' &&
     db.selectedBg
   ) {
-    bgSrc = 'bg/' + db.selectedBg + '.jpg';
+    bgSrc = getFankitBgSrc(db.selectedBg);
   }
 
   var bgPromise = bgSrc
@@ -7376,6 +7579,8 @@ function restoreUnsavedResult(work) {
     /*
      * Сначала создаём панели.
      */
+    resetResultPanelsDefaultState();
+
     renderPricePanel();
     updateNicknamePanel();
     updateDetailingPanel();
@@ -8006,7 +8211,7 @@ function refreshResultBackground() {
     db.selectedBgSource === 'fankit' &&
     db.selectedBg
   ) {
-    bgSrc = 'bg/' + db.selectedBg + '.jpg';
+    bgSrc = getFankitBgSrc(db.selectedBg);
 
     newWidth = 1280;
     newHeight = 720;
@@ -8285,7 +8490,7 @@ offers.forEach(function (offer) {
 });
 }
 
-var DOTS_BRIGHTNESS_THRESHOLD = 140; // 0-255, порог "светлый/тёмный"
+var DOTS_BRIGHTNESS_THRESHOLD = 135;
 
 function isDotsLayerActive() {
   return !!window.layerState.dotsEnabled;
@@ -8293,7 +8498,7 @@ function isDotsLayerActive() {
 
 function computeBackgroundBrightness(canvasW, canvasH) {
   var db = loadDB();
-  var sampleSize = 20;
+  var sampleSize = 64;
   var tmp = document.createElement('canvas');
   tmp.width = sampleSize;
   tmp.height = sampleSize;
@@ -8323,15 +8528,55 @@ function computeBackgroundBrightness(canvasW, canvasH) {
     return 255; // фона нет — считаем светлым
   }
 
-  var data = tctx.getImageData(0, 0, sampleSize, sampleSize).data;
-  var total = 0;
-  for (var i = 0; i < data.length; i += 4) {
-    total += 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+var data = tctx.getImageData(0, 0, sampleSize, sampleSize).data;
+var values = [];
+
+var edgeSize = 0.28;
+
+for (var y = 0; y < sampleSize; y++) {
+  for (var x = 0; x < sampleSize; x++) {
+    var nx = x / (sampleSize - 1);
+    var ny = y / (sampleSize - 1);
+
+    // Центральную часть не учитываем:
+    // там обычно находятся карточки акций.
+    var isCenter =
+      nx > edgeSize &&
+      nx < 1 - edgeSize &&
+      ny > edgeSize &&
+      ny < 1 - edgeSize;
+
+    if (isCenter) continue;
+
+    var i = (y * sampleSize + x) * 4;
+
+    var brightness =
+      0.299 * data[i] +
+      0.587 * data[i + 1] +
+      0.114 * data[i + 2];
+
+    values.push(brightness);
   }
-  return total / (data.length / 4);
 }
 
-var dotsBrightnessCache = { key: null, variant: null };
+values.sort(function (a, b) {
+  return a - b;
+});
+
+// Медиана намного устойчивее обычного среднего:
+// одно яркое пятно или одна тёмная область не перевернут результат.
+var middle = Math.floor(values.length / 2);
+
+return values.length % 2
+  ? values[middle]
+  : (values[middle - 1] + values[middle]) / 2;
+}
+
+var dotsBrightnessCache = {
+  key: null,
+  image: null,
+  variant: null
+};
 
 function getDotsVariant(canvasW, canvasH) {
   var db = loadDB();
@@ -8341,12 +8586,17 @@ function getDotsVariant(canvasW, canvasH) {
     canvasW, canvasH
   ].join('|');
 
-  if (dotsBrightnessCache.key === key) return dotsBrightnessCache.variant;
-
+  if (
+    dotsBrightnessCache.key === key &&
+    dotsBrightnessCache.image === bgImageForRender
+  ) {
+    return dotsBrightnessCache.variant;
+  }
   var brightness = computeBackgroundBrightness(canvasW, canvasH);
-  var variant = brightness >= DOTS_BRIGHTNESS_THRESHOLD ? 'h' : 'l';
+  var variant = brightness < DOTS_BRIGHTNESS_THRESHOLD ? 'h' : 'l';
 
   dotsBrightnessCache.key = key;
+  dotsBrightnessCache.image = bgImageForRender;
   dotsBrightnessCache.variant = variant;
   return variant;
 }
@@ -8577,6 +8827,31 @@ function drawNickname(ctx, canvasW, canvasH) {
 
 var resultWasDownloaded = false;
 
+function resetResultPanelsDefaultState() {
+  saveDB({
+    // Цены акций — открыто
+    pricePanelCollapsed: false,
+
+    // Цены акций → Размер и положение — закрыто
+    offersTransformSubPanelCollapsed: true,
+
+    // Ник — открыт
+    nicknamePanelCollapsed: false,
+
+    // Ник → Стиль ника — открыт
+    styleSubPanelCollapsed: false,
+
+    // Ник → Шрифт ника — закрыт
+    fontSubPanelCollapsed: true,
+
+    // Ник → Размер и положение — закрыт
+    transformSubPanelCollapsed: true,
+
+    // Детализация — закрыта
+    detailingPanelCollapsed: true
+  });
+}
+
 function showResultPage() {
   resultWasDownloaded = false;
   resultReturnPage = brawlPage;
@@ -8597,6 +8872,8 @@ function showResultPage() {
   });
 
   startDownloadButtonAnimation();
+
+  resetResultPanelsDefaultState();
 
   renderPricePanel();
   updateNicknamePanel();
@@ -8830,7 +9107,7 @@ else if (
   db.selectedBgSource === 'fankit' &&
   db.selectedBg
 ) {
-  bgSrc = 'bg/' + db.selectedBg + '.jpg';
+  bgSrc = getFankitBgSrc(db.selectedBg);
 }
 
   allGeneratedCards = [];
@@ -9140,6 +9417,29 @@ dotsOpacityRange.addEventListener('input', function () {
   window.layerState.dotsOpacity = Number(dotsOpacityRange.value) / 100;
   saveDB({ dotsOpacity: window.layerState.dotsOpacity });
   drawResult(resultCanvas.getContext('2d'), resultCanvas.width, resultCanvas.height);
+});
+
+dotsLayerRow.addEventListener('click', function (e) {
+  var btn = e.target.closest('.nickname-adjust__btn');
+  if (!btn) return;
+
+  var range = document.getElementById(btn.dataset.target);
+  if (!range) return;
+
+  var next =
+    Number(range.value) +
+    Number(btn.dataset.delta);
+
+  next = Math.max(
+    Number(range.min),
+    Math.min(Number(range.max), next)
+  );
+
+  range.value = next;
+
+  range.dispatchEvent(
+    new Event('input', { bubbles: true })
+  );
 });
 
 function clampPriceValue(raw) {
