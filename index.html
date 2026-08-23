@@ -3214,6 +3214,60 @@ body.page-scroll-locked {
 @keyframes startScreenFadeUp{
   to{ opacity:1; transform:translateY(0) scale(1); }
 }
+.price-row__label--fixed {
+  flex: none;
+}
+
+.price-row__opacity {
+  flex: 1;
+  min-width: 0;
+  height: 24px;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  cursor: pointer;
+  outline: none;
+}
+
+.price-row__opacity::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 5px;
+  background: #35a8ff;
+  border-radius: 999px;
+}
+.price-row__opacity::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 31px;
+  height: 18px;
+  margin-top: -5.8px;
+  background: #fff;
+  border: none;
+  border-radius: 999px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .12);
+  cursor: grab;
+}
+.price-row__opacity::-moz-range-track {
+  width: 100%;
+  height: 5px;
+  background: #35a8ff;
+  border-radius: 999px;
+  border: none;
+}
+.price-row__opacity::-moz-range-thumb {
+  width: 31px;
+  height: 18px;
+  background: #fff;
+  border: none;
+  border-radius: 999px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .12);
+  cursor: grab;
+}
+
+.price-row.is-off .price-row__opacity {
+  opacity: .4;
+  cursor: not-allowed;
+}
 </style>
 </head>
 
@@ -4865,6 +4919,27 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
               </div>
             </div>
 
+          </div>
+        </div>
+      </section>
+      <section class="nickname-panel" id="detailingPanel" hidden>
+        <div class="nickname-panel__header" id="detailingPanelHeader">
+          <span class="nickname-panel__title">Детализация</span>
+          <div class="nickname-panel__controls">
+            <span class="nickname-panel__chevron">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 9l6 6 6-6"></path>
+              </svg>
+            </span>
+          </div>
+        </div>
+        <div class="collapse-body" id="detailingPanelBody">
+          <div class="nickname-panel__body-inner">
+            <div class="price-row" id="dotsLayerRow">
+              <button type="button" class="ios-icon-btn ios-eye-icon" id="dotsEyeBtn" aria-label="Скрыть точки"></button>
+              <span class="price-row__label price-row__label--fixed">Точки</span>
+              <input type="range" class="price-row__opacity" id="dotsOpacityRange" min="0" max="100" step="1" value="60">
+            </div>
           </div>
         </div>
       </section>
@@ -6961,7 +7036,17 @@ window.layerState = {
 
   offerPriceMax: 99999,
   nicknameFont: loadDB().nicknameFontFamily || 'SupercellMagic',
-  nicknameColor: '#ffffff'
+  nicknameColor: '#ffffff',
+
+  dotsEnabled:
+    loadDB().dotsEnabled !== undefined
+      ? !!loadDB().dotsEnabled
+      : true,
+
+  dotsOpacity:
+    loadDB().dotsOpacity !== undefined
+      ? Number(loadDB().dotsOpacity)
+      : 0.6
 };
 
 var resultExitConfirm = document.getElementById('resultExitConfirm');
@@ -7293,6 +7378,7 @@ function restoreUnsavedResult(work) {
      */
     renderPricePanel();
     updateNicknamePanel();
+    updateDetailingPanel();
     renderStyleStrip();
     renderFontStrip();
 
@@ -8199,6 +8285,136 @@ offers.forEach(function (offer) {
 });
 }
 
+var DOTS_BRIGHTNESS_THRESHOLD = 140; // 0-255, порог "светлый/тёмный"
+
+function isDotsLayerActive() {
+  return !!window.layerState.dotsEnabled;
+}
+
+function computeBackgroundBrightness(canvasW, canvasH) {
+  var db = loadDB();
+  var sampleSize = 20;
+  var tmp = document.createElement('canvas');
+  tmp.width = sampleSize;
+  tmp.height = sampleSize;
+  var tctx = tmp.getContext('2d');
+
+  var preset = db.selectedBgSource === 'color' && COLOR_PRESETS[db.selectedColorPreset];
+
+  if (preset) {
+    paintColorGradient(tctx, sampleSize, sampleSize, preset.c1, preset.c2);
+  } else if (bgImageForRender) {
+    var ir = bgImageForRender.width / bgImageForRender.height;
+    var cr = canvasW / canvasH;
+    var sx, sy, sw, sh;
+    if (ir > cr) {
+      sh = bgImageForRender.height;
+      sw = sh * cr;
+      sy = 0;
+      sx = (bgImageForRender.width - sw) / 2;
+    } else {
+      sw = bgImageForRender.width;
+      sh = sw / cr;
+      sx = 0;
+      sy = (bgImageForRender.height - sh) / 2;
+    }
+    tctx.drawImage(bgImageForRender, sx, sy, sw, sh, 0, 0, sampleSize, sampleSize);
+  } else {
+    return 255; // фона нет — считаем светлым
+  }
+
+  var data = tctx.getImageData(0, 0, sampleSize, sampleSize).data;
+  var total = 0;
+  for (var i = 0; i < data.length; i += 4) {
+    total += 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+  }
+  return total / (data.length / 4);
+}
+
+var dotsBrightnessCache = { key: null, variant: null };
+
+function getDotsVariant(canvasW, canvasH) {
+  var db = loadDB();
+  var key = [
+    db.selectedBgSource, db.selectedBg, db.selectedColorPreset,
+    (db.uploadedBgDataUrl || '').length,
+    canvasW, canvasH
+  ].join('|');
+
+  if (dotsBrightnessCache.key === key) return dotsBrightnessCache.variant;
+
+  var brightness = computeBackgroundBrightness(canvasW, canvasH);
+  var variant = brightness >= DOTS_BRIGHTNESS_THRESHOLD ? 'h' : 'l';
+
+  dotsBrightnessCache.key = key;
+  dotsBrightnessCache.variant = variant;
+  return variant;
+}
+
+var dotsImageCache = { l: null, h: null };
+var dotsImageLoading = { l: false, h: false };
+
+function ensureDotsImage(variant, onReady) {
+  if (dotsImageCache[variant]) { onReady(dotsImageCache[variant]); return; }
+  if (dotsImageLoading[variant]) return;
+
+  dotsImageLoading[variant] = true;
+  var src = variant === 'h' ? 'work/points_h.png' : 'work/points_l.png';
+
+  loadImage(src).then(function (img) {
+    dotsImageCache[variant] = img;
+    dotsImageLoading[variant] = false;
+    onReady(img);
+  }).catch(function (err) {
+    dotsImageLoading[variant] = false;
+    var resolvedUrl = new URL(src, window.location.href).href;
+    console.warn(
+      'Не удалось загрузить слой точек (' + variant + '). ' +
+      'Пытались загрузить: ' + resolvedUrl,
+      err
+    );
+  });
+}
+
+function drawDotsLayer(ctx, canvasW, canvasH) {
+  if (!isDotsLayerActive()) return;
+
+  var opacity = window.layerState.dotsOpacity;
+  if (opacity <= 0) return;
+
+  var variant = getDotsVariant(canvasW, canvasH);
+
+  ensureDotsImage(variant, function () {
+    // картинка подгрузилась уже после текущего кадра — перерисуем
+    drawResult(ctx, canvasW, canvasH);
+  });
+
+  var img = dotsImageCache[variant];
+  if (!img) return; // ещё грузится, в этом кадре не рисуем
+
+  var ir = img.width / img.height;
+  var cr = canvasW / canvasH;
+  var sx, sy, sw, sh;
+
+  // тот же принцип "cover": не растягиваем, а увеличиваем от центра
+  if (ir > cr) {
+    sh = img.height;
+    sw = sh * cr;
+    sy = 0;
+    sx = (img.width - sw) / 2;
+  } else {
+    sw = img.width;
+    sh = sw / cr;
+    sx = 0;
+    sy = (img.height - sh) / 2;
+  }
+
+  ctx.save();
+  ctx.globalAlpha = opacity;
+  ctx.drawImage(img, sx, sy, sw, sh, 0, 0, canvasW, canvasH);
+  ctx.restore();
+}
+
 function drawResult(ctx, canvasW, canvasH) {
   ctx.clearRect(0, 0, canvasW, canvasH);
 
@@ -8226,6 +8442,8 @@ function drawResult(ctx, canvasW, canvasH) {
     }
     ctx.drawImage(bgImageForRender, sx, sy, sw, sh, 0, 0, canvasW, canvasH);
   }
+
+  drawDotsLayer(ctx, canvasW, canvasH);
 
     drawNickname(ctx, canvasW, canvasH);
 
@@ -8380,6 +8598,7 @@ function showResultPage() {
 
   renderPricePanel();
   updateNicknamePanel();
+  updateDetailingPanel();
   renderStyleStrip();
   renderFontStrip();
 }
@@ -8877,6 +9096,47 @@ nicknameEnableSwitch.addEventListener('click', function (e) {
 
   // акции пересчитываем — без ника им не нужен такой большой отступ сверху
   layoutOffers(resultCanvas.width, resultCanvas.height);
+  drawResult(resultCanvas.getContext('2d'), resultCanvas.width, resultCanvas.height);
+});
+
+var detailingPanel = document.getElementById('detailingPanel');
+var detailingPanelHeader = document.getElementById('detailingPanelHeader');
+var detailingPanelBody = document.getElementById('detailingPanelBody');
+var dotsLayerRow = document.getElementById('dotsLayerRow');
+var dotsEyeBtn = document.getElementById('dotsEyeBtn');
+var dotsOpacityRange = document.getElementById('dotsOpacityRange');
+
+function updateDetailingPanel() {
+  detailingPanel.hidden = false;
+  setCollapsed(detailingPanel, detailingPanelBody, !!loadDB().detailingPanelCollapsed);
+
+  dotsEyeBtn.innerHTML = getEyeSVG();
+
+  var enabled = window.layerState.dotsEnabled;
+  dotsEyeBtn.classList.toggle('hidden', !enabled);
+  dotsEyeBtn.setAttribute('aria-label', enabled ? 'Скрыть точки' : 'Показать точки');
+
+  dotsLayerRow.classList.toggle('is-off', !enabled);
+  dotsOpacityRange.disabled = !enabled;
+  dotsOpacityRange.value = Math.round(window.layerState.dotsOpacity * 100);
+}
+
+detailingPanelHeader.addEventListener('click', function () {
+  var collapsed = !detailingPanel.classList.contains('is-collapsed');
+  setCollapsed(detailingPanel, detailingPanelBody, collapsed);
+  saveDB({ detailingPanelCollapsed: collapsed });
+});
+
+dotsEyeBtn.addEventListener('click', function () {
+  window.layerState.dotsEnabled = !window.layerState.dotsEnabled;
+  saveDB({ dotsEnabled: window.layerState.dotsEnabled });
+  updateDetailingPanel();
+  drawResult(resultCanvas.getContext('2d'), resultCanvas.width, resultCanvas.height);
+});
+
+dotsOpacityRange.addEventListener('input', function () {
+  window.layerState.dotsOpacity = Number(dotsOpacityRange.value) / 100;
+  saveDB({ dotsOpacity: window.layerState.dotsOpacity });
   drawResult(resultCanvas.getContext('2d'), resultCanvas.width, resultCanvas.height);
 });
 
@@ -10404,14 +10664,13 @@ function disableHoverOnTouchDevices() {
 }
 
 (function () {
-  var SWIPE_MIN_DISTANCE = 70;   // минимальная длина свайпа по X
-  var SWIPE_MAX_OFF_AXIS = 60;   // максимальное отклонение по Y
-  var SWIPE_MAX_TIME = 600;      // мс, чтобы отличить свайп от медленного скролла
+  var SWIPE_MIN_DISTANCE = 70;
+  var DIRECTION_LOCK_THRESHOLD = 10; // после скольки px по X решаем, что это горизонтальный жест
 
-  var startX = 0, startY = 0, startTime = 0, tracking = false;
+  var startX = 0, startY = 0, startTime = 0;
+  var tracking = false;         // палец на экране, ждём куда пойдёт жест
+  var lockedHorizontal = false; // жест признан горизонтальным, скролл заблокирован
 
-  // на этих элементах свайп не должен перехватываться —
-  // там свои жесты (слайдеры, drag акций, свайп фонов и т.д.)
   var IGNORE_SELECTOR =
     'input, button, a, .price-row, .nickname-adjust, ' +
     '.size-chips, .style-strip, .games-grid, .bg-sheet, ' +
@@ -10444,20 +10703,43 @@ function disableHoverOnTouchDevices() {
     startY = e.touches[0].clientY;
     startTime = Date.now();
     tracking = true;
+    lockedHorizontal = false;
   }, { passive: true });
+
+  document.addEventListener('touchmove', function (e) {
+    if (!tracking) return;
+
+    var t = e.touches[0];
+    var deltaX = t.clientX - startX;
+    var deltaY = t.clientY - startY;
+
+    if (!lockedHorizontal) {
+      if (Math.abs(deltaX) < DIRECTION_LOCK_THRESHOLD) return;
+
+      if (Math.abs(deltaX) <= Math.abs(deltaY)) {
+        // движение скорее вертикальное — отдаём жест браузеру
+        tracking = false;
+        return;
+      }
+
+      lockedHorizontal = true;
+    }
+
+    // жест уверенно горизонтальный — блокируем нативный скролл
+    e.preventDefault();
+  }, { passive: false });
 
   document.addEventListener('touchend', function (e) {
     if (!tracking) return;
     tracking = false;
+    if (!lockedHorizontal) return;
 
     var t = e.changedTouches[0];
     var deltaX = t.clientX - startX;
-    var deltaY = t.clientY - startY;
     var deltaTime = Date.now() - startTime;
 
-    if (deltaTime > SWIPE_MAX_TIME) return;
-    if (Math.abs(deltaY) > SWIPE_MAX_OFF_AXIS) return;
-    if (deltaX > -SWIPE_MIN_DISTANCE) return; // нужен свайп именно влево
+    if (deltaTime > 600) return;
+    if (deltaX > -SWIPE_MIN_DISTANCE) return;
 
     var target = getSwipeBackTarget();
     if (target === 'brawlPage') {
@@ -10465,6 +10747,11 @@ function disableHoverOnTouchDevices() {
     } else if (target === 'resultPage') {
       resultBackBtn.click();
     }
+  }, { passive: true });
+
+  document.addEventListener('touchcancel', function () {
+    tracking = false;
+    lockedHorizontal = false;
   }, { passive: true });
 })();
 
