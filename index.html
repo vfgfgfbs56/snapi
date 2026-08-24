@@ -251,6 +251,16 @@
     transform: rotate(70deg) scale(.35);
   }
 
+  /* Во время подготовки новой темы
+    обычные CSS-анимации отключаем.
+    Анимируется только сам круг View Transition. */
+  html.theme-snapshot-lock,
+  html.theme-snapshot-lock *,
+  html.theme-snapshot-lock *::before,
+  html.theme-snapshot-lock *::after {
+    transition: none !important;
+  }
+
   /* ---------- Android-style circular theme reveal ---------- */
   ::view-transition-old(root),
   ::view-transition-new(root) {
@@ -1088,14 +1098,175 @@
   position: absolute;
   inset: 0;
   width: 100%;
-  pointer-events: none; 
+  pointer-events: none;
+
   transition:
-    transform .45s var(--ease),
-    filter .45s var(--ease),
-    opacity .45s var(--ease);
+    transform .52s var(--ease),
+    filter .52s var(--ease),
+    opacity .52s var(--ease);
+
   will-change: transform, filter, opacity;
+
   filter: blur(0);
   opacity: 1;
+}
+
+/* =========================
+   FAQ
+   ========================= */
+
+.faq-page {
+  min-height: 100vh;
+}
+
+.faq-topbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  margin-bottom: 38px;
+}
+
+.faq-main {
+  max-width: 820px;
+  margin: 0 auto;
+}
+
+.faq-main-title {
+  margin: 0;
+
+  color: var(--text);
+
+  font-size: 2rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -.045em;
+}
+
+.faq-page.is-sliding {
+  position: fixed !important;
+  inset: 0 !important;
+
+  width: 100% !important;
+  max-width: 980px !important;
+  min-height: 100dvh;
+
+  margin-left: auto !important;
+  margin-right: auto !important;
+
+  background: var(--bg);
+
+  z-index: 100;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+
+/* ---------- содержимое ---------- */
+
+.faq-content {
+  padding-bottom: 70px;
+}
+
+.faq-section {
+  margin: 0;
+}
+
+.faq-section h2 {
+  margin: 0 0 12px;
+
+  color: var(--text);
+
+  font-size: clamp(1.25rem, 3vw, 1.7rem);
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.faq-section p {
+  margin: 0 0 14px;
+
+  color: var(--text-soft);
+
+  font-size: .98rem;
+  line-height: 1.7;
+}
+
+.faq-section p:last-child {
+  margin-bottom: 0;
+}
+
+.faq-section ul,
+.faq-section ol {
+  margin: 14px 0 0;
+  padding-left: 22px;
+
+  color: var(--text-soft);
+  line-height: 1.7;
+}
+
+
+/* ---------- ручные отступы ---------- */
+
+.faq-gap {
+  width: 100%;
+}
+
+.faq-gap--small {
+  height: 12px;
+}
+
+.faq-gap--medium {
+  height: 24px;
+}
+
+.faq-gap--large {
+  height: 44px;
+}
+
+.faq-gap--huge {
+  height: 72px;
+}
+
+/* =========================
+   FAQ — движение снизу
+   ========================= */
+
+.app-page.slide-v-center {
+  transform: translateY(0) !important;
+  filter: blur(0) !important;
+  opacity: 1 !important;
+}
+
+
+/* FAQ появляется снизу */
+
+.app-page.slide-v-enter-up {
+  transform: translateY(100vh) !important;
+  filter: blur(0) !important;
+  opacity: 1 !important;
+}
+
+
+.app-page.slide-v-exit-up {
+  transform: translateY(-6vh) !important;
+  filter: blur(10px) !important;
+  opacity: 0 !important;
+}
+
+
+.app-page.slide-v-enter-back {
+  transform: translateY(-6vh) !important;
+  filter: blur(10px) !important;
+  opacity: 0 !important;
+}
+
+/* FAQ уходит обратно вниз */
+
+.app-page.slide-v-exit-back {
+  transform: translateY(100vh) !important;
+  filter: blur(0) !important;
+  opacity: 1 !important;
 }
 
 .app-page.slide-enter-forward {
@@ -2424,17 +2595,23 @@ body.download-scroll-lock {
 }
 
 
-/* настоящий input остаётся только для "любой цвет" */
-
 .outline-color-native {
-  position: fixed;
+  position: absolute;
+  inset: 0;
 
-  width: 1px;
-  height: 1px;
+  width: 100%;
+  height: 100%;
+
+  margin: 0;
+  padding: 0;
+  border: 0;
 
   opacity: 0;
 
-  pointer-events: none;
+  cursor: pointer;
+
+  appearance: none;
+  -webkit-appearance: none;
 }
 
 .ios-icon-btn {
@@ -3312,6 +3489,9 @@ body.page-scroll-locked {
   opacity: .4;
   cursor: not-allowed;
 }
+#lightLayerRow {
+  margin-top: 10px;
+}
 </style>
 </head>
 
@@ -3428,8 +3608,8 @@ body.page-scroll-locked {
         и скачать результат. Вам <strong>не нужно платить</strong> —
         достаточно загрузить картинку, и алгоритмы сервиса сами
         отделят нужный объект от фона.
-        <button type="button" class="link-btn">
-          <span>Как пользоваться</span>
+      <button type="button" class="link-btn" id="faqOpenBtn">
+        <span>Как пользоваться</span>
           <svg class="link-btn__arrow"
               viewBox="0 0 512 512"
               aria-hidden="true">
@@ -4550,6 +4730,69 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
   </main>
 </div>
 
+<div class="page app-page is-hidden faq-page" id="faqPage" hidden>
+
+    <header class="faq-topbar">
+      <button
+        type="button"
+        class="back-btn"
+        id="faqBackBtn"
+        aria-label="Назад"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M15 18l-6-6 6-6"></path>
+        </svg>
+      </button>
+
+      <h1 class="faq-main-title">Snapi FAQ</h1>
+    </header>
+
+    <main class="faq-main">
+
+    <div class="faq-content">
+
+
+
+        Здесь удобно добавлять содержимое FAQ.
+
+        Пример:
+
+        <section class="faq-section">
+          <h2>Как создать работу?</h2>
+
+          <p>
+            Здесь пишешь обычный текст.
+          </p>
+
+          <p>
+            Можно делать несколько абзацев.
+          </p>
+        </section>
+
+        <div class="faq-gap faq-gap--large"></div>
+
+
+        <section class="faq-section">
+          <h2>Как скачать слой?</h2>
+
+          <p>
+            Ещё какой-нибудь текст.
+          </p>
+        </section>
+
+    </div>
+
+  </main>
+
+</div>
+
 <div class="page app-page is-hidden" id="brawlPage" hidden>
   <header class="topbar">
     <div class="topbar-left">
@@ -4594,7 +4837,7 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
           <span class="size-chip__status"></span>
         </button>
       </div>
-      <div class="size-toast" id="sizeToast">Данный размер уже выбран.</div>
+      <div class="size-toast" id="sizeToast">Данный размер уже выбран</div>
     </section>
 
     <section class="banner">
@@ -5016,6 +5259,47 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
             >+</button>
             </div>
 
+          <div class="price-row detailing-opacity-row" id="lightLayerRow">
+
+            <button
+              type="button"
+              class="ios-icon-btn ios-eye-icon"
+              id="lightEyeBtn"
+              aria-label="Скрыть свет"
+            ></button>
+
+            <span class="price-row__label price-row__label--fixed">
+              Свет
+            </span>
+
+            <button
+              type="button"
+              class="nickname-adjust__btn"
+              data-target="lightOpacityRange"
+              data-delta="-5"
+              aria-label="Уменьшить прозрачность света"
+            >−</button>
+
+            <input
+              type="range"
+              class="price-row__opacity"
+              id="lightOpacityRange"
+              min="0"
+              max="100"
+              step="1"
+              value="100"
+            >
+
+            <button
+              type="button"
+              class="nickname-adjust__btn"
+              data-target="lightOpacityRange"
+              data-delta="5"
+              aria-label="Увеличить прозрачность света"
+            >+</button>
+
+          </div>
+
           </div>
         </div>
       </section>
@@ -5189,6 +5473,13 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
     </div>
 
   </div>
+</div>
+
+<div
+  class="size-toast"
+  id="layerToast"
+>
+  Слой: свет, нельзя включить при таком фоне
 </div>
 
 <script src="brawl-stars-logic.js"></script>
@@ -5989,10 +6280,20 @@ colorPresets.addEventListener('click', function (e) {
   });
 
   saveDB({
-    selectedBgSource: 'color',
-    selectedColorPreset: btn.dataset.color,
-    uploadedBgDataUrl: dataUrl
+    selectedBgSource: 'upload',
+    uploadedBgDataUrl: dataUrl,
+    uploadedBgWidth: w,
+    uploadedBgHeight: h,
+
+    effectsEnabled: false,
+    dotsEnabled: false,
+    lightEnabled: false
   });
+
+  if (window.layerState) {
+    window.layerState.dotsEnabled = false;
+    window.layerState.lightEnabled = false;
+  }
 
   updateBgSelectionUI('color');
   updateCurrentTemplateInfo();
@@ -6019,6 +6320,8 @@ saveDB({
   selectedBg: item.dataset.bg,
   selectedBgSource: 'fankit'
 });
+
+enableDotsLayer();
 
 updateBgSelectionUI('fankit');
 updateCurrentTemplateInfo();
@@ -6102,8 +6405,18 @@ uploadInput.addEventListener('change', function () {
       selectedBgSource: 'upload',
       uploadedBgDataUrl: dataUrl,
       uploadedBgWidth: w,
-      uploadedBgHeight: h
+      uploadedBgHeight: h,
+
+      // На новом фоне с устройства
+      // точки и свет стартуют выключенными
+      dotsEnabled: false,
+      lightEnabled: false
     });
+
+    if (window.layerState) {
+      window.layerState.dotsEnabled = false;
+      window.layerState.lightEnabled = false;
+    }
 
     syncEffectsCheckboxDefault();
 
@@ -6293,14 +6606,32 @@ function submitIOSDownload(canvas, onDone, onError) {
       root.classList.add('theme-to-light');
     }
 
+    // Отключаем обычные CSS transition,
+    // ПОКА старая тема ещё отображается
+    root.classList.add('theme-snapshot-lock');
+
+    // Применяем блокировку сейчас,
+    // но тему пока НЕ меняем
+    void root.offsetWidth;
+
+
+    // Теперь View Transition сам сделает снимок старой темы,
+    // после чего внутри callback подготовит новую
     var transition = document.startViewTransition(function () {
+
       root.setAttribute('data-theme', next);
-      saveDB({ theme: next });
+
+      saveDB({
+        theme: next
+      });
+
       updateLabel();
     });
 
     transition.ready.then(function () {
+
       if (goingToLight) {
+
         // Тёмная тема схлопывается обратно к кнопке
         root.animate(
           {
@@ -6316,7 +6647,9 @@ function submitIOSDownload(canvas, onDone, onError) {
             pseudoElement: '::view-transition-old(root)'
           }
         );
+
       } else {
+
         // Тёмная тема раскрывается из кнопки
         root.animate(
           {
@@ -6332,14 +6665,31 @@ function submitIOSDownload(canvas, onDone, onError) {
             pseudoElement: '::view-transition-new(root)'
           }
         );
+
       }
+
+
+      // Снимок новой темы уже готов.
+      // Возвращаем обычные transition только после этого.
+      requestAnimationFrame(function () {
+        root.classList.remove(
+          'theme-snapshot-lock'
+        );
+      });
+
     });
 
     transition.finished.then(function () {
-      root.classList.remove('theme-to-light');
+      root.classList.remove(
+        'theme-to-light',
+        'theme-snapshot-lock'
+      );
 
       iconStage.style.transition = '';
-      iconSvgs.forEach(function (svg) { svg.style.transition = ''; });
+
+      iconSvgs.forEach(function (svg) {
+        svg.style.transition = '';
+      });
     });
   });
 
@@ -6506,6 +6856,32 @@ function showSizeToast() {
   }, 2000);
 }
 
+var layerToast =
+  document.getElementById('layerToast');
+
+var layerToastTimer = null;
+
+
+function showLayerToast(text) {
+
+  clearTimeout(layerToastTimer);
+
+  layerToast.textContent = text;
+
+  layerToast.classList.add(
+    'is-visible'
+  );
+
+  layerToastTimer =
+    setTimeout(function () {
+
+      layerToast.classList.remove(
+        'is-visible'
+      );
+
+    }, 2000);
+}
+
 sizeChips.addEventListener('click', function (e) {
   var chip = e.target.closest('.size-chip');
   if (!chip) return;
@@ -6659,6 +7035,10 @@ var brawlPage = document.getElementById('brawlPage');
 var brawlBackBtn = document.getElementById('brawlBackBtn');
 var mainPageEl = document.getElementById('mainPage');
 
+var faqOpenBtn = document.getElementById('faqOpenBtn');
+var faqPage = document.getElementById('faqPage');
+var faqBackBtn = document.getElementById('faqBackBtn');
+
 var pageIsAnimating = false;
 var slideToken = 0;
 
@@ -6753,6 +7133,151 @@ function slidePage(hideEl, showEl, direction) {
   var fallbackTimer = setTimeout(finish, 500);
 }
 
+function slideFaqPage(hideEl, showEl, opening) {
+  if (pageIsAnimating) return;
+
+  pageIsAnimating = true;
+
+  window.scrollTo(0, 0);
+
+  var myToken = ++slideToken;
+  var finished = false;
+
+  var enterClass =
+    opening
+      ? 'slide-v-enter-up'
+      : 'slide-v-enter-back';
+
+  var exitClass =
+    opening
+      ? 'slide-v-exit-up'
+      : 'slide-v-exit-back';
+
+
+  hideEl.classList.add(
+    'is-sliding',
+    'slide-v-center'
+  );
+
+
+  showEl.hidden = false;
+
+  showEl.classList.remove(
+    'is-hidden'
+  );
+
+  showEl.classList.add(
+    'is-sliding',
+    enterClass
+  );
+
+
+  showEl.offsetHeight;
+
+
+  requestAnimationFrame(function () {
+    hideEl.classList.remove(
+      'slide-v-center'
+    );
+
+    hideEl.classList.add(
+      exitClass
+    );
+
+
+    showEl.classList.remove(
+      enterClass
+    );
+
+    showEl.classList.add(
+      'slide-v-center'
+    );
+  });
+
+
+  function finish() {
+    if (
+      finished ||
+      myToken !== slideToken
+    ) {
+      return;
+    }
+
+    finished = true;
+
+    hideEl.removeEventListener(
+      'transitionend',
+      onTransitionEnd
+    );
+
+    clearTimeout(fallbackTimer);
+
+
+    hideEl.hidden = true;
+
+    hideEl.classList.remove(
+      'is-sliding',
+      'slide-v-center',
+      'slide-v-enter-up',
+      'slide-v-enter-back',
+      'slide-v-exit-up',
+      'slide-v-exit-back'
+    );
+
+    hideEl.classList.add(
+      'is-hidden'
+    );
+
+
+    showEl.classList.remove(
+      'is-sliding',
+      'slide-v-center',
+      'slide-v-enter-up',
+      'slide-v-enter-back',
+      'slide-v-exit-up',
+      'slide-v-exit-back'
+    );
+
+
+    pageIsAnimating = false;
+  }
+
+
+  function onTransitionEnd(e) {
+    if (e.target !== hideEl) return;
+    if (e.propertyName !== 'transform') return;
+
+    finish();
+  }
+
+
+  hideEl.addEventListener(
+    'transitionend',
+    onTransitionEnd
+  );
+
+
+  var fallbackTimer =
+    setTimeout(finish, 600);
+}
+
+faqOpenBtn.addEventListener('click', function () {
+  slideFaqPage(
+    mainPageEl,
+    faqPage,
+    true
+  );
+});
+
+
+faqBackBtn.addEventListener('click', function () {
+  slideFaqPage(
+    faqPage,
+    mainPageEl,
+    false
+  );
+});
+
 brawlCard.addEventListener('click', function () {
   syncEffectsCheckboxDefault();
   updateCurrentTemplateInfo();
@@ -6824,52 +7349,199 @@ function disableDotsLayer() {
   }
 }
 
-function syncEffectsCheckboxDefault() {
-  var db = loadDB();
+function enableDotsLayer() {
 
-  // Свой фон с устройства:
-  // эффекты OFF + точки OFF
-  if (db.selectedBgSource === 'upload') {
-    effectsCheckbox.checked = false;
+  saveDB({
+    dotsEnabled: true
+  });
 
-    saveDB({
-      effectsEnabled: false
-    });
-
-    disableDotsLayer();
-    return;
+  if (window.layerState) {
+    window.layerState.dotsEnabled = true;
   }
 
+  if (
+    window.layerState &&
+    typeof detailingPanel !== 'undefined' &&
+    detailingPanel
+  ) {
+    updateDetailingPanel();
+  }
+}
+
+function enableLightLayer() {
+
+  saveDB({
+    lightEnabled: true
+  });
+
+  if (window.layerState) {
+    window.layerState.lightEnabled = true;
+  }
+
+  if (
+    window.layerState &&
+    typeof detailingPanel !== 'undefined' &&
+    detailingPanel
+  ) {
+    updateDetailingPanel();
+  }
+}
+
+function disableLightLayer() {
+
+  saveDB({
+    lightEnabled: false
+  });
+
+
+  if (window.layerState) {
+    window.layerState.lightEnabled =
+      false;
+  }
+
+
+  if (
+    window.layerState &&
+    typeof detailingPanel !== 'undefined' &&
+    detailingPanel
+  ) {
+    updateDetailingPanel();
+  }
+
+
+  if (
+    window.layerState &&
+    typeof resultPage !== 'undefined' &&
+    resultPage &&
+    !resultPage.hidden &&
+    typeof resultCanvas !== 'undefined' &&
+    resultCanvas
+  ) {
+
+    drawResult(
+      resultCanvas.getContext('2d'),
+      resultCanvas.width,
+      resultCanvas.height
+    );
+  }
+}
+
+function syncEffectsCheckboxDefault() {
+
+  var db = loadDB();
+
+
+if (db.selectedBgSource === 'upload') {
+
+  effectsCheckbox.checked =
+    !!db.effectsEnabled;
+
+  return;
+}
+
+
   if (db.effectsEnabled === undefined) {
+
     var defaultValue =
       db.selectedBgSource === 'fankit';
 
-    effectsCheckbox.checked = defaultValue;
+    effectsCheckbox.checked =
+      defaultValue;
 
     saveDB({
       effectsEnabled: defaultValue
     });
+
   } else {
+
     effectsCheckbox.checked =
       !!db.effectsEnabled;
   }
 
-  // Главное правило:
-  // эффекты выключены → точки тоже выключены.
+
+  /*
+   * Общая галочка OFF:
+   * и точки, и свет OFF.
+   */
   if (!effectsCheckbox.checked) {
+
     disableDotsLayer();
+    disableLightLayer();
   }
 }
 
-effectsCheckbox.addEventListener('change', function () {
-  saveDB({
-    effectsEnabled: effectsCheckbox.checked
-  });
+effectsCheckbox.addEventListener(
+  'change',
+  function () {
 
-  if (!effectsCheckbox.checked) {
-    disableDotsLayer();
+    var checked =
+      effectsCheckbox.checked;
+
+    var db = loadDB();
+
+
+    saveDB({
+      effectsEnabled: checked
+    });
+
+
+    if (!checked) {
+
+      // Общая галочка OFF →
+      // вся детализация OFF
+      disableDotsLayer();
+      disableLightLayer();
+
+    } else {
+
+      /*
+       * Общая галочка ON →
+       * точки включаем всегда.
+       */
+      enableDotsLayer();
+
+
+      /*
+       * Свет включаем для:
+       * - 108 фонов
+       * - фона с устройства
+       *
+       * На круглом цветном фоне
+       * Свет запрещён.
+       */
+      if (
+        db.selectedBgSource === 'color'
+      ) {
+
+        disableLightLayer();
+
+      } else {
+
+        enableLightLayer();
+      }
+    }
+
+
+    if (
+      typeof updateDetailingPanel ===
+        'function'
+    ) {
+      updateDetailingPanel();
+    }
+
+
+    if (
+      resultPage &&
+      !resultPage.hidden
+    ) {
+      drawResult(
+        resultCanvas.getContext('2d'),
+        resultCanvas.width,
+        resultCanvas.height
+      );
+    }
   }
-});
+);
 
 var screensClearBtn = document.getElementById('screensClearBtn');
 
@@ -7081,8 +7753,17 @@ screenDropArea.addEventListener('drop', function (e) {
         selectedBgSource: 'upload',
         uploadedBgDataUrl: dataUrl,
         uploadedBgWidth: w,
-        uploadedBgHeight: h
+        uploadedBgHeight: h,
+
+        effectsEnabled: false,
+        dotsEnabled: false,
+        lightEnabled: false
       });
+
+      if (window.layerState) {
+        window.layerState.dotsEnabled = false;
+        window.layerState.lightEnabled = false;
+      }
 
       syncEffectsCheckboxDefault();
 
@@ -7294,13 +7975,21 @@ function drawStyledText(
         textCtx.strokeText(text, 0, 0);
     } else {
         /*
-         * Стиль без внешней обводки:
-         * рисуется только тонкая нижняя грань.
-         */
-        textCtx.lineWidth = fontSize * 0.0154;
+        * Стиль без внешней обводки:
+        * сплошная объёмная нижняя грань без полос.
+        */
+        textCtx.fillStyle = style.shadow;
         textCtx.strokeStyle = style.shadow;
+        textCtx.lineWidth = fontSize * 0.0154;
 
-        for (let i = shadowDepth; i >= 0; i--) {
+        const extrusionStep = 0.25;
+
+        for (
+            let i = shadowDepth;
+            i > 0;
+            i -= extrusionStep
+        ) {
+            textCtx.fillText(text, 0, i);
             textCtx.strokeText(text, 0, i);
         }
     }
@@ -7421,7 +8110,7 @@ window.layerState = {
   offerOutlineSize:
     loadDB().offerOutlineSize !== undefined
       ? Number(loadDB().offerOutlineSize)
-      : 3,
+      : 4,
 
   offerOutlineColor:
     loadDB().offerOutlineColor || '#ffffff',
@@ -7435,10 +8124,23 @@ window.layerState = {
       ? !!loadDB().dotsEnabled
       : true,
 
-  dotsOpacity:
-    loadDB().dotsOpacity !== undefined
-      ? Number(loadDB().dotsOpacity)
-      : 0.6
+dotsOpacity:
+  loadDB().dotsOpacity !== undefined
+    ? Number(loadDB().dotsOpacity)
+    : 0.6,
+
+lightEnabled:
+  loadDB().lightEnabled !== undefined
+    ? !!loadDB().lightEnabled
+    : (
+        loadDB().selectedBgSource === 'fankit' &&
+        loadDB().effectsEnabled !== false
+      ),
+
+lightOpacity:
+  loadDB().lightOpacity !== undefined
+    ? Number(loadDB().lightOpacity)
+    : 1
 };
 
 var resultExitConfirm = document.getElementById('resultExitConfirm');
@@ -8406,25 +9108,40 @@ function refreshResultBackground() {
     newHeight = 720;
   }
 
-  // Меняем реальный размер canvas
-  resultCanvas.width = newWidth;
-  resultCanvas.height = newHeight;
+resultCanvas.width = newWidth;
+resultCanvas.height = newHeight;
 
-  // И размер результата в настройках
-  saveDB({
-    sizeSelection: {
-      width: newWidth,
-      height: newHeight,
-      type: newType
-    }
-  });
 
-  renderSizeSelection();
+// И размер результата в настройках
+saveDB({
+  sizeSelection: {
+    width: newWidth,
+    height: newHeight,
+    type: newType
+  }
+});
 
-  resultWasDownloaded = false;
+
+renderSizeSelection();
+
+
+/*
+ * ВАЖНО:
+ * после изменения реального размера canvas
+ * заново рассчитываем размер и положение акций.
+ */
+layoutOffers(
+  resultCanvas.width,
+  resultCanvas.height
+);
+
+
+resultWasDownloaded = false;
 
   if (db.selectedBgSource === 'color') {
     bgImageForRender = null;
+
+    updateDetailingPanel();
 
     drawResult(
       resultCanvas.getContext('2d'),
@@ -8438,6 +9155,8 @@ function refreshResultBackground() {
   if (!bgSrc) {
     bgImageForRender = null;
 
+    updateDetailingPanel();
+
     drawResult(
       resultCanvas.getContext('2d'),
       resultCanvas.width,
@@ -8450,6 +9169,8 @@ function refreshResultBackground() {
   loadImage(bgSrc)
     .then(function (img) {
       bgImageForRender = img;
+
+      updateDetailingPanel();
 
       drawResult(
         resultCanvas.getContext('2d'),
@@ -8856,6 +9577,338 @@ function drawDotsLayer(ctx, canvasW, canvasH) {
   ctx.restore();
 }
 
+/* =========================================================
+   СВЕТ ИЗ ЦЕНТРА ФОНА
+   ========================================================= */
+
+var lightColorCache = {
+  image: null,
+  rgb: null
+};
+
+
+function isLightLayerAllowed() {
+  var db = loadDB();
+
+  // Цветные круглые фоны:
+  // свет запрещён всегда
+  if (db.selectedBgSource === 'color') {
+    return false;
+  }
+
+  // Фон с устройства:
+  // свет можно включить вручную,
+  // даже несмотря на общую галочку эффектов
+  if (db.selectedBgSource === 'upload') {
+    return !!bgImageForRender;
+  }
+
+  // 108 готовых фонов:
+  // здесь свет зависит от общей галочки эффектов
+  if (db.selectedBgSource === 'fankit') {
+    return (
+      db.effectsEnabled !== false &&
+      !!bgImageForRender
+    );
+  }
+
+  return false;
+}
+
+
+function isLightLayerActive() {
+  return (
+    isLightLayerAllowed() &&
+    !!window.layerState.lightEnabled
+  );
+}
+
+
+function getCenterLightColor() {
+
+  var img = bgImageForRender;
+
+  if (!img) {
+    return [255, 255, 255];
+  }
+
+
+  // Для одного и того же фона повторно цвет не считаем.
+  if (
+    lightColorCache.image === img &&
+    lightColorCache.rgb
+  ) {
+    return lightColorCache.rgb;
+  }
+
+
+  var sampleSize = 32;
+
+  var sampleCanvas =
+    document.createElement('canvas');
+
+  sampleCanvas.width = sampleSize;
+  sampleCanvas.height = sampleSize;
+
+  var sampleCtx =
+    sampleCanvas.getContext('2d');
+
+
+  /*
+   * Берём только центральную часть изображения.
+   * Не весь фон.
+   */
+  var sourceW =
+    Math.max(1, img.width * 0.22);
+
+  var sourceH =
+    Math.max(1, img.height * 0.22);
+
+  var sourceX =
+    (img.width - sourceW) / 2;
+
+  var sourceY =
+    (img.height - sourceH) / 2;
+
+
+  sampleCtx.drawImage(
+    img,
+    sourceX,
+    sourceY,
+    sourceW,
+    sourceH,
+    0,
+    0,
+    sampleSize,
+    sampleSize
+  );
+
+
+  var pixels;
+
+  try {
+    pixels =
+      sampleCtx.getImageData(
+        0,
+        0,
+        sampleSize,
+        sampleSize
+      ).data;
+  } catch (err) {
+    return [255, 255, 255];
+  }
+
+
+  var totalR = 0;
+  var totalG = 0;
+  var totalB = 0;
+  var count = 0;
+
+
+  for (
+    var i = 0;
+    i < pixels.length;
+    i += 4
+  ) {
+
+    if (pixels[i + 3] === 0) {
+      continue;
+    }
+
+    totalR += pixels[i];
+    totalG += pixels[i + 1];
+    totalB += pixels[i + 2];
+
+    count++;
+  }
+
+
+  if (!count) {
+    return [255, 255, 255];
+  }
+
+
+  var r =
+    totalR / count;
+
+  var g =
+    totalG / count;
+
+  var b =
+    totalB / count;
+
+
+  /*
+   * Определяем яркость найденного цвета.
+   */
+  var brightness =
+    0.299 * r +
+    0.587 * g +
+    0.114 * b;
+
+
+  /*
+   * Делаем именно СВЕТЛУЮ версию найденного цвета,
+   * но сохраняем его исходный оттенок.
+   */
+  var targetBrightness = 205;
+
+  var whiteMix = 0.16;
+
+
+  if (brightness < targetBrightness) {
+
+    whiteMix =
+      (targetBrightness - brightness) /
+      (255 - brightness);
+
+    whiteMix =
+      Math.max(
+        0.16,
+        Math.min(0.72, whiteMix)
+      );
+  }
+
+
+  r = Math.round(
+    r + (255 - r) * whiteMix
+  );
+
+  g = Math.round(
+    g + (255 - g) * whiteMix
+  );
+
+  b = Math.round(
+    b + (255 - b) * whiteMix
+  );
+
+
+  var result = [r, g, b];
+
+  lightColorCache.image = img;
+  lightColorCache.rgb = result;
+
+  return result;
+}
+
+
+function drawLightLayer(
+  ctx,
+  canvasW,
+  canvasH
+) {
+
+  if (!isLightLayerActive()) {
+    return;
+  }
+
+
+  var opacity =
+    Number(
+      window.layerState.lightOpacity
+    );
+
+  if (opacity <= 0) {
+    return;
+  }
+
+
+  var rgb =
+    getCenterLightColor();
+
+
+  var cx =
+    canvasW / 2;
+
+  var cy =
+    canvasH / 2;
+
+
+  /*
+   * Размер самого пятна.
+   * 0.34 = заметно меньше,
+   * чем круг у цветных фонов.
+   */
+  var radius =
+    Math.min(
+      canvasW,
+      canvasH
+    ) * 0.62;
+
+
+  var gradient =
+    ctx.createRadialGradient(
+      cx,
+      cy,
+      0,
+      cx,
+      cy,
+      radius
+    );
+
+
+  gradient.addColorStop(
+    0,
+    'rgba(' +
+      rgb[0] + ',' +
+      rgb[1] + ',' +
+      rgb[2] + ',1)'
+  );
+
+  gradient.addColorStop(
+    0.20,
+    'rgba(' +
+      rgb[0] + ',' +
+      rgb[1] + ',' +
+      rgb[2] + ',0.92)'
+  );
+
+  gradient.addColorStop(
+    0.48,
+    'rgba(' +
+      rgb[0] + ',' +
+      rgb[1] + ',' +
+      rgb[2] + ',0.62)'
+  );
+
+  gradient.addColorStop(
+    0.74,
+    'rgba(' +
+      rgb[0] + ',' +
+      rgb[1] + ',' +
+      rgb[2] + ',0.25)'
+  );
+
+  gradient.addColorStop(
+    1,
+    'rgba(' +
+      rgb[0] + ',' +
+      rgb[1] + ',' +
+      rgb[2] + ',0)'
+  );
+
+
+  ctx.save();
+
+  ctx.globalAlpha = opacity;
+
+  // Именно эффект света,
+  // а не просто цветного круга поверх картинки.
+  ctx.globalCompositeOperation =
+    'screen';
+
+  ctx.fillStyle = gradient;
+
+  ctx.fillRect(
+    0,
+    0,
+    canvasW,
+    canvasH
+  );
+
+  ctx.restore();
+}
+
 function drawResult(ctx, canvasW, canvasH) {
   ctx.clearRect(0, 0, canvasW, canvasH);
 
@@ -8884,9 +9937,25 @@ function drawResult(ctx, canvasW, canvasH) {
     ctx.drawImage(bgImageForRender, sx, sy, sw, sh, 0, 0, canvasW, canvasH);
   }
 
-  drawDotsLayer(ctx, canvasW, canvasH);
+  // Сначала мягкий свет поверх фона
+  drawLightLayer(
+    ctx,
+    canvasW,
+    canvasH
+  );
 
-    drawNickname(ctx, canvasW, canvasH);
+  // Потом точки, чтобы они оставались чёткими
+  drawDotsLayer(
+    ctx,
+    canvasW,
+    canvasH
+  );
+
+  drawNickname(
+    ctx,
+    canvasW,
+    canvasH
+  );
 
   window.layerState.offers.forEach(function (offer) {
     if (offer.visible === false) return;
@@ -9641,23 +10710,140 @@ nicknameEnableSwitch.addEventListener('click', function (e) {
 var detailingPanel = document.getElementById('detailingPanel');
 var detailingPanelHeader = document.getElementById('detailingPanelHeader');
 var detailingPanelBody = document.getElementById('detailingPanelBody');
-var dotsLayerRow = document.getElementById('dotsLayerRow');
-var dotsEyeBtn = document.getElementById('dotsEyeBtn');
-var dotsOpacityRange = document.getElementById('dotsOpacityRange');
+var dotsLayerRow =
+  document.getElementById(
+    'dotsLayerRow'
+  );
+
+var dotsEyeBtn =
+  document.getElementById(
+    'dotsEyeBtn'
+  );
+
+var dotsOpacityRange =
+  document.getElementById(
+    'dotsOpacityRange'
+  );
+
+
+var lightLayerRow =
+  document.getElementById(
+    'lightLayerRow'
+  );
+
+var lightEyeBtn =
+  document.getElementById(
+    'lightEyeBtn'
+  );
+
+var lightOpacityRange =
+  document.getElementById(
+    'lightOpacityRange'
+  );
 
 function updateDetailingPanel() {
+
   detailingPanel.hidden = false;
-  setCollapsed(detailingPanel, detailingPanelBody, !!loadDB().detailingPanelCollapsed);
 
-  dotsEyeBtn.innerHTML = getEyeSVG();
+  setCollapsed(
+    detailingPanel,
+    detailingPanelBody,
+    !!loadDB().detailingPanelCollapsed
+  );
 
-  var enabled = window.layerState.dotsEnabled;
-  dotsEyeBtn.classList.toggle('hidden', !enabled);
-  dotsEyeBtn.setAttribute('aria-label', enabled ? 'Скрыть точки' : 'Показать точки');
 
-  dotsLayerRow.classList.toggle('is-off', !enabled);
-  dotsOpacityRange.disabled = !enabled;
-  dotsOpacityRange.value = Math.round(window.layerState.dotsOpacity * 100);
+  /* ---------- точки ---------- */
+
+  dotsEyeBtn.innerHTML =
+    getEyeSVG();
+
+  var dotsEnabled =
+    !!window.layerState.dotsEnabled;
+
+  dotsEyeBtn.classList.toggle(
+    'hidden',
+    !dotsEnabled
+  );
+
+  dotsEyeBtn.setAttribute(
+    'aria-label',
+    dotsEnabled
+      ? 'Скрыть точки'
+      : 'Показать точки'
+  );
+
+  dotsLayerRow.classList.toggle(
+    'is-off',
+    !dotsEnabled
+  );
+
+  dotsOpacityRange.disabled =
+    !dotsEnabled;
+
+  dotsOpacityRange.value =
+    Math.round(
+      window.layerState.dotsOpacity *
+      100
+    );
+
+
+  /* ---------- свет ---------- */
+
+  lightEyeBtn.innerHTML =
+    getEyeSVG();
+
+  var lightAllowed =
+    isLightLayerAllowed();
+
+  var lightEnabled =
+    lightAllowed &&
+    !!window.layerState.lightEnabled;
+
+
+  lightEyeBtn.classList.toggle(
+    'hidden',
+    !lightEnabled
+  );
+
+
+  lightEyeBtn.disabled = false;
+
+
+  lightEyeBtn.setAttribute(
+    'aria-disabled',
+    lightAllowed
+      ? 'false'
+      : 'true'
+  );
+
+
+  lightEyeBtn.setAttribute(
+    'aria-label',
+    lightAllowed
+      ? (
+          lightEnabled
+            ? 'Скрыть свет'
+            : 'Показать свет'
+        )
+      : 'Свет недоступен для этого фона'
+  );
+
+
+  lightLayerRow.classList.toggle(
+    'is-off',
+    !lightEnabled
+  );
+
+
+  lightOpacityRange.disabled =
+    !lightEnabled;
+
+
+  lightOpacityRange.value =
+    Math.round(
+      window.layerState.lightOpacity *
+      100
+    );
 }
 
 detailingPanelHeader.addEventListener('click', function () {
@@ -9666,12 +10852,55 @@ detailingPanelHeader.addEventListener('click', function () {
   saveDB({ detailingPanelCollapsed: collapsed });
 });
 
-dotsEyeBtn.addEventListener('click', function () {
-  window.layerState.dotsEnabled = !window.layerState.dotsEnabled;
-  saveDB({ dotsEnabled: window.layerState.dotsEnabled });
-  updateDetailingPanel();
-  drawResult(resultCanvas.getContext('2d'), resultCanvas.width, resultCanvas.height);
-});
+dotsEyeBtn.addEventListener(
+  'click',
+  function () {
+
+    window.layerState.dotsEnabled =
+      !window.layerState.dotsEnabled;
+
+
+    saveDB({
+      dotsEnabled:
+        window.layerState.dotsEnabled
+    });
+
+
+    var enabled =
+      window.layerState.dotsEnabled;
+
+
+    dotsEyeBtn.classList.toggle(
+      'hidden',
+      !enabled
+    );
+
+
+    dotsEyeBtn.setAttribute(
+      'aria-label',
+      enabled
+        ? 'Скрыть точки'
+        : 'Показать точки'
+    );
+
+
+    dotsLayerRow.classList.toggle(
+      'is-off',
+      !enabled
+    );
+
+
+    dotsOpacityRange.disabled =
+      !enabled;
+
+
+    drawResult(
+      resultCanvas.getContext('2d'),
+      resultCanvas.width,
+      resultCanvas.height
+    );
+  }
+);
 
 dotsOpacityRange.addEventListener('input', function () {
   window.layerState.dotsOpacity = Number(dotsOpacityRange.value) / 100;
@@ -9679,28 +10908,160 @@ dotsOpacityRange.addEventListener('input', function () {
   drawResult(resultCanvas.getContext('2d'), resultCanvas.width, resultCanvas.height);
 });
 
-dotsLayerRow.addEventListener('click', function (e) {
-  var btn = e.target.closest('.nickname-adjust__btn');
+lightEyeBtn.addEventListener(
+  'click',
+  function () {
+
+var db = loadDB();
+
+
+if (
+  db.selectedBgSource === 'color'
+) {
+
+  showLayerToast(
+    'Слой: свет, нельзя включить при таком фоне'
+  );
+
+  return;
+}
+
+
+if (!isLightLayerAllowed()) {
+  return;
+}
+
+
+    window.layerState.lightEnabled =
+      !window.layerState.lightEnabled;
+
+
+    saveDB({
+      lightEnabled:
+        window.layerState.lightEnabled
+    });
+
+
+    var enabled =
+      window.layerState.lightEnabled;
+
+
+    /*
+     * Главное:
+     * НЕ вызываем updateDetailingPanel().
+     * Просто меняем класс существующего глазка,
+     * как у слоёв акций.
+     */
+    lightEyeBtn.classList.toggle(
+      'hidden',
+      !enabled
+    );
+
+
+    lightEyeBtn.setAttribute(
+      'aria-label',
+      enabled
+        ? 'Скрыть свет'
+        : 'Показать свет'
+    );
+
+
+    lightLayerRow.classList.toggle(
+      'is-off',
+      !enabled
+    );
+
+
+    lightOpacityRange.disabled =
+      !enabled;
+
+
+    drawResult(
+      resultCanvas.getContext('2d'),
+      resultCanvas.width,
+      resultCanvas.height
+    );
+  }
+);
+
+
+lightOpacityRange.addEventListener(
+  'input',
+  function () {
+
+    window.layerState.lightOpacity =
+      Number(lightOpacityRange.value) / 100;
+
+    saveDB({
+      lightOpacity:
+        window.layerState.lightOpacity
+    });
+
+    drawResult(
+      resultCanvas.getContext('2d'),
+      resultCanvas.width,
+      resultCanvas.height
+    );
+  }
+);
+
+function handleDetailingOpacityStep(e) {
+
+  var btn =
+    e.target.closest(
+      '.nickname-adjust__btn'
+    );
+
   if (!btn) return;
 
-  var range = document.getElementById(btn.dataset.target);
+
+  var range =
+    document.getElementById(
+      btn.dataset.target
+    );
+
   if (!range) return;
+
+  // Если слой выключен —
+  // плюс и минус ничего не делают.
+  if (range.disabled) return;
+
 
   var next =
     Number(range.value) +
     Number(btn.dataset.delta);
 
+
   next = Math.max(
     Number(range.min),
-    Math.min(Number(range.max), next)
+    Math.min(
+      Number(range.max),
+      next
+    )
   );
+
 
   range.value = next;
 
+
   range.dispatchEvent(
-    new Event('input', { bubbles: true })
+    new Event(
+      'input',
+      { bubbles: true }
+    )
   );
-});
+}
+
+
+dotsLayerRow.addEventListener(
+  'click',
+  handleDetailingOpacityStep
+);
+
+lightLayerRow.addEventListener(
+  'click',
+  handleDetailingOpacityStep
+);
 
 function clampPriceValue(raw) {
   var digitsOnly = String(raw).replace(/[^0-9]/g, '');
@@ -9805,18 +11166,17 @@ outlineControls.innerHTML = `
         aria-label="Чёрный"
       ></button>
 
-      <button
-        type="button"
+      <label
         class="outline-color-choice outline-color-choice--custom"
-        data-outline-custom
         aria-label="Любой цвет"
-      ></button>
-
-      <input
-        type="color"
-        class="outline-color-native"
-        value="${window.layerState.offerOutlineColor}"
       >
+        <input
+          type="color"
+          class="outline-color-native"
+          value="${window.layerState.offerOutlineColor}"
+          aria-label="Выбрать любой цвет"
+        >
+      </label>
 
     </div>
   </div>
@@ -10412,28 +11772,6 @@ priceList.addEventListener('click', function (e) {
   }
 
 
-  /* ---------- любой цвет ---------- */
-
-  var customColor =
-    e.target.closest('[data-outline-custom]');
-
-  if (customColor) {
-    e.preventDefault();
-    e.stopPropagation();
-
-    var nativeInput =
-      priceList.querySelector(
-        '.outline-color-native'
-      );
-
-    if (nativeInput) {
-      nativeInput.click();
-    }
-
-    return;
-  }
-
-
 var outlineBtn =
   e.target.closest('[data-card-outline-delta]');
 
@@ -10446,7 +11784,7 @@ if (outlineBtn) {
   var next =
     window.layerState.offerOutlineSize + delta;
 
-  next = Math.max(0, Math.min(10, next));
+  next = Math.max(0, Math.min(12, next));
 
   window.layerState.offerOutlineSize = next;
 
