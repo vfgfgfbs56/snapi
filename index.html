@@ -893,6 +893,28 @@
   display: block;
 }
 
+.bg-sheet__mark {
+  position: absolute;
+  right: 7px;
+  bottom: 7px;
+  z-index: 2;
+
+  padding: 5px 9px;
+
+  border-radius: 999px;
+
+  background: #35a8ff;
+  color: #fff;
+
+  font-size: .68rem;
+  font-weight: 800;
+  line-height: 1;
+
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .18);
+
+  pointer-events: none;
+}
+
 .bg-sheet__item.is-selected {
   outline: 3px solid var(--accent);
   outline-offset: -3px;
@@ -5513,27 +5535,257 @@ function getFankitBgSrc(value) {
     : '';
 }
 
+var BG_CONFIG = [
 
-// Новые фоны идут от 108 к 1
-for (var i = 108; i >= 1; i--) {
-  (function (n) {
-    var id = 'bg_' + n;
+  { id: 80, order: 1, mark: 'NEW' },
 
+  { id: 79, order: 2, mark: 'NEW' },
+
+  { id: 86, order: 3, mark: '' },
+
+  { id: 85, order: 4, mark: '' },
+
+  { id: 82, order: 5, mark: '' },
+
+  { id: 8, order: 6, mark: '' },
+
+  { id: 84, order: 7, mark: '' },
+
+  { id: 103, order: 8, mark: '' },
+
+  { id: 102, order: 9, mark: '' },
+
+  { id: 50, order: 10, mark: '' },
+
+  { id: 37, order: 11, mark: '' },
+
+  { id: 12, order: 12, mark: '' },
+
+  { id: 72, order: 13, mark: '' },
+
+  { id: 7, order: 14, mark: '' },
+
+  { id: 4, order: 15, mark: '' },
+
+  { id: 25, order: 16, mark: '' },
+
+  { id: 14, order: 17, mark: '' },
+
+  { id: 78, order: 18, mark: '' },
+
+  { id: 22, order: 19, mark: '' },
+
+  { id: 6, order: 20, mark: '' },
+
+  { id: 73, order: 21, mark: '' },
+
+  { id: 2, order: 22, mark: '' },
+
+  { id: 87, order: 23, mark: '' },
+
+  { id: 83, order: 24, mark: '' },
+
+  { id: 65, order: 25, mark: '' },
+
+  { id: 88, order: 26, mark: '' },
+
+  { id: 49, order: 27, mark: '' },
+
+  { id: 104, order: 28, mark: '' },
+
+  { id: 105, order: 29, mark: '' },
+
+  { id: 99, order: 30, mark: '' },
+
+  { id: 63, order: 31, mark: '' },
+
+  { id: 62, order: 32, mark: '' },
+
+  { id: 54, order: 33, mark: '' },
+
+  { id: 56, order: 34, mark: '' },
+
+  { id: 47, order: 35, mark: '' },
+
+  { id: 41, order: 36, mark: '' },
+
+  { id: 33, order: 37, mark: '' },
+
+  { id: 23, order: 38, mark: '' },
+
+  { id: 15, order: 39, mark: '' },
+
+  { id: 26, order: 40, mark: '' },
+
+  { id: 101, order: 41, mark: '' },
+
+  { id: 93, order: 42, mark: '' },
+
+  { id: 94, order: 43, mark: '' },
+
+  { id: 44, order: 44, mark: '' },
+
+  { id: 30, order: 45, mark: '' },
+
+  { id: 29, order: 46, mark: '' },
+
+  { id: 98, order: 47, mark: '' },
+
+  { id: 97, order: 48, mark: '' },
+
+  { id: 96, order: 49, mark: '' },
+
+  { id: 95, order: 50, mark: '' },
+
+  { id: 89, order: 51, mark: '' },
+
+  { id: 74, order: 52, mark: '' },
+
+  { id: 52, order: 53, mark: '' },
+
+  { id: 43, order: 54, mark: '' },
+
+  { id: 40, order: 55, mark: '' },
+
+  { id: 39, order: 56, mark: '' },
+
+  { id: 19, order: 57, mark: '' },
+
+  { id: 13, order: 58, mark: '' },
+
+  { id: 53, order: 59, mark: '' },
+
+  { id: 76, order: 60, mark: '' },
+
+  { id: 81, order: 61, mark: '' },
+
+  { id: 90, order: 62, mark: '' },
+
+  { id: 91, order: 63, mark: '' },
+
+  { id: 100, order: 64, mark: '' },
+
+  { id: 5, order: 65, mark: '' },
+
+  { id: 92, order: 66, mark: '' },
+
+  { id: 48, order: 67, mark: '' },
+
+  { id: 107, order: 68, mark: '' },
+
+  { id: 75, order: 69, mark: '' },
+
+  { id: 77, order: 70, mark: '' },
+
+  { id: 58, order: 71, mark: '' },
+
+  { id: 59, order: 72, mark: '' },
+
+  { id: 17, order: 73, mark: '' },
+
+  { id: 21, order: 74, mark: '' },
+
+  { id: 1, order: 75, mark: '' },
+
+  { id: 55, order: 76, mark: '' },
+
+  { id: 51, order: 77, mark: '' },
+
+  { id: 3, order: 78, mark: '' },
+
+  { id: 18, order: 79, mark: '' },
+
+  { id: 28, order: 80, mark: '' },
+
+  { id: 35, order: 81, mark: '' },
+
+  { id: 34, order: 82, mark: '' },
+
+  { id: 31, order: 83, mark: '' },
+
+  { id: 27, order: 84, mark: '' },
+
+  { id: 46, order: 85, mark: '' },
+
+  { id: 10, order: 86, mark: '' },
+
+  { id: 108, order: 87, mark: '' },
+
+  { id: 57, order: 88, mark: '' },
+
+  { id: 71, order: 89, mark: '' },
+
+  { id: 70, order: 90, mark: '' },
+
+  { id: 68, order: 91, mark: '' },
+
+  { id: 45, order: 92, mark: '' },
+
+  { id: 32, order: 93, mark: '' },
+
+  { id: 20, order: 94, mark: '' },
+
+  { id: 67, order: 95, mark: '' },
+
+  { id: 11, order: 96, mark: '' },
+
+  { id: 64, order: 97, mark: '' },
+
+  { id: 60, order: 98, mark: '' },
+
+  { id: 61, order: 99, mark: '' },
+
+  { id: 42, order: 100, mark: '' },
+
+  { id: 24, order: 101, mark: '' },
+
+  { id: 38, order: 102, mark: '' },
+
+  { id: 36, order: 103, mark: '' },
+
+  { id: 9, order: 104, mark: '' },
+
+  { id: 66, order: 105, mark: '' },
+
+  { id: 16, order: 106, mark: '' },
+
+  { id: 69, order: 107, mark: '' },
+
+  { id: 106, order: 108, mark: '' }
+
+];
+
+BG_CONFIG
+  .slice()
+  .sort(function (a, b) {
+    return a.order - b.order;
+  })
+  .forEach(function (bg) {
     var item = document.createElement('button');
+
     item.type = 'button';
     item.className = 'bg-sheet__item';
-    item.dataset.bg = id;
+    item.dataset.bg = 'bg_' + bg.id;
 
     var img = document.createElement('img');
-    img.src = getFankitBgSrc(id);
-    img.alt = 'Фон ' + n;
+
+    img.src = 'bg/bg_' + bg.id + '.jpg';
+    img.alt = 'Фон ' + bg.id;
     img.loading = 'lazy';
 
     item.appendChild(img);
 
+    if (bg.mark) {
+      var mark = document.createElement('span');
+
+      mark.className = 'bg-sheet__mark';
+      mark.textContent = bg.mark;
+
+      item.appendChild(mark);
+    }
+
     bgGrid.appendChild(item);
-  })(i);
-}
+  });
 
 function lockPageScroll() {
   if (document.body.classList.contains('page-scroll-locked')) return;
@@ -8848,7 +9100,50 @@ function leaveResultPage() {
   );
 }
 
+var DOWNLOAD_LOADING_MAX_MS = 10000;
+
+var downloadInProgress = false;
+var downloadSessionId = 0;
+
+function setDownloadButtonsLocked(locked) {
+  downloadInProgress = locked;
+
+  // Скачать всю работу
+  if (downloadResultBtn) {
+    downloadResultBtn.disabled = locked;
+
+    downloadResultBtn.setAttribute(
+      'aria-disabled',
+      locked ? 'true' : 'false'
+    );
+  }
+
+  // Скачать отдельные слои
+  document
+    .querySelectorAll('.offer-download-btn')
+    .forEach(function (btn) {
+      btn.disabled = locked;
+
+      btn.setAttribute(
+        'aria-disabled',
+        locked ? 'true' : 'false'
+      );
+    });
+}
+
+
 function downloadCanvasByDevice(canvas, filename, loadingText, onDone, triggerBtn) {
+
+  // Пока уже идёт скачивание — новое не запускаем
+  if (downloadInProgress) {
+    return;
+  }
+
+  var myDownloadSession = ++downloadSessionId;
+  var loadingLimitTimer = null;
+  var downloadUIReleased = false;
+
+  setDownloadButtonsLocked(true);
 
   var downloadScrollY =
     window.scrollY ||
@@ -8875,12 +9170,16 @@ function downloadCanvasByDevice(canvas, filename, loadingText, onDone, triggerBt
 
   generateOverlay.hidden = false;
 
-  // на кнопке-источнике сразу морфим иконку в спиннер
   setButtonIconLoading(triggerBtn, true);
 
   requestAnimationFrame(function () {
     generateOverlay.classList.add('is-visible');
   });
+
+  // Loading никогда не может длиться больше 10 секунд
+  loadingLimitTimer = setTimeout(function () {
+    releaseDownloadUI();
+  }, DOWNLOAD_LOADING_MAX_MS);
 
 
   function closeDownloadOverlay() {
@@ -8911,19 +9210,43 @@ function downloadCanvasByDevice(canvas, filename, loadingText, onDone, triggerBt
 
 
     setTimeout(function () {
-      generateOverlay.hidden = true;
+      // Старое скачивание не должно скрыть окно
+      // уже запущенного нового скачивания
+      if (myDownloadSession !== downloadSessionId) {
+        return;
+      }
+
+      if (!generateOverlay.classList.contains('is-visible')) {
+        generateOverlay.hidden = true;
+      }
     }, 300);
   }
 
 
-  function finish() {
+  function releaseDownloadUI() {
+    if (downloadUIReleased) {
+      return;
+    }
+
+    downloadUIReleased = true;
+
+    clearTimeout(loadingLimitTimer);
+
     closeDownloadOverlay();
 
-    // иконка возвращается только тогда, когда работа РЕАЛЬНО завершена —
-    // независимо от того, было окно видимо или скрыто пользователем
-    setButtonIconLoading(triggerBtn, false);
+    // Только текущее скачивание имеет право
+    // снимать общую блокировку.
+    if (myDownloadSession === downloadSessionId) {
+      setButtonIconLoading(triggerBtn, false);
+      setDownloadButtonsLocked(false);
+    }
+  }
 
-    if (onDone) {
+
+  function finish(success) {
+    releaseDownloadUI();
+
+    if (success && onDone) {
       onDone();
     }
   }
@@ -8937,17 +9260,17 @@ function downloadCanvasByDevice(canvas, filename, loadingText, onDone, triggerBt
    */
   if (isIOS()) {
 
-    submitIOSDownload(
-      canvas,
+  submitIOSDownload(
+    canvas,
 
-      function () {
-        finish();
-      },
+    function () {
+      finish(true);
+    },
 
-      function () {
-        closeDownloadOverlay();
-      }
-    );
+    function () {
+      finish(false);
+    }
+  );
 
     return;
   }
@@ -8959,7 +9282,7 @@ function downloadCanvasByDevice(canvas, filename, loadingText, onDone, triggerBt
    */
   canvas.toBlob(function (blob) {
     if (!blob) {
-      closeDownloadOverlay();
+      finish(false);
       return;
     }
 
@@ -8995,7 +9318,7 @@ function downloadCanvasByDevice(canvas, filename, loadingText, onDone, triggerBt
       }, 1000);
     }
 
-    finish();
+    finish(true);
 
   }, 'image/png');
 }
@@ -9570,6 +9893,13 @@ var download = document.createElement('button');
 download.type = 'button';
 download.className =
   'ios-icon-btn offer-download-btn';
+
+download.disabled = downloadInProgress;
+
+download.setAttribute(
+  'aria-disabled',
+  downloadInProgress ? 'true' : 'false'
+);
 
 download.dataset.offerIndex = index;
 
