@@ -1306,9 +1306,35 @@ function addCardOutlineAndShadow(sourceCanvas, options = {}) {
   const outlineColor =
     options.cardOutlineColor || '#ffffff';
 
-  const shadowBlur = 6;
-  const shadowOffsetY = 26;
-  const padding = outlineSize + shadowBlur + Math.abs(shadowOffsetY) + 2;
+
+  /*
+   * Тень зависит от размера самой акции,
+   * а не имеет огромные фиксированные 26 px.
+   */
+  const shadowBlur =
+    Math.max(
+      3,
+      Math.min(
+        6,
+        Math.round(sourceCanvas.height * 0.008)
+      )
+    );
+
+  const shadowOffsetY =
+    Math.max(
+      10,
+      Math.min(
+        16,
+        Math.round(sourceCanvas.height * 0.024)
+      )
+    );
+
+
+  const padding =
+    outlineSize +
+    shadowBlur +
+    shadowOffsetY +
+    2;
 
   const resultCanvas = document.createElement('canvas');
   resultCanvas.width = sourceCanvas.width + padding * 2;
