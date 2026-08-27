@@ -2,72 +2,111 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Системная палитра</title>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Цвет iPhone</title>
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       min-height: 100vh;
+
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #f4f4f4;
+
+      background: #f5f5f5;
+
       font-family: Arial, sans-serif;
     }
 
     .color-button {
-      width: 180px;
-      height: 54px;
-      border: 0;
-      border-radius: 14px;
+      position: relative;
+
+      width: 200px;
+      height: 56px;
+
+      border-radius: 16px;
+
       background: #111;
-      color: white;
+      color: #fff;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
       font-size: 16px;
-      cursor: pointer;
+      font-weight: 600;
+
+      overflow: hidden;
     }
 
-    /* Сам input не удаляем через display:none,
-       иначе на некоторых устройствах палитра может не открыться */
-    #deviceColorPicker {
-      position: fixed;
-      width: 1px;
-      height: 1px;
+    /*
+      ВАЖНО:
+      input реально находится поверх кнопки.
+
+      Не display:none.
+      Не вызываем .click().
+      Пользователь нажимает прямо на input.
+    */
+    .color-button input[type="color"] {
+      position: absolute;
+
+      inset: 0;
+
+      width: 100%;
+      height: 100%;
+
       opacity: 0;
-      pointer-events: none;
-      left: 50%;
-      top: 50%;
+
+      cursor: pointer;
+
+      border: 0;
+      padding: 0;
     }
   </style>
 </head>
 
 <body>
 
-  <button class="color-button" id="openColorPicker">
-    Выбрать цвет
-  </button>
+  <div class="color-button" id="colorButton">
 
-  <input
-    type="color"
-    id="deviceColorPicker"
-    value="#ff0000"
-  >
+    <span id="buttonText">
+      Выбрать цвет2
+    </span>
+
+    <input
+      id="colorPicker"
+      type="color"
+      value="#ff0000"
+    >
+
+  </div>
+
 
   <script>
-    const button = document.getElementById('openColorPicker');
-    const colorPicker = document.getElementById('deviceColorPicker');
+    const picker = document.getElementById('colorPicker');
+    const button = document.getElementById('colorButton');
+    const text = document.getElementById('buttonText');
 
-    button.addEventListener('click', () => {
-      colorPicker.click();
-    });
+    picker.addEventListener('input', () => {
 
-    colorPicker.addEventListener('input', () => {
-      const color = colorPicker.value;
+      const color = picker.value;
 
-      console.log('Выбран цвет:', color);
+      console.log('Цвет:', color);
 
-      button.style.background = color;
+      button.style.backgroundColor = color;
+
+      text.textContent = color;
+
     });
   </script>
 
