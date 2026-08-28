@@ -2333,11 +2333,11 @@ body.download-scroll-lock {
 .nickname-adjust__row {
   display: grid;
   grid-template-columns:
-    minmax(56px, 1fr)
+    minmax(0, 56px)
     32px
-    minmax(90px, 2fr)
+    minmax(0, 1fr)
     32px
-    minmax(56px, 1fr);
+    minmax(0, 56px);
 
   align-items: center;
   gap: 6px;
@@ -2345,10 +2345,16 @@ body.download-scroll-lock {
 }
 
 .nickname-adjust__side {
+  display: block;
+  min-width: 0;
+
   color: var(--text-muted);
   font-size: .72rem;
   font-weight: 600;
+
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .nickname-adjust__side:first-child {
@@ -2569,9 +2575,9 @@ body.download-scroll-lock {
 
   z-index: 50;
 
-  width: 190px;
+  width: 240px;
 
-  padding: 12px 14px 14px;
+  padding: 12px 16px 14px;
 
   background: var(--bg);
   border-radius: 18px;
@@ -2644,18 +2650,40 @@ body.download-scroll-lock {
   font-weight: 600;
 }
 
-
 .outline-color-popover__colors {
   position: relative;
   z-index: 1;
 
   display: flex;
   align-items: center;
-  justify-content: space-between;
 
-  gap: 10px;
+  justify-content: flex-start;
+
+  gap: 12px;
+
+  width: 100%;
 }
 
+.outline-color-choice.is-selected {
+  /*
+   * Весь выбранный кружок остаётся
+   * ровно 42×42, как и остальные.
+   *
+   * Снаружи внутрь:
+   * 1. тонкая обводка выбранного цвета;
+   * 2. более толстая обводка цвета плашки;
+   * 3. сам выбранный цвет.
+   */
+  border:
+    2px solid
+    var(--choice-ring-color);
+
+  box-shadow:
+    inset 0 0 0 4px var(--bg);
+
+  background:
+    var(--choice-color);
+}
 
 .outline-color-choice {
   position: relative;
@@ -2663,7 +2691,431 @@ body.download-scroll-lock {
   width: 42px;
   height: 42px;
 
+  flex: 0 0 42px;
+
+  border: 2px solid transparent;
+  padding: 0;
+
+  /*
+   * Очень важно:
+   * border входит внутрь 42px,
+   * а не увеличивает кружок.
+   */
+  box-sizing: border-box;
+
+  border-radius: 50%;
+
+  background:
+    var(--choice-color);
+
+  cursor: pointer;
+
+  box-shadow: none;
+}
+
+.outline-color-choice:active {
+  transform: scale(.88);
+}
+
+.outline-color-choice--white {
+  --choice-color: #ffffff;
+}
+
+
+.outline-color-choice--black {
+  --choice-color: #000000;
+}
+
+.outline-color-choice--custom {
+  /*
+   * Радуга не должна наследовать
+   * техническую прозрачную рамку
+   * обычных кружков.
+   */
+  border: none;
+
+  background:
+    radial-gradient(
+      circle at center,
+      #ffffff 0%,
+      rgba(255, 255, 255, .8) 20%,
+      rgba(255, 255, 255, 0) 60%
+    ),
+    conic-gradient(
+      #ff0000 0deg,
+      #ffff00 60deg,
+      #00ff00 120deg,
+      #00ffff 180deg,
+      #0000ff 240deg,
+      #ff00ff 300deg,
+      #ff0000 360deg
+    );
+
+  background-clip: border-box;
+
+  overflow: hidden;
+}
+
+
+/* =========================================================
+   СВОЙ ВЫБОР ЦВЕТА
+   ========================================================= */
+
+html.custom-color-open,
+html.custom-color-open body {
+  overflow: hidden !important;
+}
+
+
+.custom-color-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1400;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 24px;
+
+  background: rgba(0, 0, 0, .55);
+
+  opacity: 0;
+  pointer-events: none;
+
+  transition:
+    opacity .28s var(--ease);
+}
+
+.custom-color-overlay[hidden] {
+  display: none;
+}
+
+.custom-color-overlay.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.custom-color-sheet {
+  width: min(540px, 100%);
+  max-height: calc(100dvh - 48px);
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  background: var(--bg);
+
+  border-radius: 30px;
+
+  padding:
+    18px
+    20px
+    22px;
+
+  box-shadow:
+    0 24px 70px rgba(0, 0, 0, .34);
+}
+
+.custom-color-sheet::-webkit-scrollbar {
+  display: none;
+}
+
+
+/* ---------- шапка ---------- */
+
+.custom-color-header {
+  display: grid;
+  grid-template-columns: 48px 1fr 48px;
+  align-items: center;
+  gap: 10px;
+
+  margin-bottom: 18px;
+}
+
+.custom-color-title {
+  margin: 0;
+
+  color: var(--text);
+
+  font-size: 1.35rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+
+.custom-color-header-btn {
+  width: 46px;
+  height: 46px;
+
+  display: grid;
+  place-items: center;
+
+  border: none;
+  padding: 0;
+
+  border-radius: 50%;
+
+  background: var(--surface);
+  color: var(--text);
+
+  cursor: pointer;
+
+  transition:
+    transform .18s var(--ease),
+    background-color .2s var(--ease);
+}
+
+.custom-color-header-btn:active {
+  transform: scale(.9);
+}
+
+.custom-color-header-btn svg {
+  width: 23px;
+  height: 23px;
+}
+
+.custom-color-header-btn.is-disabled {
+  opacity: .35;
+}
+
+
+/* ---------- большое цветное поле ---------- */
+
+.custom-color-field {
+  position: relative;
+
+  width: 100%;
+  aspect-ratio: 1.2 / 1;
+
+  overflow: hidden;
+
+  border-radius: 22px;
+
+  cursor: crosshair;
+  touch-action: none;
+
+  background:
+    linear-gradient(
+      to right,
+      #ffffff 0%,
+      rgba(255, 255, 255, 0) 28%,
+      rgba(0, 0, 0, 0) 72%,
+      #000000 100%
+    ),
+    linear-gradient(
+      to bottom,
+      #ff0000 0%,
+      #ffff00 16.666%,
+      #00ff00 33.333%,
+      #00ffff 50%,
+      #0000ff 66.666%,
+      #ff00ff 83.333%,
+      #ff0000 100%
+    );
+}
+
+
+.custom-color-field-thumb {
+  position: absolute;
+
+  left: 0;
+  top: 0;
+
+  width: 46px;
+  height: 46px;
+
+  border: 5px solid #172235;
+  border-radius: 50%;
+
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, .35);
+
+  transform:
+    translate(-50%, -50%);
+
+  pointer-events: none;
+}
+
+
+/* ---------- прозрачность ---------- */
+
+.custom-color-opacity-title {
+  display: block;
+
+  margin:
+    20px
+    8px
+    9px;
+
+  color: var(--text-muted);
+
+  font-size: .8rem;
+  font-weight: 600;
+
+  text-transform: uppercase;
+}
+
+
+.custom-color-opacity-fill {
+  position: absolute;
+  inset: 0;
+
+  pointer-events: none;
+}
+
+.custom-color-opacity-row {
+  display: flex;
+  align-items: center;
+
+  /*
+   * Оставляем место выступающей
+   * половине круглого ползунка.
+   */
+  gap: 28px;
+}
+
+.custom-color-opacity {
+  position: relative;
+
+  flex: 1;
+  height: 50px;
+
+  /*
+   * Кружок теперь живёт ВНУТРИ полосы.
+   */
+  overflow: hidden;
+
+  border-radius: 999px;
+
+  cursor: pointer;
+  touch-action: none;
+
+  /*
+   * Переменные для положения и размера кружка.
+   */
+  --custom-opacity-alpha: 1;
+  --custom-opacity-thumb-size: 46px;
+
+  background:
+    repeating-conic-gradient(
+      #ffffff 0 25%,
+      #151515 0 50%
+    )
+    0 / 20px 20px;
+}
+
+.custom-color-opacity-thumb {
+  position: absolute;
+
+  top: 50%;
+
+  /*
+   * 0% = самый левый край ВНУТРИ полосы
+   * 100% = самый правый край ВНУТРИ полосы
+   */
+  left: calc(
+    var(--custom-opacity-alpha) *
+    (100% - var(--custom-opacity-thumb-size))
+  );
+
+  width: var(--custom-opacity-thumb-size);
+  height: var(--custom-opacity-thumb-size);
+
+  border: 4px solid #172235;
+  border-radius: 50%;
+
+  /*
+   * Внутри будет текущий цвет из JS.
+   */
+  background: #ffffff;
+
+  /*
+   * Убираем белую обводку снаружи.
+   */
+  box-shadow: none;
+
+  transform: translateY(-50%);
+
+  pointer-events: none;
+  z-index: 3;
+}
+
+.custom-color-opacity-fill {
+  position: absolute;
+  inset: 0;
+
+  border-radius: inherit;
+
+  pointer-events: none;
+}
+
+.custom-color-opacity-value {
+  min-width: 82px;
+
+  padding:
+    8px
+    10px;
+
+  border-radius: 12px;
+
+  background: var(--surface-soft);
+  color: var(--text);
+
+  font-size: 1.15rem;
+  font-weight: 700;
+
+  text-align: center;
+}
+
+
+/* ---------- выбранный + последние цвета ---------- */
+
+.custom-color-bottom {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+
+  margin-top: 22px;
+  padding-top: 18px;
+
+  border-top:
+    1px solid var(--border);
+}
+
+
+.custom-color-current {
   flex: none;
+
+  width: 96px;
+  height: 96px;
+
+  border-radius: 18px;
+
+  overflow: hidden;
+}
+
+
+.custom-color-recent {
+  flex: 1;
+
+  display: grid;
+  grid-template-columns:
+    repeat(5, 1fr);
+
+  align-items: center;
+
+  gap: 10px;
+}
+
+
+.custom-color-recent-btn {
+  width: 42px;
+  height: 42px;
+
+  justify-self: center;
 
   border: none;
   padding: 0;
@@ -2672,75 +3124,209 @@ body.download-scroll-lock {
 
   cursor: pointer;
 
+  box-shadow:
+    inset 0 0 0 1px
+    rgba(255, 255, 255, .08);
+
   transition:
-    transform .16s var(--ease),
-    box-shadow .16s var(--ease);
+    transform .16s var(--ease);
 }
 
-.outline-color-choice:active {
-  transform: scale(.88);
+.custom-color-recent-btn:active {
+  transform: scale(.86);
 }
 
+@media (max-width: 859px) {
 
-.outline-color-choice--white {
-  background: #ffffff;
+  .custom-color-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
 
-  box-shadow:
-    inset 0 0 0 1px rgba(0, 0, 0, .08);
+
+  .custom-color-sheet {
+    width: 100%;
+    max-height: 90dvh;
+
+    border-radius:
+      28px
+      28px
+      0
+      0;
+
+    padding:
+      14px
+      18px
+      calc(20px + env(safe-area-inset-bottom));
+
+    transform: translateY(100%);
+
+    transition:
+      transform .35s var(--ease);
+  }
+
+
+  .custom-color-overlay.is-visible
+  .custom-color-sheet {
+    transform: translateY(0);
+  }
+
+
+  .custom-color-current {
+    width: 82px;
+    height: 82px;
+  }
+
+
+  .custom-color-recent-btn {
+    width: 38px;
+    height: 38px;
+  }
 }
 
+@media (min-width: 860px) {
 
-.outline-color-choice--black {
-  background: #000000;
+  .custom-color-sheet {
+    width: min(420px, 100%);
+    max-height: calc(100dvh - 48px);
 
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, .08);
-}
+    transform: scale(1);
+
+    padding:
+      14px
+      16px
+      17px;
+
+    border-radius: 24px;
+  }
+
+  .custom-color-sheet.is-opening {
+    animation:
+      bgSheetPopIn
+      .28s
+      var(--ease)
+      forwards;
+  }
+
+  .custom-color-sheet.is-closing {
+    animation:
+      bgSheetPopOut
+      .24s
+      var(--ease)
+      forwards;
+  }
+
+  .custom-color-header {
+    grid-template-columns:
+      40px 1fr 40px;
+
+    gap: 8px;
+
+    margin-bottom: 12px;
+  }
 
 
-.outline-color-choice--custom {
-  background:
-    radial-gradient(
-      circle at center,
-      #ffffff 0%,
-      rgba(255, 255, 255, 0.8) 20%,
-      rgba(255, 255, 255, 0) 60%
-    ),
-    conic-gradient(
-      #ff0000,
-      #ffff00,
-      #00ff00,
-      #00ffff,
-      #0000ff,
-      #ff00ff,
-      #ff0000
-    );
-}
+  .custom-color-header-btn {
+    width: 40px;
+    height: 40px;
+  }
 
-.outline-color-native {
-  position: absolute;
 
-  inset: 0;
+  .custom-color-header-btn svg {
+    width: 21px;
+    height: 21px;
+  }
 
-  width: 100%;
-  height: 100%;
 
-  margin: 0;
-  padding: 0;
-  border: 0;
+  .custom-color-title {
+    font-size: 1.15rem;
+  }
 
-  opacity: 0;
-
-  cursor: pointer;
 
   /*
-   * ВАЖНО:
-   * не ставим appearance:none.
-   *
-   * На iPhone должен оставаться настоящий
-   * системный input[type="color"].
+   * Главное изменение.
+   * Поле становится заметно ниже,
+   * а не почти квадратным.
    */
-  z-index: 5;
+  .custom-color-field {
+    aspect-ratio: 1.55 / 1;
+    border-radius: 18px;
+  }
+
+
+  .custom-color-field-thumb {
+    width: 34px;
+    height: 34px;
+
+    border-width: 4px;
+  }
+
+
+  .custom-color-opacity-title {
+    margin:
+      14px
+      6px
+      7px;
+
+    font-size: .72rem;
+  }
+
+
+  .custom-color-opacity-row {
+    /*
+     * 18px — половина круга,
+     * плюс небольшой воздух.
+     */
+    gap: 24px;
+  }
+
+  .custom-color-opacity {
+    height: 40px;
+    --custom-opacity-thumb-size: 36px;
+  }
+
+  .custom-color-opacity-thumb {
+    border-width: 3px;
+  }
+
+  .custom-color-opacity-value {
+    min-width: 70px;
+
+    padding:
+      7px
+      9px;
+
+    border-radius: 10px;
+
+    font-size: .95rem;
+  }
+
+
+  .custom-color-bottom {
+    gap: 14px;
+
+    margin-top: 14px;
+    padding-top: 14px;
+  }
+
+
+  .custom-color-current {
+    width: 70px;
+    height: 70px;
+
+    border-radius: 14px;
+  }
+
+
+  .custom-color-recent {
+    gap: 7px;
+  }
+
+
+  .custom-color-recent-btn {
+    width: 32px;
+    height: 32px;
+  }
 }
 
 .ios-icon-btn {
@@ -4953,8 +5539,8 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
 
 
 
-        Здесь удобно добавлять содержимое FAQ.
-
+        Beta тестирование.
+<!----
         Пример:
 
         <section class="faq-section">
@@ -4978,7 +5564,7 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
           <p>
             Ещё какой-нибудь текст.
           </p>
-        </section>
+        </section>-->
 
     </div>
 
@@ -5742,7 +6328,7 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
 <div class="generate-overlay" id="generateOverlay" hidden>
   <div class="generate-overlay__spinner"></div>
   <p class="generate-overlay__text" id="generateOverlayText">Генерируется работа, подождите…</p>
-  <button type="button" class="generate-overlay__hide-btn" id="generateOverlayHideBtn">Скрыть</button>
+  <button type="button" class="generate-overlay__hide-btn" id="generateOverlayHideBtn">скрыть окно</button>
 </div>
 
 <iframe name="snapiDownloadFrame" id="snapiDownloadFrame" style="display:none" aria-hidden="true"></iframe>
@@ -5809,6 +6395,140 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
 >
   Слой: свет, нельзя включить при таком фоне
 </div>
+
+<div
+  class="custom-color-overlay"
+  id="customColorOverlay"
+  hidden
+>
+    <div
+      class="custom-color-sheet"
+      id="customColorSheet"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="customColorTitle"
+      tabindex="-1"
+    >
+
+    <div class="custom-color-header">
+
+      <button
+        type="button"
+        class="custom-color-header-btn"
+        id="customColorClose"
+        aria-label="Закрыть"
+      >
+        <svg viewBox="0 0 24 24" fill="none">
+          <path
+            d="M5 5L19 19M19 5L5 19"
+            stroke="currentColor"
+            stroke-width="2.4"
+            stroke-linecap="round"
+          />
+        </svg>
+      </button>
+
+
+      <h3
+        class="custom-color-title"
+        id="customColorTitle"
+      >
+        Выбор цвета
+      </h3>
+
+
+      <button
+        type="button"
+        class="custom-color-header-btn"
+        id="customColorEyedropper"
+        aria-label="Пипетка"
+      >
+        <svg
+          viewBox="0 0 96 96"
+          aria-hidden="true"
+        >
+          <g
+            transform="translate(0 96) scale(.1 -.1)"
+            fill="currentColor"
+            stroke="none"
+          >
+            <path d="M680 869 c-14 -6 -55 -39 -91 -75 -57 -57 -67 -63 -79 -50 -15 19
+        -41 21 -58 4 -17 -17 -15 -43 4 -59 13 -11 -3 -31 -129 -158 -149 -150 -170
+        -178 -180 -245 -4 -22 -20 -56 -37 -77 -16 -21 -30 -44 -30 -51 0 -18 62 -78
+        79 -78 7 0 30 13 50 29 20 16 55 33 76 36 69 13 106 39 252 180 131 125 144
+        135 163 123 39 -25 78 25 46 61 -14 16 -11 22 50 82 70 70 91 114 80 172 -16
+        87 -112 139 -196 106z m-100 -304 l44 -45 -34 -34 c-233 -224 -257 -244 -306
+        -259 -27 -8 -58 -19 -69 -23 -17 -7 -18 -6 -8 8 7 8 16 37 19 64 6 47 11 54
+        150 192 80 78 148 142 152 142 4 0 28 -20 52 -45z"/>
+          </g>
+        </svg>
+      </button>
+
+    </div>
+
+
+    <div
+      class="custom-color-field"
+      id="customColorField"
+    >
+      <span
+        class="custom-color-field-thumb"
+        id="customColorFieldThumb"
+      ></span>
+    </div>
+
+
+    <span class="custom-color-opacity-title">
+      Прозрачность
+    </span>
+
+
+    <div class="custom-color-opacity-row">
+
+      <div
+        class="custom-color-opacity"
+        id="customColorOpacity"
+      >
+        <div
+          class="custom-color-opacity-fill"
+          id="customColorOpacityFill"
+        ></div>
+
+        <span
+          class="custom-color-opacity-thumb"
+          id="customColorOpacityThumb"
+        ></span>
+      </div>
+
+
+      <div
+        class="custom-color-opacity-value"
+        id="customColorOpacityValue"
+      >
+        100%
+      </div>
+
+    </div>
+
+
+    <div class="custom-color-bottom">
+
+      <div
+        class="custom-color-current"
+        id="customColorCurrent"
+      ></div>
+
+
+      <div
+        class="custom-color-recent"
+        id="customColorRecent"
+      ></div>
+
+    </div>
+
+  </div>
+</div>
+
 
 <script src="brawl-stars-logic.js"></script>
 
@@ -14602,41 +15322,17 @@ outlineControls.innerHTML = `
 
   <div class="outline-color-popover">
     <span class="outline-color-popover__title">
-      Выберите цвет
+      выберите цвет
     </span>
 
-    <div class="outline-color-popover__colors">
-
-      <button
-        type="button"
-        class="outline-color-choice outline-color-choice--white"
-        data-outline-color="#ffffff"
-        aria-label="Белый"
-      ></button>
-
-      <button
-        type="button"
-        class="outline-color-choice outline-color-choice--black"
-        data-outline-color="#000000"
-        aria-label="Чёрный"
-      ></button>
-
-      <div
-        class="outline-color-choice outline-color-choice--custom"
-      >
-        <input
-          type="color"
-          class="outline-color-native"
-          value="${window.layerState.offerOutlineColor}"
-          aria-label="Выбрать любой цвет"
-        >
-      </div>
-
-    </div>
+    <div class="outline-color-popover__colors"></div>
   </div>
 `;
 
 priceList.appendChild(outlineControls);
+
+
+renderOutlineColorPopover();
 
 
 offers.forEach(function (offer, index) {
@@ -15134,6 +15830,162 @@ function reorderOffers(newOrderOldIndices) {
 
 var priceInputTimers = {};
 
+function isSolidOutlineColor(
+  color,
+  r,
+  g,
+  b
+) {
+
+  var parsed =
+    parseOutlineColor(color);
+
+
+  return (
+    Math.round(parsed.r) === r &&
+    Math.round(parsed.g) === g &&
+    Math.round(parsed.b) === b &&
+    parsed.a >= .999
+  );
+}
+
+
+function getOutlineRingColor(color) {
+
+  var parsed =
+    parseOutlineColor(color);
+
+
+  /*
+   * Внешнее колечко всегда непрозрачное,
+   * даже если сама обводка имеет прозрачность.
+   */
+  return (
+    'rgb(' +
+      Math.round(parsed.r) + ',' +
+      Math.round(parsed.g) + ',' +
+      Math.round(parsed.b) +
+    ')'
+  );
+}
+
+
+function renderOutlineColorPopover() {
+
+  var holder =
+    priceList.querySelector(
+      '.outline-color-popover__colors'
+    );
+
+
+  if (!holder) return;
+
+
+  var current =
+    window.layerState.offerOutlineColor ||
+    '#ffffff';
+
+
+  var currentRing =
+    getOutlineRingColor(current);
+
+
+  var currentIsWhite =
+    isSolidOutlineColor(
+      current,
+      255,
+      255,
+      255
+    );
+
+
+  var currentIsBlack =
+    isSolidOutlineColor(
+      current,
+      0,
+      0,
+      0
+    );
+
+
+  var html = '';
+
+
+  /*
+   * 1. Самый первый —
+   * последний / текущий выбранный цвет.
+   */
+  html +=
+    '<button' +
+      ' type="button"' +
+      ' class="outline-color-choice outline-color-choice--recent is-selected"' +
+      ' data-outline-color="' + current + '"' +
+      ' style="' +
+        '--choice-color:' + current + ';' +
+        '--choice-ring-color:' + currentRing + ';' +
+      '"' +
+      ' aria-label="Текущий выбранный цвет"' +
+    '></button>';
+
+
+  /*
+   * 2. Белый шаблон.
+   * Если текущий уже белый —
+   * второй белый не создаём.
+   */
+  if (!currentIsWhite) {
+
+    html +=
+      '<button' +
+        ' type="button"' +
+        ' class="outline-color-choice outline-color-choice--white"' +
+        ' data-outline-color="#ffffff"' +
+        ' style="' +
+          '--choice-color:#ffffff;' +
+          '--choice-ring-color:#ffffff;' +
+        '"' +
+        ' aria-label="Белый"' +
+      '></button>';
+  }
+
+
+  /*
+   * 3. Чёрный шаблон.
+   * Если текущий уже чёрный —
+   * второй чёрный не создаём.
+   */
+  if (!currentIsBlack) {
+
+    html +=
+      '<button' +
+        ' type="button"' +
+        ' class="outline-color-choice outline-color-choice--black"' +
+        ' data-outline-color="#000000"' +
+        ' style="' +
+          '--choice-color:#000000;' +
+          '--choice-ring-color:#000000;' +
+        '"' +
+        ' aria-label="Чёрный"' +
+      '></button>';
+  }
+
+
+  /*
+   * 4. Всегда радуга.
+   */
+  html +=
+    '<button' +
+      ' type="button"' +
+      ' class="outline-color-choice outline-color-choice--custom"' +
+      ' data-open-custom-color-picker' +
+      ' aria-label="Выбрать любой цвет"' +
+    '></button>';
+
+
+  holder.innerHTML =
+    html;
+}
+
 function closeOutlineColorPicker() {
   var picker =
     priceList.querySelector(
@@ -15145,20 +15997,27 @@ function closeOutlineColorPicker() {
   }
 }
 
+function applyOfferOutlineColor(
+  color,
+  shouldSave
+) {
 
-function applyOfferOutlineColor(color) {
   window.layerState.offerOutlineColor =
     color;
 
-  saveDB({
-    offerOutlineColor: color
-  });
+
+  if (shouldSave !== false) {
+    saveDB({
+      offerOutlineColor: color
+    });
+  }
 
 
   var colorButton =
     priceList.querySelector(
       '.price-outline-controls__color-wrap'
     );
+
 
   if (colorButton) {
     colorButton.style.setProperty(
@@ -15168,18 +16027,1383 @@ function applyOfferOutlineColor(color) {
   }
 
 
-  var nativeInput =
-    priceList.querySelector(
-      '.outline-color-native'
-    );
+  redrawAllOfferPrices();
+}
 
-  if (nativeInput) {
-    nativeInput.value = color;
+var customColorOverlay =
+  document.getElementById(
+    'customColorOverlay'
+  );
+
+var customColorClose =
+  document.getElementById(
+    'customColorClose'
+  );
+
+var customColorEyedropper =
+  document.getElementById(
+    'customColorEyedropper'
+  );
+
+var customColorField =
+  document.getElementById(
+    'customColorField'
+  );
+
+var customColorFieldThumb =
+  document.getElementById(
+    'customColorFieldThumb'
+  );
+
+var customColorOpacity =
+  document.getElementById(
+    'customColorOpacity'
+  );
+
+var customColorOpacityFill =
+  document.getElementById(
+    'customColorOpacityFill'
+  );
+
+var customColorOpacityThumb =
+  document.getElementById(
+    'customColorOpacityThumb'
+  );
+
+var customColorOpacityValue =
+  document.getElementById(
+    'customColorOpacityValue'
+  );
+
+var customColorCurrent =
+  document.getElementById(
+    'customColorCurrent'
+  );
+
+var customColorRecent =
+  document.getElementById(
+    'customColorRecent'
+  );
+
+
+var customColorState = {
+  x: 0,
+  y: 0,
+  r: 255,
+  g: 255,
+  b: 255,
+  a: 1
+};
+
+
+var customColorCloseTimer = null;
+var customColorRaf = 0;
+
+
+/*
+ * Первые 5 цветов.
+ * Потом они заменяются последними выбранными.
+ */
+var DEFAULT_OUTLINE_RECENT_COLORS = [
+  '#000000',
+  '#0d6efd',
+  '#00d05a',
+  '#ffcc00',
+  '#ff3b30'
+];
+
+
+function clampColor01(value) {
+  return Math.max(
+    0,
+    Math.min(1, value)
+  );
+}
+
+
+function parseOutlineColor(color) {
+
+  color =
+    String(
+      color || '#ffffff'
+    ).trim();
+
+
+  if (color.charAt(0) === '#') {
+
+    var hex =
+      color.slice(1);
+
+
+    if (hex.length === 3) {
+      hex =
+        hex.charAt(0) + hex.charAt(0) +
+        hex.charAt(1) + hex.charAt(1) +
+        hex.charAt(2) + hex.charAt(2);
+    }
+
+
+    if (
+      hex.length === 6 ||
+      hex.length === 8
+    ) {
+
+      return {
+        r: parseInt(hex.slice(0, 2), 16),
+        g: parseInt(hex.slice(2, 4), 16),
+        b: parseInt(hex.slice(4, 6), 16),
+
+        a:
+          hex.length === 8
+            ? parseInt(
+                hex.slice(6, 8),
+                16
+              ) / 255
+            : 1
+      };
+    }
   }
 
 
-  redrawAllOfferPrices();
+  var match =
+    color.match(
+      /^rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)(?:\s*,\s*([\d.]+))?\s*\)$/i
+    );
+
+
+  if (match) {
+    return {
+      r: Number(match[1]),
+      g: Number(match[2]),
+      b: Number(match[3]),
+      a:
+        match[4] !== undefined
+          ? Number(match[4])
+          : 1
+    };
+  }
+
+
+  return {
+    r: 255,
+    g: 255,
+    b: 255,
+    a: 1
+  };
 }
+
+
+function pickerRgbToHex(
+  r,
+  g,
+  b
+) {
+
+  function part(value) {
+
+    return Math.round(value)
+      .toString(16)
+      .padStart(2, '0');
+  }
+
+
+  return (
+    '#' +
+    part(r) +
+    part(g) +
+    part(b)
+  );
+}
+
+
+function getCurrentPickerColor() {
+
+  var s =
+    customColorState;
+
+
+  if (s.a >= .999) {
+    return pickerRgbToHex(
+      s.r,
+      s.g,
+      s.b
+    );
+  }
+
+
+  var alpha =
+    Math.round(s.a * 1000) / 1000;
+
+
+  return (
+    'rgba(' +
+    Math.round(s.r) + ',' +
+    Math.round(s.g) + ',' +
+    Math.round(s.b) + ',' +
+    alpha +
+    ')'
+  );
+}
+
+
+function pickerHueToRgb(hue) {
+
+  hue =
+    ((hue % 360) + 360) % 360;
+
+
+  var c = 1;
+
+  var x =
+    1 -
+    Math.abs(
+      (hue / 60) % 2 - 1
+    );
+
+
+  var r = 0;
+  var g = 0;
+  var b = 0;
+
+
+  if (hue < 60) {
+    r = c;
+    g = x;
+  }
+  else if (hue < 120) {
+    r = x;
+    g = c;
+  }
+  else if (hue < 180) {
+    g = c;
+    b = x;
+  }
+  else if (hue < 240) {
+    g = x;
+    b = c;
+  }
+  else if (hue < 300) {
+    r = x;
+    b = c;
+  }
+  else {
+    r = c;
+    b = x;
+  }
+
+
+  return {
+    r: Math.round(r * 255),
+    g: Math.round(g * 255),
+    b: Math.round(b * 255)
+  };
+}
+
+
+function mixPickerRgb(
+  from,
+  to,
+  amount
+) {
+
+  return {
+    r:
+      from.r +
+      (to.r - from.r) *
+      amount,
+
+    g:
+      from.g +
+      (to.g - from.g) *
+      amount,
+
+    b:
+      from.b +
+      (to.b - from.b) *
+      amount
+  };
+}
+
+
+/*
+ * Y = весь спектр.
+ *
+ * X:
+ * слева белый,
+ * центр чистый цвет,
+ * справа чёрный.
+ */
+function getPickerFieldColor(
+  x,
+  y
+) {
+
+  var pure =
+    pickerHueToRgb(
+      y * 360
+    );
+
+
+  if (x < .28) {
+
+    return mixPickerRgb(
+      {
+        r: 255,
+        g: 255,
+        b: 255
+      },
+      pure,
+      x / .28
+    );
+  }
+
+
+  if (x > .72) {
+
+    return mixPickerRgb(
+      pure,
+      {
+        r: 0,
+        g: 0,
+        b: 0
+      },
+      (x - .72) / .28
+    );
+  }
+
+
+  return pure;
+}
+
+
+function pickerRgbHue(
+  r,
+  g,
+  b
+) {
+
+  r /= 255;
+  g /= 255;
+  b /= 255;
+
+
+  var max =
+    Math.max(r, g, b);
+
+  var min =
+    Math.min(r, g, b);
+
+  var delta =
+    max - min;
+
+
+  if (!delta) {
+    return 0;
+  }
+
+
+  var hue;
+
+
+  if (max === r) {
+    hue =
+      ((g - b) / delta) % 6;
+  }
+  else if (max === g) {
+    hue =
+      (b - r) / delta + 2;
+  }
+  else {
+    hue =
+      (r - g) / delta + 4;
+  }
+
+
+  hue *= 60;
+
+
+  if (hue < 0) {
+    hue += 360;
+  }
+
+
+  return hue;
+}
+
+
+function pickerColorToX(
+  r,
+  g,
+  b
+) {
+
+  var max =
+    Math.max(r, g, b);
+
+  var min =
+    Math.min(r, g, b);
+
+
+  if (max >= 250) {
+
+    return (
+      .28 *
+      (1 - min / 255)
+    );
+  }
+
+
+  if (min <= 5) {
+
+    return (
+      .72 +
+      .28 *
+      (1 - max / 255)
+    );
+  }
+
+
+  var lightness =
+    (max + min) /
+    (2 * 255);
+
+
+  if (lightness >= .5) {
+
+    return (
+      .28 *
+      ((1 - lightness) / .5)
+    );
+  }
+
+
+  return (
+    .72 +
+    .28 *
+    ((.5 - lightness) / .5)
+  );
+}
+
+
+function setCheckerColor(
+  element,
+  color
+) {
+
+  element.style.backgroundImage =
+    'linear-gradient(' +
+      color + ',' +
+      color +
+    '),' +
+    'repeating-conic-gradient(' +
+      '#ffffff 0 25%,' +
+      '#bfc3c9 0 50%' +
+    ')';
+
+  element.style.backgroundSize =
+    'auto, 16px 16px';
+}
+
+
+function syncCustomColorUI() {
+
+  var s =
+    customColorState;
+
+
+  customColorFieldThumb.style.left =
+    (s.x * 100) + '%';
+
+  customColorFieldThumb.style.top =
+    (s.y * 100) + '%';
+
+
+  /*
+  * Само значение прозрачности остаётся 0...1,
+  * но кружок визуально двигается только
+  * в диапазоне 1%...99%.
+  */
+  var opacityThumbPosition =
+    0.01 + s.a * 0.98;
+
+
+  customColorOpacity.style.setProperty(
+    '--custom-opacity-alpha',
+    opacityThumbPosition
+  );
+
+  customColorOpacityThumb.style.background =
+    'rgb(' +
+      Math.round(s.r) + ',' +
+      Math.round(s.g) + ',' +
+      Math.round(s.b) +
+    ')';
+
+
+  customColorOpacityValue.textContent =
+    Math.round(
+      s.a * 100
+    ) + '%';
+
+
+  customColorOpacityFill.style.background =
+    'linear-gradient(' +
+      '90deg,' +
+      'rgba(' +
+        Math.round(s.r) + ',' +
+        Math.round(s.g) + ',' +
+        Math.round(s.b) + ',0),' +
+      'rgb(' +
+        Math.round(s.r) + ',' +
+        Math.round(s.g) + ',' +
+        Math.round(s.b) +
+      ')' +
+    ')';
+
+
+  setCheckerColor(
+    customColorCurrent,
+    getCurrentPickerColor()
+  );
+}
+
+
+function getOutlineRecentColors() {
+
+  var db =
+    loadDB();
+
+
+  var colors =
+    Array.isArray(
+      db.offerOutlineRecentColors
+    )
+      ? db.offerOutlineRecentColors.slice()
+      : [];
+
+
+  DEFAULT_OUTLINE_RECENT_COLORS
+    .forEach(function (color) {
+
+      if (
+        colors.indexOf(color) === -1 &&
+        colors.length < 5
+      ) {
+        colors.push(color);
+      }
+    });
+
+
+  return colors.slice(0, 5);
+}
+
+
+function renderOutlineRecentColors() {
+
+  var colors =
+    getOutlineRecentColors();
+
+
+  customColorRecent.innerHTML =
+    '';
+
+
+  colors.forEach(
+    function (color) {
+
+      var button =
+        document.createElement(
+          'button'
+        );
+
+
+      button.type =
+        'button';
+
+      button.className =
+        'custom-color-recent-btn';
+
+      button.dataset.color =
+        color;
+
+      button.setAttribute(
+        'aria-label',
+        'Выбрать ' + color
+      );
+
+
+      setCheckerColor(
+        button,
+        color
+      );
+
+
+      customColorRecent
+        .appendChild(button);
+    }
+  );
+}
+
+
+function rememberOutlineRecentColor(
+  color
+) {
+
+  var colors =
+    getOutlineRecentColors()
+      .filter(function (item) {
+
+        return (
+          item.toLowerCase() !==
+          color.toLowerCase()
+        );
+      });
+
+
+  /*
+   * Новый цвет всегда
+   * становится самым левым.
+   */
+  colors.unshift(color);
+
+
+  colors =
+    colors.slice(0, 5);
+
+
+  saveDB({
+    offerOutlineRecentColors:
+      colors
+  });
+
+
+  renderOutlineRecentColors();
+}
+
+
+function previewCustomOutlineColor() {
+
+  syncCustomColorUI();
+
+
+  var color =
+    getCurrentPickerColor();
+
+
+  if (customColorRaf) {
+    cancelAnimationFrame(
+      customColorRaf
+    );
+  }
+
+
+  customColorRaf =
+    requestAnimationFrame(
+      function () {
+
+        customColorRaf = 0;
+
+        applyOfferOutlineColor(
+          color,
+          false
+        );
+      }
+    );
+}
+
+
+function commitCustomOutlineColor(
+  addToRecent
+) {
+
+  if (customColorRaf) {
+
+    cancelAnimationFrame(
+      customColorRaf
+    );
+
+    customColorRaf = 0;
+  }
+
+
+  var color =
+    getCurrentPickerColor();
+
+
+  applyOfferOutlineColor(
+    color,
+    true
+  );
+
+
+  if (addToRecent) {
+    rememberOutlineRecentColor(
+      color
+    );
+  }
+}
+
+
+function openCustomColorPicker() {
+
+  closeOutlineColorPicker();
+
+
+  clearTimeout(
+    customColorCloseTimer
+  );
+
+
+  var parsed =
+    parseOutlineColor(
+      window.layerState
+        .offerOutlineColor
+    );
+
+
+  customColorState.r =
+    parsed.r;
+
+  customColorState.g =
+    parsed.g;
+
+  customColorState.b =
+    parsed.b;
+
+  customColorState.a =
+    clampColor01(parsed.a);
+
+
+  customColorState.y =
+    pickerRgbHue(
+      parsed.r,
+      parsed.g,
+      parsed.b
+    ) / 360;
+
+
+  customColorState.x =
+    clampColor01(
+      pickerColorToX(
+        parsed.r,
+        parsed.g,
+        parsed.b
+      )
+    );
+
+
+  syncCustomColorUI();
+
+  renderOutlineRecentColors();
+
+
+  var customColorSheet =
+    document.getElementById(
+      'customColorSheet'
+    );
+
+
+  if (customColorSheet) {
+
+    customColorSheet
+      .classList.remove(
+        'is-closing'
+      );
+
+
+    /*
+    * На ПК запускается pop-анимация.
+    * На мобильном этот класс ничего
+    * не делает — там работает выезд снизу.
+    */
+    if (window.innerWidth >= 860) {
+
+      restartSheetAnimation(
+        customColorSheet,
+        'is-opening'
+      );
+    }
+  }
+
+
+  customColorOverlay.hidden =
+    false;
+
+
+  lockPageScroll();
+
+
+  requestAnimationFrame(
+    function () {
+
+      customColorOverlay
+        .classList.add(
+          'is-visible'
+        );
+
+
+      /*
+      * На ПК фокусируем само окно,
+      * чтобы Enter относился именно
+      * к color picker.
+      */
+      if (
+        window.innerWidth >= 860 &&
+        customColorSheet
+      ) {
+
+        customColorSheet.focus({
+          preventScroll: true
+        });
+      }
+    }
+  );
+}
+
+function closeCustomColorPicker() {
+
+  clearTimeout(
+    customColorCloseTimer
+  );
+
+
+  var customColorSheet =
+    document.getElementById(
+      'customColorSheet'
+    );
+
+
+  if (customColorSheet) {
+
+    customColorSheet
+      .classList.remove(
+        'is-opening'
+      );
+
+
+    /*
+     * На ПК — такое же схлопывание,
+     * как у выбора фона.
+     *
+     * На телефоне работает
+     * translateY вниз.
+     */
+    if (window.innerWidth >= 860) {
+
+      restartSheetAnimation(
+        customColorSheet,
+        'is-closing'
+      );
+    }
+  }
+
+
+  customColorOverlay
+    .classList.remove(
+      'is-visible'
+    );
+
+
+  customColorCloseTimer =
+    setTimeout(
+      function () {
+
+        if (customColorSheet) {
+
+          customColorSheet
+            .classList.remove(
+              'is-closing'
+            );
+        }
+
+
+        customColorOverlay.hidden =
+          true;
+
+
+        unlockPageScrollIfPossible();
+
+      },
+      350
+    );
+}
+
+/*
+ * Для пипетки закрываем окно СРАЗУ.
+ *
+ * Здесь нельзя ждать окончания анимации,
+ * потому что EyeDropper.open() желательно
+ * запускать непосредственно из клика пользователя.
+ */
+function hideCustomColorPickerForEyedropper() {
+
+  clearTimeout(
+    customColorCloseTimer
+  );
+
+
+  customColorOverlay
+    .classList.remove(
+      'is-visible'
+    );
+
+
+  customColorOverlay.hidden =
+    true;
+
+
+  document.documentElement
+    .classList.remove(
+      'custom-color-open'
+    );
+}
+
+function bindCustomColorDrag(
+  element,
+  move,
+  commit
+) {
+
+  element.addEventListener(
+    'pointerdown',
+    function (e) {
+
+      if (
+        e.pointerType === 'mouse' &&
+        e.button !== 0
+      ) {
+        return;
+      }
+
+
+      e.preventDefault();
+
+
+      var pointerId =
+        e.pointerId;
+
+
+      try {
+        element.setPointerCapture(
+          pointerId
+        );
+      } catch (err) {}
+
+
+      move(e);
+
+
+      function onMove(event) {
+
+        if (
+          event.pointerId !==
+          pointerId
+        ) {
+          return;
+        }
+
+
+        move(event);
+      }
+
+
+      function finish(event) {
+
+        if (
+          event.pointerId !==
+          pointerId
+        ) {
+          return;
+        }
+
+
+        element.removeEventListener(
+          'pointermove',
+          onMove
+        );
+
+        element.removeEventListener(
+          'pointerup',
+          finish
+        );
+
+        element.removeEventListener(
+          'pointercancel',
+          finish
+        );
+
+
+        commit();
+      }
+
+
+      element.addEventListener(
+        'pointermove',
+        onMove
+      );
+
+      element.addEventListener(
+        'pointerup',
+        finish
+      );
+
+      element.addEventListener(
+        'pointercancel',
+        finish
+      );
+    }
+  );
+}
+
+
+/* ---------- движение по цветовому полю ---------- */
+
+bindCustomColorDrag(
+  customColorField,
+
+  function (e) {
+
+    var rect =
+      customColorField
+        .getBoundingClientRect();
+
+
+    var x =
+      clampColor01(
+        (e.clientX - rect.left) /
+        rect.width
+      );
+
+
+    var y =
+      clampColor01(
+        (e.clientY - rect.top) /
+        rect.height
+      );
+
+
+    customColorState.x = x;
+    customColorState.y = y;
+
+
+    var rgb =
+      getPickerFieldColor(
+        x,
+        y
+      );
+
+
+    customColorState.r =
+      rgb.r;
+
+    customColorState.g =
+      rgb.g;
+
+    customColorState.b =
+      rgb.b;
+
+
+    previewCustomOutlineColor();
+  },
+
+  function () {
+
+    /*
+     * Именно после отпускания
+     * добавляем конечный цвет
+     * в последние 5.
+     *
+     * Поэтому промежуточные цвета
+     * во время движения туда не попадут.
+     */
+    commitCustomOutlineColor(
+      true
+    );
+  }
+);
+
+
+/* ---------- прозрачность ---------- */
+
+bindCustomColorDrag(
+  customColorOpacity,
+
+  function (e) {
+
+    var rect =
+      customColorOpacity
+        .getBoundingClientRect();
+
+
+    customColorState.a =
+      clampColor01(
+        (e.clientX - rect.left) /
+        rect.width
+      );
+
+
+    previewCustomOutlineColor();
+  },
+
+  function () {
+
+    commitCustomOutlineColor(
+      false
+    );
+  }
+);
+
+
+/* ---------- последние цвета ---------- */
+
+customColorRecent.addEventListener(
+  'click',
+  function (e) {
+
+    var button =
+      e.target.closest(
+        '.custom-color-recent-btn'
+      );
+
+
+    if (!button) return;
+
+
+    var parsed =
+      parseOutlineColor(
+        button.dataset.color
+      );
+
+
+    customColorState.r =
+      parsed.r;
+
+    customColorState.g =
+      parsed.g;
+
+    customColorState.b =
+      parsed.b;
+
+    customColorState.a =
+      parsed.a;
+
+
+    customColorState.y =
+      pickerRgbHue(
+        parsed.r,
+        parsed.g,
+        parsed.b
+      ) / 360;
+
+
+    customColorState.x =
+      clampColor01(
+        pickerColorToX(
+          parsed.r,
+          parsed.g,
+          parsed.b
+        )
+      );
+
+
+    syncCustomColorUI();
+
+
+    commitCustomOutlineColor(
+      true
+    );
+  }
+);
+
+
+/* ---------- закрытие ---------- */
+
+customColorClose.addEventListener(
+  'click',
+  closeCustomColorPicker
+);
+
+
+customColorOverlay.addEventListener(
+  'pointerdown',
+  function (e) {
+
+    if (
+      e.target ===
+      customColorOverlay
+    ) {
+      closeCustomColorPicker();
+    }
+  }
+);
+
+
+document.addEventListener(
+  'keydown',
+  function (e) {
+
+    /*
+     * Если окно цвета сейчас
+     * не открыто — ничего не делаем.
+     */
+    if (
+      customColorOverlay.hidden ||
+      !customColorOverlay.classList.contains(
+        'is-visible'
+      )
+    ) {
+      return;
+    }
+
+
+    /* ---------- Escape ---------- */
+
+    if (e.key === 'Escape') {
+
+      e.preventDefault();
+
+      closeCustomColorPicker();
+
+      return;
+    }
+
+
+    /* ---------- Enter только на ПК ---------- */
+
+    if (
+      e.key === 'Enter' &&
+      window.innerWidth >= 860
+    ) {
+
+      /*
+       * Если пользователь специально
+       * перешёл Tab-ом на кнопку,
+       * Enter должен нажать эту кнопку,
+       * а не закрывать всё окно.
+       */
+      if (
+        e.target &&
+        e.target.closest &&
+        e.target.closest(
+          'button, input, textarea, select'
+        )
+      ) {
+        return;
+      }
+
+
+      e.preventDefault();
+
+
+      /*
+       * Сохраняем текущий цвет
+       * и добавляем его в последние.
+       */
+      commitCustomOutlineColor(
+        true
+      );
+
+
+      /*
+       * После сохранения закрываем окно
+       * обычной анимацией.
+       */
+      closeCustomColorPicker();
+
+      return;
+    }
+  }
+);
+
+
+/* ---------- пипетка ---------- */
+
+if (!window.EyeDropper) {
+
+  customColorEyedropper
+    .classList.add(
+      'is-disabled'
+    );
+}
+
+
+customColorEyedropper
+  .addEventListener(
+    'click',
+    async function () {
+
+      if (!window.EyeDropper) {
+        return;
+      }
+
+
+      /*
+       * Сначала полностью убираем
+       * наше окно.
+       */
+      hideCustomColorPickerForEyedropper();
+
+
+      try {
+
+        var result =
+          await new EyeDropper()
+            .open();
+
+
+        var parsed =
+          parseOutlineColor(
+            result.sRGBHex
+          );
+
+
+        customColorState.r =
+          parsed.r;
+
+        customColorState.g =
+          parsed.g;
+
+        customColorState.b =
+          parsed.b;
+
+
+        /*
+         * Прозрачность оставляем ту,
+         * которую пользователь выставил
+         * до нажатия на пипетку.
+         */
+        var pickedColor =
+          getCurrentPickerColor();
+
+
+        /*
+         * Применяем цвет сразу.
+         * Окно после этого НЕ открываем.
+         */
+        applyOfferOutlineColor(
+          pickedColor,
+          true
+        );
+
+
+        /*
+         * Новый цвет становится
+         * первым слева в истории.
+         */
+        rememberOutlineRecentColor(
+          pickedColor
+        );
+
+      } catch (err) {
+
+        /*
+         * Даже если пользователь
+         * отменил пипетку —
+         * окно остаётся закрытым.
+         */
+      }
+    }
+  );
 
 priceList.addEventListener('click', function (e) {
 
@@ -15199,8 +17423,28 @@ priceList.addEventListener('click', function (e) {
         '.outline-color-popover'
       );
 
+
     if (picker) {
-      picker.classList.toggle('is-open');
+
+      /*
+      * Каждый раз перед открытием
+      * берём реально выбранный сейчас цвет.
+      *
+      * Поэтому после большого color picker
+      * первый кружок сразу станет новым цветом.
+      */
+      if (
+        !picker.classList.contains(
+          'is-open'
+        )
+      ) {
+        renderOutlineColorPopover();
+      }
+
+
+      picker.classList.toggle(
+        'is-open'
+      );
     }
 
     return;
@@ -15212,18 +17456,49 @@ priceList.addEventListener('click', function (e) {
   var presetColor =
     e.target.closest('[data-outline-color]');
 
-  if (presetColor) {
-    e.preventDefault();
-    e.stopPropagation();
+if (presetColor) {
 
-    applyOfferOutlineColor(
-      presetColor.dataset.outlineColor
-    );
+  e.preventDefault();
+  e.stopPropagation();
 
-    closeOutlineColorPicker();
 
-    return;
-  }
+  var pickedColor =
+    presetColor.dataset.outlineColor;
+
+
+  applyOfferOutlineColor(
+    pickedColor
+  );
+
+
+  rememberOutlineRecentColor(
+    pickedColor
+  );
+
+
+  closeOutlineColorPicker();
+
+  return;
+}
+
+
+/* ---------- свой цвет ---------- */
+
+var customColorButton =
+  e.target.closest(
+    '[data-open-custom-color-picker]'
+  );
+
+
+if (customColorButton) {
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  openCustomColorPicker();
+
+  return;
+}
 
 
 var outlineBtn =
@@ -15355,19 +17630,8 @@ if (outlineBtn) {
 
 priceList.addEventListener('input', function (e) {
 
-  var colorInput =
-    e.target.closest('.outline-color-native');
-
-  if (colorInput) {
-    applyOfferOutlineColor(
-      colorInput.value
-    );
-
-    return;
-  }
-
-
-  var input = e.target.closest('.price-row__input');
+  var input =
+    e.target.closest('.price-row__input');
   if (!input) return;
 
   var caretFromEnd = input.value.length - input.selectionStart;
@@ -15386,20 +17650,8 @@ priceList.addEventListener('input', function (e) {
 });
 
 priceList.addEventListener('change', function (e) {
-  var colorInput =
-    e.target.closest('.outline-color-native');
-
-  if (colorInput) {
-    applyOfferOutlineColor(
-      colorInput.value
-    );
-
-    closeOutlineColorPicker();
-
-    return;
-  }
-
-  var input = e.target.closest('.price-row__input');
+  var input =
+    e.target.closest('.price-row__input');
   if (!input) return;
 
   var index = Number(input.dataset.offerIndex);
