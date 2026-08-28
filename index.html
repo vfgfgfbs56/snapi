@@ -1116,12 +1116,11 @@
   opacity: 1;
 }
 
-/* =========================
-   FAQ
-   ========================= */
-
 .faq-page {
   min-height: 100vh;
+
+  display: flex;
+  flex-direction: column;
 }
 
 .faq-topbar {
@@ -1133,8 +1132,12 @@
 }
 
 .faq-main {
+  width: 100%;
   max-width: 820px;
+
   margin: 0 auto;
+
+  flex: 1;
 }
 
 .faq-main-title {
@@ -1172,6 +1175,29 @@
 
 .faq-content {
   padding-bottom: 70px;
+}
+
+
+.faq-version {
+  width: 100%;
+  max-width: 820px;
+
+  margin:
+    auto
+    auto
+    0;
+
+  padding-top: 28px;
+
+  color: var(--text-muted);
+
+  /*
+   * Размер как у Beta тестирование.
+   */
+  font-size: .98rem;
+  font-weight: 500;
+
+  line-height: 1.6;
 }
 
 .faq-section {
@@ -1796,6 +1822,19 @@
   padding: 9px 14px;
   cursor: pointer;
   transition: border-color .2s var(--ease), color .2s var(--ease);
+}
+
+.custom-color-native-fallback {
+  position: fixed;
+
+  left: -10000px;
+  top: -10000px;
+
+  width: 1px;
+  height: 1px;
+
+  opacity: 0;
+  pointer-events: none;
 }
 
 .size-chip img {
@@ -2574,8 +2613,7 @@ body.download-scroll-lock {
   bottom: calc(100% + 8px);
 
   z-index: 50;
-
-  width: 240px;
+  width: auto;
 
   padding: 12px 16px 14px;
 
@@ -2648,20 +2686,23 @@ body.download-scroll-lock {
 
   font-size: .82rem;
   font-weight: 600;
+
+  white-space: nowrap;
 }
 
 .outline-color-popover__colors {
   position: relative;
   z-index: 1;
 
-  display: flex;
+  display: inline-flex;
   align-items: center;
-
-  justify-content: flex-start;
 
   gap: 12px;
 
-  width: 100%;
+  /*
+   * Ширина строго по количеству кружков.
+   */
+  width: max-content;
 }
 
 .outline-color-choice.is-selected {
@@ -5570,9 +5611,18 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
 
   </main>
 
+
+  <div class="faq-version">
+    0.1 Snapi
+  </div>
+
 </div>
 
-<div class="page app-page is-hidden" id="brawlPage" hidden>
+<div
+  class="page app-page is-hidden"
+  id="brawlPage"
+  hidden
+>
   <header class="topbar">
     <div class="topbar-left">
       <button type="button" class="back-btn" id="brawlBackBtn" aria-label="Назад">
@@ -6463,6 +6513,14 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
           </g>
         </svg>
       </button>
+
+      <input
+        type="color"
+        id="customColorNativeFallback"
+        class="custom-color-native-fallback"
+        value="#ffffff"
+        aria-label="Системный выбор цвета"
+      >
 
     </div>
 
@@ -7851,10 +7909,32 @@ function submitIOSDownload(canvas, onDone, onError) {
   var toggle = document.getElementById('themeToggle');
 
   var savedTheme = loadDB().theme;
-  root.setAttribute('data-theme', savedTheme === 'light' ? 'light' : 'dark');
+
+  root.setAttribute(
+    'data-theme',
+    savedTheme === 'light'
+      ? 'light'
+      : 'dark'
+  );
+
   updateLabel();
 
-  toggle.addEventListener('click', function (event) {
+
+  /*
+  * Пока круг одной смены темы
+  * не закончен, второй переход
+  * не запускаем.
+  */
+  var themeTransitionBusy = false;
+
+
+  toggle.addEventListener(
+    'click',
+    function (event) {
+
+      if (themeTransitionBusy) {
+        return;
+      }
     var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
     var activeIcon = root.getAttribute('data-theme') === 'dark'
       ? toggle.querySelector('.icon-sun')
@@ -7865,14 +7945,41 @@ function submitIOSDownload(canvas, onDone, onError) {
     var x = iconRect.left + iconRect.width / 2;
     var y = iconRect.top + iconRect.height / 2;
 
-    if (!document.startViewTransition || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) {
-      root.setAttribute('data-theme', next);
-      saveDB({ theme: next });
+    if (
+      !document.startViewTransition ||
+      (
+        window.matchMedia &&
+        window.matchMedia(
+          '(prefers-reduced-motion: reduce)'
+        ).matches
+      )
+    ) {
+      root.setAttribute(
+        'data-theme',
+        next
+      );
+
+      saveDB({
+        theme: next
+      });
+
       updateLabel();
+
       return;
     }
 
-    var iconStage = toggle.querySelector('.icon-stage');
+
+    /*
+    * С этого момента не разрешаем
+    * запускать ещё одну смену темы.
+    */
+    themeTransitionBusy = true;
+
+
+    var iconStage =
+      toggle.querySelector(
+        '.icon-stage'
+      );
     var iconSvgs = iconStage.querySelectorAll('svg');
     iconStage.style.transition = 'none';
     iconSvgs.forEach(function (svg) { svg.style.transition = 'none'; });
@@ -7910,67 +8017,133 @@ function submitIOSDownload(canvas, onDone, onError) {
       updateLabel();
     });
 
-    transition.ready.then(function () {
+    var circleAnimationPromise =
+      transition.ready.then(function () {
 
-      if (goingToLight) {
-
-        // Тёмная тема схлопывается обратно к кнопке
-        root.animate(
-          {
-            clipPath: [
-              'circle(' + endRadius + 'px at ' + x + 'px ' + y + 'px)',
-              'circle(0px at ' + x + 'px ' + y + 'px)'
-            ]
-          },
-          {
-            duration: 410,
-            easing: 'ease-in-out',
-            fill: 'forwards',
-            pseudoElement: '::view-transition-old(root)'
-          }
-        );
-
-      } else {
-
-        // Тёмная тема раскрывается из кнопки
-        root.animate(
-          {
-            clipPath: [
-              'circle(0px at ' + x + 'px ' + y + 'px)',
-              'circle(' + endRadius + 'px at ' + x + 'px ' + y + 'px)'
-            ]
-          },
-          {
-            duration: 410,
-            easing: 'ease-in-out',
-            fill: 'forwards',
-            pseudoElement: '::view-transition-new(root)'
-          }
-        );
-
-      }
+        var animation;
 
 
-      // Снимок новой темы уже готов.
-      // Возвращаем обычные transition только после этого.
-      requestAnimationFrame(function () {
-        root.classList.remove(
-          'theme-snapshot-lock'
-        );
+        if (goingToLight) {
+
+          /*
+          * Светлая:
+          * старый тёмный снимок
+          * схлопывается к кнопке.
+          */
+          animation =
+            root.animate(
+              {
+                clipPath: [
+                  'circle(' +
+                    endRadius + 'px at ' +
+                    x + 'px ' +
+                    y + 'px)',
+
+                  'circle(0px at ' +
+                    x + 'px ' +
+                    y + 'px)'
+                ]
+              },
+              {
+                duration: 410,
+                easing: 'ease-in-out',
+
+                /*
+                * ВАЖНО:
+                * состояние применяется
+                * и ДО первого кадра,
+                * и после последнего.
+                */
+                fill: 'both',
+
+                pseudoElement:
+                  '::view-transition-old(root)'
+              }
+            );
+
+        } else {
+
+          /*
+          * Тёмная:
+          * новый тёмный снимок
+          * изначально гарантированно
+          * имеет круг 0px.
+          */
+          animation =
+            root.animate(
+              {
+                clipPath: [
+                  'circle(0px at ' +
+                    x + 'px ' +
+                    y + 'px)',
+
+                  'circle(' +
+                    endRadius + 'px at ' +
+                    x + 'px ' +
+                    y + 'px)'
+                ]
+              },
+              {
+                duration: 410,
+                easing: 'ease-in-out',
+
+                /*
+                * Не даём новой тёмной теме
+                * мелькнуть целиком
+                * перед первым кадром круга.
+                */
+                fill: 'both',
+
+                pseudoElement:
+                  '::view-transition-new(root)'
+              }
+            );
+        }
+
+
+        /*
+        * theme-snapshot-lock здесь
+        * НЕ снимаем.
+        *
+        * Он должен жить все 410 мс.
+        */
+        return animation.finished;
       });
 
-    });
 
-    transition.finished.then(function () {
-      root.classList.remove(
-        'theme-to-light',
-        'theme-snapshot-lock'
-      );
+    Promise.allSettled([
+      circleAnimationPromise,
+      transition.finished
+    ]).then(function () {
 
-      iconStage.style.transition = '';
+      /*
+      * Только когда полностью закончились
+      * и View Transition, и наш круг,
+      * возвращаем обычные CSS transitions.
+      */
+      requestAnimationFrame(function () {
 
-      iconSvgs.forEach(function (svg) {
-        svg.style.transition = '';
+        root.classList.remove(
+          'theme-to-light',
+          'theme-snapshot-lock'
+        );
+
+
+        iconStage.style.transition =
+          '';
+
+
+        iconSvgs.forEach(
+          function (svg) {
+
+            svg.style.transition =
+              '';
+          }
+        );
+
+
+        themeTransitionBusy =
+          false;
       });
     });
   });
@@ -16045,6 +16218,13 @@ var customColorEyedropper =
     'customColorEyedropper'
   );
 
+
+var customColorNativeFallback =
+  document.getElementById(
+    'customColorNativeFallback'
+  );
+
+
 var customColorField =
   document.getElementById(
     'customColorField'
@@ -17315,13 +17495,84 @@ document.addEventListener(
   }
 );
 
+customColorNativeFallback
+  .addEventListener(
+    'input',
+    function () {
+
+      var parsed =
+        parseOutlineColor(
+          customColorNativeFallback.value
+        );
+
+
+      customColorState.r =
+        parsed.r;
+
+      customColorState.g =
+        parsed.g;
+
+      customColorState.b =
+        parsed.b;
+
+
+      /*
+       * Выбранную ранее прозрачность
+       * не сбрасываем.
+       */
+      customColorState.y =
+        pickerRgbHue(
+          parsed.r,
+          parsed.g,
+          parsed.b
+        ) / 360;
+
+
+      customColorState.x =
+        clampColor01(
+          pickerColorToX(
+            parsed.r,
+            parsed.g,
+            parsed.b
+          )
+        );
+
+
+      syncCustomColorUI();
+
+
+      commitCustomOutlineColor(
+        true
+      );
+    }
+  );
+
+
+customColorNativeFallback
+  .addEventListener(
+    'change',
+    function () {
+
+      /*
+       * После подтверждения системного
+       * цвета закрываем наше окно.
+       */
+      closeCustomColorPicker();
+    }
+  );
 
 /* ---------- пипетка ---------- */
 
+/*
+ * Кнопку больше не выключаем.
+ *
+ * На ПК используем EyeDropper,
+ * на iPhone — системный color picker.
+ */
 if (!window.EyeDropper) {
 
   customColorEyedropper
-    .classList.add(
+    .classList.remove(
       'is-disabled'
     );
 }
@@ -17332,14 +17583,57 @@ customColorEyedropper
     'click',
     async function () {
 
+
+      /*
+       * iPhone / Safari:
+       * Web EyeDropper отсутствует.
+       *
+       * Открываем системное окно цвета.
+       */
       if (!window.EyeDropper) {
+
+        customColorNativeFallback.value =
+          pickerRgbToHex(
+            customColorState.r,
+            customColorState.g,
+            customColorState.b
+          );
+
+
+        /*
+         * showPicker предпочтительнее,
+         * но оставляем click() как fallback.
+         */
+        if (
+          typeof customColorNativeFallback
+            .showPicker === 'function'
+        ) {
+
+          try {
+
+            customColorNativeFallback
+              .showPicker();
+
+          } catch (err) {
+
+            customColorNativeFallback
+              .click();
+          }
+
+        } else {
+
+          customColorNativeFallback
+            .click();
+        }
+
+
         return;
       }
 
 
       /*
-       * Сначала полностью убираем
-       * наше окно.
+       * ПК с поддержкой EyeDropper —
+       * всё остаётся как раньше.
        */
       hideCustomColorPickerForEyedropper();
 
