@@ -1824,19 +1824,6 @@
   transition: border-color .2s var(--ease), color .2s var(--ease);
 }
 
-.custom-color-native-fallback {
-  position: fixed;
-
-  left: -10000px;
-  top: -10000px;
-
-  width: 1px;
-  height: 1px;
-
-  opacity: 0;
-  pointer-events: none;
-}
-
 .size-chip img {
   width: 16px;
   height: 16px;
@@ -4305,12 +4292,218 @@ body.page-scroll-locked {
   opacity: .4;
   cursor: not-allowed;
 }
-#lightLayerRow {
+.detailing-opacity-row + .detailing-opacity-row {
   margin-top: 10px;
 }
+@media (max-width: 520px) {
 
-#raysLayerRow {
-  margin-top: 10px;
+  .download-color-confirm
+  .exit-confirm__buttons {
+    flex-direction: column-reverse;
+  }
+
+  .download-color-confirm
+  .exit-confirm__buttons button {
+    width: 100%;
+  }
+
+}
+
+/* =========================================================
+   СВОЯ ПИПЕТКА
+   ========================================================= */
+
+.custom-eyedropper-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1800;
+
+  cursor: crosshair;
+
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+
+  background: transparent;
+}
+
+.custom-eyedropper-overlay[hidden] {
+  display: none;
+}
+
+
+/* Круг-пипетка */
+
+.custom-eyedropper-lens {
+  --picked-color: #ffffff;
+
+  position: fixed;
+  left: 0;
+  top: 0;
+
+  width: 92px;
+  height: 92px;
+
+  border-radius: 50%;
+  overflow: hidden;
+
+  border: 4px solid #ffffff;
+
+  background: var(--picked-color);
+
+  box-shadow:
+    0 0 0 2px rgba(0, 0, 0, .22),
+    0 10px 32px rgba(0, 0, 0, .35);
+
+  pointer-events: none;
+
+  opacity: 0;
+
+  transform:
+    translate(-50%, -50%)
+    scale(.82);
+
+  transition:
+    opacity .12s ease,
+    transform .12s ease;
+
+  will-change:
+    left,
+    top,
+    transform;
+}
+
+
+/* Когда под пипеткой есть цвет */
+
+.custom-eyedropper-overlay.has-sample
+.custom-eyedropper-lens {
+  opacity: 1;
+
+  transform:
+    translate(-50%, -50%)
+    scale(1);
+}
+
+
+/*
+ * На телефоне круг находится
+ * НАД пальцем, чтобы палец
+ * не закрывал выбранную точку.
+ */
+
+.custom-eyedropper-lens.is-touch {
+  transform:
+    translate(-50%, calc(-100% - 22px))
+    scale(.82);
+}
+
+.custom-eyedropper-overlay.has-sample
+.custom-eyedropper-lens.is-touch {
+  transform:
+    translate(-50%, calc(-100% - 22px))
+    scale(1);
+}
+
+
+/* Если палец слишком высоко —
+   показываем круг снизу */
+
+.custom-eyedropper-lens.is-touch.is-below {
+  transform:
+    translate(-50%, 22px)
+    scale(.82);
+}
+
+.custom-eyedropper-overlay.has-sample
+.custom-eyedropper-lens.is-touch.is-below {
+  transform:
+    translate(-50%, 22px)
+    scale(1);
+}
+
+
+/* Увеличенные пиксели */
+
+.custom-eyedropper-lens canvas {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  image-rendering: pixelated;
+}
+
+
+/* Центральная точка */
+
+.custom-eyedropper-lens::before {
+  content: '';
+
+  position: absolute;
+
+  left: 50%;
+  top: 50%;
+
+  width: 12px;
+  height: 12px;
+
+  border-radius: 50%;
+
+  border: 2px solid #ffffff;
+
+  background: transparent;
+
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, .7);
+
+  transform: translate(-50%, -50%);
+
+  pointer-events: none;
+
+  z-index: 2;
+}
+
+
+/* Подсказка */
+
+.custom-eyedropper-hint {
+  position: fixed;
+
+  left: 50%;
+  bottom:
+    calc(
+      22px +
+      env(safe-area-inset-bottom)
+    );
+
+  transform: translateX(-50%);
+
+  padding: 10px 15px;
+
+  border-radius: 999px;
+
+  background:
+    color-mix(
+      in srgb,
+      var(--bg) 88%,
+      transparent
+    );
+
+  color: var(--text);
+
+  box-shadow:
+    0 6px 24px rgba(0, 0, 0, .18);
+
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  font-size: .78rem;
+  font-weight: 700;
+
+  white-space: nowrap;
+
+  pointer-events: none;
 }
 </style>
 </head>
@@ -6264,6 +6457,75 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
 
           </div>
 
+          <div class="price-row detailing-opacity-row" id="sideNickLayerRow">
+
+            <button
+              type="button"
+              class="ios-icon-btn ios-eye-icon"
+              id="sideNickEyeBtn"
+              aria-label="Скрыть ники по бокам"
+            ></button>
+
+            <span class="price-row__label price-row__label--fixed">
+              Ники
+            </span>
+
+            <button
+              type="button"
+              class="nickname-adjust__btn"
+              data-target="sideNickOpacityRange"
+              data-delta="-5"
+              aria-label="Уменьшить прозрачность боковых ников"
+            >−</button>
+
+            <input
+              type="range"
+              class="price-row__opacity"
+              id="sideNickOpacityRange"
+              min="0"
+              max="100"
+              step="1"
+              value="76"
+            >
+
+            <button
+              type="button"
+              class="nickname-adjust__btn"
+              data-target="sideNickOpacityRange"
+              data-delta="5"
+              aria-label="Увеличить прозрачность боковых ников"
+            >+</button>
+          </div>
+
+          <div class="sub-panel" id="sideNickFontSubPanel">
+            <button
+              type="button"
+              class="sub-panel__header"
+              id="sideNickFontSubPanelToggle"
+            >
+              <span class="sub-panel__title">
+                Шрифт боковых ников
+              </span>
+
+              <span class="sub-panel__chevron">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M6 9l6 6 6-6"></path>
+                </svg>
+              </span>
+            </button>
+
+            <div class="collapse-body" id="sideNickFontSubPanelBody">
+              <div class="style-strip" id="sideNickFontStrip"></div>
+            </div>
+          </div>
+
           </div>
         </div>
       </section>
@@ -6382,6 +6644,48 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
 </div>
 
 <iframe name="snapiDownloadFrame" id="snapiDownloadFrame" style="display:none" aria-hidden="true"></iframe>
+<div
+  class="exit-confirm-overlay"
+  id="downloadColorConfirm"
+  hidden
+>
+  <div
+    class="exit-confirm download-color-confirm"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="downloadColorConfirmTitle"
+  >
+
+    <h3 id="downloadColorConfirmTitle">
+      Добавить цветокоррекцию работы?
+    </h3>
+
+    <p>
+      Можно улучшить цвет готовой работы перед скачиванием.
+    </p>
+
+    <div class="exit-confirm__buttons">
+
+      <button
+        type="button"
+        class="exit-confirm__cancel"
+        id="downloadWithoutColorCorrection"
+      >
+        Нет
+      </button>
+
+      <button
+        type="button"
+        class="exit-confirm__leave"
+        id="downloadWithColorCorrection"
+      >
+        Да
+      </button>
+
+    </div>
+
+  </div>
+</div>
 
 <div class="exit-confirm-overlay" id="resultExitConfirm" hidden>
   <div class="exit-confirm">
@@ -6514,14 +6818,6 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
         </svg>
       </button>
 
-      <input
-        type="color"
-        id="customColorNativeFallback"
-        class="custom-color-native-fallback"
-        value="#ffffff"
-        aria-label="Системный выбор цвета"
-      >
-
     </div>
 
 
@@ -6589,6 +6885,7 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
 
 
 <script src="brawl-stars-logic.js"></script>
+<script src="snapi-color-correction.js"></script>
 
 <script>
   function loadDB() {
@@ -6991,9 +7288,19 @@ function getFankitBgSrc(value) {
 
 var BG_CONFIG = [
 
-  { id: 80, order: 1, mark: 'NEW', dots: 'l' },
+  { id: 112, order: -4, mark: 'NEW', dots: 'h' },
 
-  { id: 79, order: 2, mark: 'NEW', dots: 'l' },
+  { id: 113, order: -3, mark: 'NEW', dots: 'h' },
+
+  { id: 109, order: -2, mark: 'NEW', dots: 'l' },
+
+  { id: 110, order: -1, mark: 'NEW', dots: 'h' },
+
+  { id: 111, order: 0, mark: 'NEW', dots: 'l' },
+
+  { id: 80, order: 1, mark: '', dots: 'l' },
+
+  { id: 79, order: 2, mark: '', dots: 'l' },
 
   { id: 86, order: 3, mark: '', dots: 'h' },
 
@@ -7539,13 +7846,15 @@ colorPresets.addEventListener(
 
       dotsEnabled: true,
       lightEnabled: false,
-      raysEnabled: true
+      raysEnabled: true,
+      sideNickEnabled: true
     });
 
     if (window.layerState) {
       window.layerState.dotsEnabled = true;
       window.layerState.lightEnabled = false;
       window.layerState.raysEnabled = true;
+      window.layerState.sideNickEnabled = true;
     }
 
 
@@ -7590,11 +7899,17 @@ bgGrid.addEventListener('click', function (e) {
 
 saveDB({
   selectedBg: item.dataset.bg,
-  selectedBgSource: 'fankit'
+  selectedBgSource: 'fankit',
+  lightEnabled: true
 });
 
 enableDotsLayer();
 enableRaysLayer();
+enableSideNickLayer();
+
+if (window.layerState) {
+  window.layerState.lightEnabled = true;
+}
 
 updateBgSelectionUI('fankit');
 updateCurrentTemplateInfo();
@@ -8831,6 +9146,62 @@ function enableDotsLayer() {
   }
 }
 
+function disableSideNickLayer() {
+
+  saveDB({
+    sideNickEnabled: false
+  });
+
+  if (window.layerState) {
+    window.layerState.sideNickEnabled =
+      false;
+  }
+
+  if (
+    window.layerState &&
+    typeof detailingPanel !== 'undefined' &&
+    detailingPanel
+  ) {
+    updateDetailingPanel();
+  }
+
+  if (
+    window.layerState &&
+    typeof resultPage !== 'undefined' &&
+    resultPage &&
+    !resultPage.hidden &&
+    typeof resultCanvas !== 'undefined' &&
+    resultCanvas
+  ) {
+    drawResult(
+      resultCanvas.getContext('2d'),
+      resultCanvas.width,
+      resultCanvas.height
+    );
+  }
+}
+
+
+function enableSideNickLayer() {
+
+  saveDB({
+    sideNickEnabled: true
+  });
+
+  if (window.layerState) {
+    window.layerState.sideNickEnabled =
+      true;
+  }
+
+  if (
+    window.layerState &&
+    typeof detailingPanel !== 'undefined' &&
+    detailingPanel
+  ) {
+    updateDetailingPanel();
+  }
+}
+
 function enableLightLayer() {
 
   saveDB({
@@ -8899,6 +9270,13 @@ function syncEffectsCheckboxDefault() {
     effectsCheckbox.checked =
       !!db.effectsEnabled;
 
+    if (!effectsCheckbox.checked) {
+      disableDotsLayer();
+      disableLightLayer();
+      disableRaysLayer();
+      disableSideNickLayer();
+    }
+
     return;
   }
 
@@ -8931,6 +9309,7 @@ function syncEffectsCheckboxDefault() {
     disableDotsLayer();
     disableLightLayer();
     disableRaysLayer();
+    disableSideNickLayer();
   }
 }
 
@@ -9012,22 +9391,24 @@ effectsCheckbox.addEventListener(
     });
 
 
-    if (!checked) {
+  if (!checked) {
 
-      /*
-       * Общая галочка OFF →
-       * вся детализация выключена.
-       */
-      disableDotsLayer();
-      disableLightLayer();
-      disableRaysLayer();
+    /*
+    * Общая галочка OFF →
+    * вся детализация выключена.
+    */
+    disableDotsLayer();
+    disableLightLayer();
+    disableRaysLayer();
+    disableSideNickLayer();
 
-    } else {
+  } else {
 
       /*
        * Точки включаются.
        */
       enableDotsLayer();
+      enableSideNickLayer();
 
 
       /*
@@ -9998,6 +10379,22 @@ window.layerState = {
   offerPriceMax: 99999,
   nicknameFont: loadDB().nicknameFontFamily || 'SupercellMagic',
   nicknameColor: '#ffffff',
+  sideNickEnabled:
+    loadDB().sideNickEnabled !== undefined
+      ? !!loadDB().sideNickEnabled
+      : !!loadDB().effectsEnabled,
+
+  sideNickOpacity:
+    loadDB().sideNickOpacity !== undefined
+      ? Number(loadDB().sideNickOpacity)
+      : 0.76,
+
+  /*
+   * Если отдельный шрифт не выбран,
+   * берём шрифт большого ника.
+   */
+  sideNickFont:
+    loadDB().sideNickFontFamily || '',
 
   dotsEnabled:
     loadDB().dotsEnabled !== undefined
@@ -10035,6 +10432,35 @@ raysOpacity:
     ? Number(loadDB().raysOpacity)
     : 0.86
 };
+
+function loadResultNicknameFonts(
+  fontSize
+) {
+
+  var mainFont =
+    window.layerState.nicknameFont ||
+    'SupercellMagic';
+
+  var sideFont =
+    window.layerState.sideNickFont ||
+    mainFont;
+
+  return Promise.allSettled([
+    document.fonts.load(
+      fontSize +
+      "px '" +
+      mainFont +
+      "'"
+    ),
+
+    document.fonts.load(
+      fontSize +
+      "px '" +
+      sideFont +
+      "'"
+    )
+  ]);
+}
 
 var resultExitConfirm = document.getElementById('resultExitConfirm');
 var resultExitCancel = document.getElementById('resultExitCancel');
@@ -10254,6 +10680,23 @@ if (
     Number(work.state.raysOpacity);
 }
 
+if (
+  work.state.sideNickEnabled !== undefined
+) {
+  window.layerState.sideNickEnabled =
+    !!work.state.sideNickEnabled;
+}
+
+if (
+  work.state.sideNickOpacity !== undefined
+) {
+  window.layerState.sideNickOpacity =
+    Number(work.state.sideNickOpacity);
+}
+
+window.layerState.sideNickFont =
+  work.state.sideNickFontFamily || '';
+
   window.layerState.nicknameFont =
     work.state.nicknameFontFamily || 'SupercellMagic';
 
@@ -10392,13 +10835,20 @@ if (
   });
 
   function finishRecoveredResult() {
-    var previewFontSize = Math.round(
-      Math.min(resultCanvas.width, resultCanvas.height) * 0.08
-    );
 
-    document.fonts.load(
-      previewFontSize + "px '" + window.layerState.nicknameFont + "'"
-    ).finally(runFinishRecoveredResult);
+    var previewFontSize =
+      Math.round(
+        Math.min(
+          resultCanvas.width,
+          resultCanvas.height
+        ) * 0.08
+      );
+
+    loadResultNicknameFonts(
+      previewFontSize
+    ).then(
+      runFinishRecoveredResult
+    );
   }
 
   function runFinishRecoveredResult() {
@@ -10435,6 +10885,7 @@ if (
     updateDetailingPanel();
     renderStyleStrip();
     renderFontStrip();
+    renderSideNickFontStrip();
 
     /*
      * updateNicknamePanel() устанавливает стандартное состояние,
@@ -11990,6 +12441,15 @@ function collectRecoveryState() {
       raysOpacity:
         Number(window.layerState.raysOpacity),
 
+      sideNickEnabled:
+        !!window.layerState.sideNickEnabled,
+
+      sideNickOpacity:
+        Number(window.layerState.sideNickOpacity),
+
+      sideNickFontFamily:
+        window.layerState.sideNickFont || '',
+
       sizeSelection: db.sizeSelection
     }
   };
@@ -12846,6 +13306,21 @@ return values.length % 2
   : (values[middle - 1] + values[middle]) / 2;
 }
 
+function getSideNickColor(
+  canvasW,
+  canvasH
+) {
+  var brightness =
+    computeBackgroundBrightness(
+      canvasW,
+      canvasH
+    );
+
+  return brightness < DOTS_BRIGHTNESS_THRESHOLD
+    ? '#ffffff'
+    : '#000000';
+}
+
 var dotsBrightnessCache = {
   key: null,
   image: null,
@@ -13033,26 +13508,27 @@ var lightColorCache = {
 function isLightLayerAllowed() {
   var db = loadDB();
 
-  // Цветные круглые фоны:
-  // свет запрещён всегда
+  /*
+   * Только круговой цветной фон
+   * полностью запрещает слой Свет.
+   */
   if (db.selectedBgSource === 'color') {
     return false;
   }
 
-  // Фон с устройства:
-  // свет можно включить вручную,
-  // даже несмотря на общую галочку эффектов
-  if (db.selectedBgSource === 'upload') {
+  /*
+   * Для:
+   * - готового фона
+   * - фона с устройства
+   *
+   * Свет можно включать вручную
+   * независимо от общего чекбокса эффектов.
+   */
+  if (
+    db.selectedBgSource === 'fankit' ||
+    db.selectedBgSource === 'upload'
+  ) {
     return !!bgImageForRender;
-  }
-
-  // 108 готовых фонов:
-  // здесь свет зависит от общей галочки эффектов
-  if (db.selectedBgSource === 'fankit') {
-    return (
-      db.effectsEnabled !== false &&
-      !!bgImageForRender
-    );
   }
 
   return false;
@@ -13549,6 +14025,12 @@ function drawResult(ctx, canvasW, canvasH) {
     canvasH
   );
 
+  drawSideNickLayer(
+    ctx,
+    canvasW,
+    canvasH
+  );
+
   drawNickname(
     ctx,
     canvasW,
@@ -13788,6 +14270,285 @@ function getNicknameGeometry(
   };
 }
 
+var SIDE_NICK_POSITIONS = [
+  { x: 0.06, y: 0.14, align: 'left'  },
+  { x: 0.09, y: 0.50, align: 'left'  },
+  { x: 0.08, y: 0.88, align: 'left'  },
+
+  { x: 0.94, y: 0.11, align: 'right' },
+  { x: 0.97, y: 0.46, align: 'right' },
+  { x: 0.95, y: 0.86, align: 'right' }
+];
+
+var SIDE_NICK_SKEW = -0.15;
+
+var SIDE_NICK_TEMPLATE_FONT =
+  'LilitaOneRus';
+
+var SIDE_NICK_TEMPLATE_HEIGHT_RATIO =
+  0.034;
+
+var SIDE_NICK_MAX_WIDTH_RATIO =
+  0.23;
+
+function getSideNickTemplateBox(
+  text,
+  canvasW,
+  canvasH
+) {
+
+  /*
+   * Эталонная область всегда считается
+   * по одному и тому же шрифту.
+   *
+   * Поэтому выбранный шрифт
+   * не влияет на общий размер ника.
+   */
+  var tm =
+    getNicknameMetrics(
+      SIDE_NICK_TEMPLATE_FONT,
+      text.toUpperCase()
+    );
+
+  var templateHeight =
+    canvasH *
+    SIDE_NICK_TEMPLATE_HEIGHT_RATIO;
+
+  var templateFontSize =
+    tm.testSize *
+    (
+      templateHeight /
+      tm.height
+    );
+
+  var templateWidth =
+    tm.width *
+    (
+      templateFontSize /
+      tm.testSize
+    );
+
+  /*
+   * Не позволяем длинному нику
+   * залезать слишком далеко
+   * к центру работы.
+   */
+  var maxWidth =
+    canvasW *
+    SIDE_NICK_MAX_WIDTH_RATIO;
+
+  if (
+    templateWidth >
+    maxWidth
+  ) {
+
+    var shrink =
+      maxWidth /
+      templateWidth;
+
+    templateWidth =
+      maxWidth;
+
+    templateHeight *=
+      shrink;
+  }
+
+  return {
+    width:
+      templateWidth,
+
+    height:
+      templateHeight
+  };
+}
+
+
+function getSideNickFontGeometry(
+  text,
+  fontFamily,
+  canvasW,
+  canvasH
+) {
+
+  var box =
+    getSideNickTemplateBox(
+      text,
+      canvasW,
+      canvasH
+    );
+
+  var metrics =
+    getNicknameMetrics(
+      fontFamily,
+      text.toUpperCase()
+    );
+
+  /*
+   * Как у большого ника:
+   * ширина выбранного шрифта
+   * подгоняется под эталонную область.
+   */
+  var fontSize =
+    metrics.testSize *
+    (
+      box.width /
+      metrics.width
+    );
+
+  var naturalHeight =
+    metrics.height *
+    (
+      fontSize /
+      metrics.testSize
+    );
+
+  var scaleY = 1;
+
+  /*
+   * Если конкретный шрифт
+   * слишком высокий —
+   * немного деформируем его по Y.
+   *
+   * Такая же идея используется
+   * у большого ника.
+   */
+  if (
+    naturalHeight >
+    box.height
+  ) {
+
+    var idealScaleY =
+      box.height /
+      naturalHeight;
+
+    var COMPRESSION_SHARE =
+      0.6;
+
+    scaleY =
+      1 -
+      (
+        1 -
+        idealScaleY
+      ) *
+      COMPRESSION_SHARE;
+  }
+
+  return {
+    fontSize:
+      fontSize,
+
+    scaleY:
+      scaleY,
+
+    width:
+      box.width,
+
+    height:
+      box.height
+  };
+}
+
+function drawSideNickLayer(
+  ctx,
+  canvasW,
+  canvasH
+) {
+
+  var db = loadDB();
+
+  if (!db.nickname) return;
+  if (!window.layerState.sideNickEnabled) return;
+
+  var text =
+    String(db.nickname).toUpperCase();
+
+  var fontFamily =
+    window.layerState.sideNickFont ||
+    window.layerState.nicknameFont ||
+    'SupercellMagic';
+
+var fontGeometry =
+  getSideNickFontGeometry(
+    text,
+    fontFamily,
+    canvasW,
+    canvasH
+  );
+
+var fontSize =
+  fontGeometry.fontSize;
+
+var scaleY =
+  fontGeometry.scaleY;
+
+  var fillColor =
+    getSideNickColor(
+      canvasW,
+      canvasH
+    );
+
+  ctx.save();
+
+  ctx.globalAlpha =
+    Math.max(
+      0,
+      Math.min(
+        1,
+        Number(window.layerState.sideNickOpacity) || 0
+      )
+    );
+
+  ctx.globalCompositeOperation =
+    'overlay';
+
+  ctx.fillStyle =
+    fillColor;
+
+  ctx.textBaseline =
+    'middle';
+
+  ctx.font =
+    "700 " +
+    fontSize +
+    "px '" +
+    fontFamily +
+    "', sans-serif";
+
+  SIDE_NICK_POSITIONS.forEach(function (pos) {
+
+    var x =
+      canvasW * pos.x;
+
+    var y =
+      canvasH * pos.y;
+
+    ctx.save();
+
+    ctx.translate(x, y);
+    ctx.transform(
+      1,
+      0,
+      SIDE_NICK_SKEW,
+      scaleY,
+      0,
+      0
+    );
+
+    ctx.textAlign =
+      pos.align;
+
+    ctx.fillText(
+      text,
+      0,
+      0
+    );
+
+    ctx.restore();
+  });
+
+  ctx.restore();
+}
+
 function drawNickname(
   ctx,
   canvasW,
@@ -13823,6 +14584,71 @@ function drawNickname(
       shadowScale: 0.8,
       scaleY: geometry.scaleY
     }
+  );
+}
+
+var downloadColorConfirm =
+  document.getElementById(
+    'downloadColorConfirm'
+  );
+
+var downloadWithoutColorCorrection =
+  document.getElementById(
+    'downloadWithoutColorCorrection'
+  );
+
+var downloadWithColorCorrection =
+  document.getElementById(
+    'downloadWithColorCorrection'
+  );
+
+
+function openDownloadColorConfirm() {
+
+  if (downloadInProgress) {
+    return;
+  }
+
+
+  downloadColorConfirm.hidden =
+    false;
+
+
+  requestAnimationFrame(
+    function () {
+
+      downloadColorConfirm
+        .classList.add(
+          'is-visible'
+        );
+    }
+  );
+}
+
+
+function closeDownloadColorConfirm() {
+
+  downloadColorConfirm
+    .classList.remove(
+      'is-visible'
+    );
+
+
+  setTimeout(
+    function () {
+
+      if (
+        !downloadColorConfirm
+          .classList.contains(
+            'is-visible'
+          )
+      ) {
+        downloadColorConfirm.hidden =
+          true;
+      }
+
+    },
+    220
   );
 }
 
@@ -13881,6 +14707,7 @@ function showResultPage() {
   updateDetailingPanel();
   renderStyleStrip();
   renderFontStrip();
+  renderSideNickFontStrip();
 }
 
 resultBackBtn.addEventListener('click', function () {
@@ -13943,9 +14770,71 @@ function setDownloadButtonsLocked(locked) {
     });
 }
 
+function prepareColorCorrectedResultCanvas(
+  sourceCanvas
+) {
 
-function downloadCanvasByDevice(canvas, filename, loadingText, onDone, triggerBtn) {
+  /*
+   * ВАЖНО:
+   * оригинальный resultCanvas
+   * вообще не трогаем.
+   */
+  var tempCanvas =
+    document.createElement(
+      'canvas'
+    );
 
+
+  tempCanvas.width =
+    sourceCanvas.width;
+
+  tempCanvas.height =
+    sourceCanvas.height;
+
+
+  var tempCtx =
+    tempCanvas.getContext(
+      '2d'
+    );
+
+
+  tempCtx.drawImage(
+    sourceCanvas,
+    0,
+    0
+  );
+
+
+  if (
+    !window.SnapiColorCorrection ||
+    typeof window.SnapiColorCorrection.apply
+      !== 'function'
+  ) {
+
+    return Promise.reject(
+      new Error(
+        'Snapi Color Correction не загружен'
+      )
+    );
+  }
+
+
+  return window.SnapiColorCorrection
+    .apply(tempCanvas)
+    .then(function () {
+
+      return tempCanvas;
+    });
+}
+
+function downloadCanvasByDevice(
+  canvas,
+  filename,
+  loadingText,
+  onDone,
+  triggerBtn,
+  prepareCanvas
+) {
   // Пока уже идёт скачивание — новое не запускаем
   if (downloadInProgress) {
     return;
@@ -14065,24 +14954,26 @@ function downloadCanvasByDevice(canvas, filename, loadingText, onDone, triggerBt
 
 
 
+function startActualDownload(
+  downloadCanvas
+) {
+
   /*
-   * iPhone / iPad —
-   * используем тот же Worker,
-   * что и для всей работы.
+   * iPhone / iPad
    */
   if (isIOS()) {
 
-  submitIOSDownload(
-    canvas,
+    submitIOSDownload(
+      downloadCanvas,
 
-    function () {
-      finish(true);
-    },
+      function () {
+        finish(true);
+      },
 
-    function () {
-      finish(false);
-    }
-  );
+      function () {
+        finish(false);
+      }
+    );
 
     return;
   }
@@ -14092,65 +14983,229 @@ function downloadCanvasByDevice(canvas, filename, loadingText, onDone, triggerBt
    * Android / Windows / macOS
    * и остальные устройства.
    */
-  canvas.toBlob(function (blob) {
-    if (!blob) {
+  downloadCanvas.toBlob(
+    function (blob) {
+
+      if (!blob) {
+        finish(false);
+        return;
+      }
+
+
+      if (
+        navigator.msSaveOrOpenBlob
+      ) {
+
+        navigator.msSaveOrOpenBlob(
+          blob,
+          filename
+        );
+
+      } else {
+
+        var url =
+          URL.createObjectURL(
+            blob
+          );
+
+
+        var link =
+          document.createElement(
+            'a'
+          );
+
+
+        link.href =
+          url;
+
+        link.download =
+          filename;
+
+        link.rel =
+          'noopener';
+
+
+        document.body
+          .appendChild(link);
+
+
+        link.click();
+
+
+        document.body
+          .removeChild(link);
+
+
+        setTimeout(
+          function () {
+
+            URL.revokeObjectURL(
+              url
+            );
+
+          },
+          1000
+        );
+      }
+
+
+      finish(true);
+
+    },
+    'image/png'
+  );
+}
+
+
+/*
+ * Если перед скачиванием
+ * нужна дополнительная обработка —
+ * выполняем её уже ПОСЛЕ появления loading.
+ */
+if (
+  typeof prepareCanvas ===
+  'function'
+) {
+
+  Promise.resolve()
+    .then(function () {
+
+      return prepareCanvas(
+        canvas
+      );
+    })
+    .then(function (
+      preparedCanvas
+    ) {
+
+      startActualDownload(
+        preparedCanvas ||
+        canvas
+      );
+    })
+    .catch(function (err) {
+
+      console.warn(
+        'Не удалось подготовить изображение к скачиванию',
+        err
+      );
+
       finish(false);
+    });
+
+
+  return;
+}
+
+
+/*
+ * Обычное скачивание,
+ * например отдельного слоя.
+ */
+startActualDownload(
+  canvas
+);
+}
+
+downloadResultBtn.addEventListener(
+  'click',
+  function () {
+
+    if (downloadInProgress) {
       return;
     }
 
 
-    if (navigator.msSaveOrOpenBlob) {
+    openDownloadColorConfirm();
+  }
+);
 
-      navigator.msSaveOrOpenBlob(
-        blob,
-        filename
-      );
+function startResultDownload(
+  withColorCorrection
+) {
 
-    } else {
+  closeDownloadColorConfirm();
 
-      var url =
-        URL.createObjectURL(blob);
-
-      var link =
-        document.createElement('a');
-
-      link.href = url;
-      link.download = filename;
-      link.rel = 'noopener';
-
-      document.body.appendChild(link);
-
-      link.click();
-
-      document.body.removeChild(link);
-
-
-      setTimeout(function () {
-        URL.revokeObjectURL(url);
-      }, 1000);
-    }
-
-    finish(true);
-
-  }, 'image/png');
-}
-
-downloadResultBtn.addEventListener('click', function () {
 
   downloadCanvasByDevice(
     resultCanvas,
+
     'snapi-result.png',
-    'Скачивание работы, подождите…',
+
+    withColorCorrection
+      ? 'Применяем цветокоррекцию…'
+      : 'Скачивание работы, подождите…',
+
 
     function () {
-      resultWasDownloaded = true;
+
+      resultWasDownloaded =
+        true;
+
       deleteUnsavedResult();
     },
 
-    downloadResultBtn
+
+    downloadResultBtn,
+
+
+    withColorCorrection
+      ? prepareColorCorrectedResultCanvas
+      : null
+  );
+}
+
+downloadWithoutColorCorrection
+  .addEventListener(
+    'click',
+    function () {
+
+      startResultDownload(
+        false
+      );
+    }
   );
 
-});
+
+downloadWithColorCorrection
+  .addEventListener(
+    'click',
+    function () {
+
+      startResultDownload(
+        true
+      );
+    }
+  );
+
+
+downloadColorConfirm
+  .addEventListener(
+    'click',
+    function (e) {
+
+      if (
+        e.target ===
+        downloadColorConfirm
+      ) {
+        closeDownloadColorConfirm();
+      }
+    }
+  );
+
+  document.addEventListener(
+  'keydown',
+  function (e) {
+
+    if (
+      e.key === 'Escape' &&
+      !downloadColorConfirm.hidden
+    ) {
+
+      closeDownloadColorConfirm();
+    }
+  }
+);
 
 generateBtn.addEventListener('click', function () {
   if (screens.length === 0) return;
@@ -14219,12 +15274,22 @@ else if (
       if (idx >= screens.length) {
         layoutOffers(size.width, size.height);
 
-        var previewFontSize = Math.round(Math.min(size.width, size.height) * 0.08);
-        document.fonts.load(previewFontSize + "px '" + window.layerState.nicknameFont + "'").finally(function () {
-          generateOverlay.classList.remove('is-visible');
-          setTimeout(function () { generateOverlay.hidden = true; }, 300);
-          showResultPage();
-        });
+    var previewFontSize = Math.round(
+      Math.min(size.width, size.height) * 0.08
+    );
+
+    loadResultNicknameFonts(
+      previewFontSize
+    ).then(function () {
+
+      generateOverlay.classList.remove('is-visible');
+
+      setTimeout(function () {
+        generateOverlay.hidden = true;
+      }, 300);
+
+      showResultPage();
+    });
         return;
       }
 
@@ -14962,6 +16027,129 @@ var raysOpacityRange =
     'raysOpacityRange'
   );
 
+var sideNickLayerRow =
+  document.getElementById(
+    'sideNickLayerRow'
+  );
+
+
+
+var sideNickEyeBtn =
+  document.getElementById(
+    'sideNickEyeBtn'
+  );
+
+var sideNickOpacityRange =
+  document.getElementById(
+    'sideNickOpacityRange'
+  );
+
+var sideNickFontSubPanel =
+  document.getElementById(
+    'sideNickFontSubPanel'
+  );
+
+var sideNickFontSubPanelToggle =
+  document.getElementById(
+    'sideNickFontSubPanelToggle'
+  );
+
+var sideNickFontSubPanelBody =
+  document.getElementById(
+    'sideNickFontSubPanelBody'
+  );
+
+var sideNickFontStrip =
+  document.getElementById(
+    'sideNickFontStrip'
+  );
+
+sideNickEyeBtn.addEventListener(
+  'click',
+  function () {
+
+    window.layerState.sideNickEnabled =
+      !window.layerState.sideNickEnabled;
+
+    saveDB({
+      sideNickEnabled:
+        window.layerState.sideNickEnabled
+    });
+
+    var enabled =
+      window.layerState.sideNickEnabled;
+
+    sideNickEyeBtn.classList.toggle(
+      'hidden',
+      !enabled
+    );
+
+    sideNickEyeBtn.setAttribute(
+      'aria-label',
+      enabled
+        ? 'Скрыть ники'
+        : 'Показать ники'
+    );
+
+    sideNickLayerRow.classList.toggle(
+      'is-off',
+      !enabled
+    );
+
+    sideNickOpacityRange.disabled =
+      !enabled;
+
+    drawResult(
+      resultCanvas.getContext('2d'),
+      resultCanvas.width,
+      resultCanvas.height
+    );
+  }
+);
+
+sideNickOpacityRange.addEventListener(
+  'input',
+  function () {
+
+    window.layerState.sideNickOpacity =
+      Number(sideNickOpacityRange.value) / 100;
+
+    saveDB({
+      sideNickOpacity:
+        window.layerState.sideNickOpacity
+    });
+
+    drawResult(
+      resultCanvas.getContext('2d'),
+      resultCanvas.width,
+      resultCanvas.height
+    );
+  }
+);
+
+sideNickLayerRow.addEventListener(
+  'click',
+  handleDetailingOpacityStep
+);
+
+sideNickFontSubPanelToggle.addEventListener(
+  'click',
+  function () {
+    var collapsed =
+      !sideNickFontSubPanel.classList.contains('is-collapsed');
+
+    setCollapsed(
+      sideNickFontSubPanel,
+      sideNickFontSubPanelBody,
+      collapsed
+    );
+
+    saveDB({
+      sideNickFontSubPanelCollapsed: collapsed
+    });
+  }
+);
+
 function updateDetailingPanel() {
 
   detailingPanel.hidden = false;
@@ -15112,6 +16300,49 @@ raysOpacityRange.value =
   Math.round(
     window.layerState.raysOpacity *
     100
+  );
+
+/* ---------- ники ---------- */
+
+sideNickEyeBtn.innerHTML =
+  getEyeSVG();
+
+var sideNickEnabled =
+  !!window.layerState.sideNickEnabled;
+
+sideNickEyeBtn.classList.toggle(
+  'hidden',
+  !sideNickEnabled
+);
+
+sideNickEyeBtn.disabled =
+  false;
+
+sideNickEyeBtn.setAttribute(
+  'aria-label',
+  sideNickEnabled
+    ? 'Скрыть ники'
+    : 'Показать ники'
+);
+
+sideNickLayerRow.classList.toggle(
+  'is-off',
+  !sideNickEnabled
+);
+
+sideNickOpacityRange.disabled =
+  !sideNickEnabled;
+
+sideNickOpacityRange.value =
+  Math.round(
+    window.layerState.sideNickOpacity *
+    100
+  );
+
+  setCollapsed(
+    sideNickFontSubPanel,
+    sideNickFontSubPanelBody,
+    loadDB().sideNickFontSubPanelCollapsed !== false
   );
 }
 
@@ -16219,12 +17450,6 @@ var customColorEyedropper =
   );
 
 
-var customColorNativeFallback =
-  document.getElementById(
-    'customColorNativeFallback'
-  );
-
-
 var customColorField =
   document.getElementById(
     'customColorField'
@@ -17108,13 +18333,765 @@ function closeCustomColorPicker() {
     );
 }
 
+/* =========================================================
+   СВОЯ ПИПЕТКА
+   ========================================================= */
+
+var customEyedropperActive = false;
+var customEyedropperPressed = false;
+
+var customEyedropperSample = null;
+
+var customEyedropperOverlay = null;
+var customEyedropperLens = null;
+var customEyedropperCanvas = null;
+var customEyedropperCtx = null;
+
+
 /*
- * Для пипетки закрываем окно СРАЗУ.
- *
- * Здесь нельзя ждать окончания анимации,
- * потому что EyeDropper.open() желательно
- * запускать непосредственно из клика пользователя.
+ * Создаём интерфейс только один раз.
  */
+
+function ensureCustomEyedropper() {
+
+  if (customEyedropperOverlay) {
+    return;
+  }
+
+
+  customEyedropperOverlay =
+    document.createElement('div');
+
+  customEyedropperOverlay.className =
+    'custom-eyedropper-overlay';
+
+  customEyedropperOverlay.hidden =
+    true;
+
+
+  customEyedropperLens =
+    document.createElement('div');
+
+  customEyedropperLens.className =
+    'custom-eyedropper-lens';
+
+
+  customEyedropperCanvas =
+    document.createElement('canvas');
+
+  /*
+   * Небольшой canvas внутри круга.
+   * Специально не огромный,
+   * чтобы пиксели были хорошо видны.
+   */
+  customEyedropperCanvas.width = 92;
+  customEyedropperCanvas.height = 92;
+
+
+  customEyedropperCtx =
+    customEyedropperCanvas.getContext(
+      '2d'
+    );
+
+  customEyedropperCtx.imageSmoothingEnabled =
+    false;
+
+
+  customEyedropperLens.appendChild(
+    customEyedropperCanvas
+  );
+
+
+  var hint =
+    document.createElement('div');
+
+  hint.className =
+    'custom-eyedropper-hint';
+
+  hint.textContent =
+    'Нажмите и ведите • отпустите для выбора • Esc — отмена';
+
+
+  customEyedropperOverlay.appendChild(
+    customEyedropperLens
+  );
+
+  customEyedropperOverlay.appendChild(
+    hint
+  );
+
+
+  document.body.appendChild(
+    customEyedropperOverlay
+  );
+
+
+  /* ---------- нажали ---------- */
+
+  customEyedropperOverlay
+    .addEventListener(
+      'pointerdown',
+      function (e) {
+
+        if (!customEyedropperActive) {
+          return;
+        }
+
+        if (
+          e.pointerType === 'mouse' &&
+          e.button !== 0
+        ) {
+          return;
+        }
+
+
+        e.preventDefault();
+
+        customEyedropperPressed =
+          true;
+
+
+        try {
+
+          customEyedropperOverlay
+            .setPointerCapture(
+              e.pointerId
+            );
+
+        } catch (err) {}
+
+
+        updateCustomEyedropper(
+          e.clientX,
+          e.clientY,
+          e.pointerType
+        );
+      }
+    );
+
+
+  /* ---------- водим ---------- */
+
+  customEyedropperOverlay
+    .addEventListener(
+      'pointermove',
+      function (e) {
+
+        if (!customEyedropperActive) {
+          return;
+        }
+
+
+        /*
+         * На ПК круг следует за мышкой
+         * даже до нажатия.
+         *
+         * На телефоне pointermove
+         * и так происходит при касании.
+         */
+        updateCustomEyedropper(
+          e.clientX,
+          e.clientY,
+          e.pointerType
+        );
+      }
+    );
+
+
+  /* ---------- отпустили ---------- */
+
+  customEyedropperOverlay
+    .addEventListener(
+      'pointerup',
+      function (e) {
+
+        if (
+          !customEyedropperActive ||
+          !customEyedropperPressed
+        ) {
+          return;
+        }
+
+
+        e.preventDefault();
+
+
+        updateCustomEyedropper(
+          e.clientX,
+          e.clientY,
+          e.pointerType
+        );
+
+
+        customEyedropperPressed =
+          false;
+
+
+        /*
+         * Если отпустили именно
+         * над работой — применяем.
+         *
+         * Если ушли за пределы canvas —
+         * режим пока остаётся включённым.
+         */
+        if (customEyedropperSample) {
+
+          finishCustomEyedropper(
+            true
+          );
+        }
+      }
+    );
+
+
+  customEyedropperOverlay
+    .addEventListener(
+      'pointercancel',
+      function () {
+
+        /*
+         * Системный gesture/cancel
+         * ничего не должен применять.
+         */
+        finishCustomEyedropper(
+          false
+        );
+      }
+    );
+}
+
+
+/*
+ * Получаем настоящий пиксель
+ * непосредственно с resultCanvas.
+ */
+
+function getCustomEyedropperPixel(
+  clientX,
+  clientY
+) {
+
+  if (!resultCanvas) {
+    return null;
+  }
+
+
+  var rect =
+    resultCanvas
+      .getBoundingClientRect();
+
+
+  /*
+   * Курсор / палец находится
+   * за пределами самой работы.
+   */
+  if (
+    clientX < rect.left ||
+    clientX > rect.right ||
+    clientY < rect.top ||
+    clientY > rect.bottom
+  ) {
+    return null;
+  }
+
+
+  var x =
+    Math.floor(
+      (
+        (clientX - rect.left) /
+        rect.width
+      ) *
+      resultCanvas.width
+    );
+
+
+  var y =
+    Math.floor(
+      (
+        (clientY - rect.top) /
+        rect.height
+      ) *
+      resultCanvas.height
+    );
+
+
+  x =
+    Math.max(
+      0,
+      Math.min(
+        resultCanvas.width - 1,
+        x
+      )
+    );
+
+
+  y =
+    Math.max(
+      0,
+      Math.min(
+        resultCanvas.height - 1,
+        y
+      )
+    );
+
+
+  try {
+
+    var pixel =
+      resultCanvas
+        .getContext('2d')
+        .getImageData(
+          x,
+          y,
+          1,
+          1
+        )
+        .data;
+
+
+    return {
+      x: x,
+      y: y,
+
+      r: pixel[0],
+      g: pixel[1],
+      b: pixel[2],
+      a: pixel[3]
+    };
+
+  } catch (err) {
+
+    console.warn(
+      'Не удалось получить цвет пипеткой',
+      err
+    );
+
+    return null;
+  }
+}
+
+
+/*
+ * Рисуем увеличенный участок
+ * внутри круглой пипетки.
+ */
+
+function drawCustomEyedropperZoom(
+  sample
+) {
+
+  if (
+    !sample ||
+    !customEyedropperCtx
+  ) {
+    return;
+  }
+
+
+  var zoomArea = 11;
+
+  var half =
+    Math.floor(
+      zoomArea / 2
+    );
+
+
+  var sourceX =
+    sample.x - half;
+
+  var sourceY =
+    sample.y - half;
+
+
+  sourceX =
+    Math.max(
+      0,
+      Math.min(
+        resultCanvas.width -
+          zoomArea,
+        sourceX
+      )
+    );
+
+
+  sourceY =
+    Math.max(
+      0,
+      Math.min(
+        resultCanvas.height -
+          zoomArea,
+        sourceY
+      )
+    );
+
+
+  /*
+   * Если работа вдруг совсем маленькая.
+   */
+  var sourceWidth =
+    Math.min(
+      zoomArea,
+      resultCanvas.width
+    );
+
+  var sourceHeight =
+    Math.min(
+      zoomArea,
+      resultCanvas.height
+    );
+
+
+  customEyedropperCtx
+    .clearRect(
+      0,
+      0,
+      customEyedropperCanvas.width,
+      customEyedropperCanvas.height
+    );
+
+
+  customEyedropperCtx
+    .drawImage(
+      resultCanvas,
+
+      sourceX,
+      sourceY,
+      sourceWidth,
+      sourceHeight,
+
+      0,
+      0,
+      customEyedropperCanvas.width,
+      customEyedropperCanvas.height
+    );
+}
+
+
+/*
+ * Двигаем круг и обновляем
+ * выбранный под ним пиксель.
+ */
+
+function updateCustomEyedropper(
+  clientX,
+  clientY,
+  pointerType
+) {
+
+  if (!customEyedropperActive) {
+    return;
+  }
+
+
+  var sample =
+    getCustomEyedropperPixel(
+      clientX,
+      clientY
+    );
+
+
+  /*
+   * За пределами работы —
+   * ничего не выбираем.
+   */
+  if (!sample) {
+
+    customEyedropperSample =
+      null;
+
+    customEyedropperOverlay
+      .classList.remove(
+        'has-sample'
+      );
+
+    return;
+  }
+
+
+  customEyedropperSample =
+    sample;
+
+
+  var lensX =
+    Math.max(
+      52,
+      Math.min(
+        window.innerWidth - 52,
+        clientX
+      )
+    );
+
+
+  customEyedropperLens.style.left =
+    lensX + 'px';
+
+  customEyedropperLens.style.top =
+    clientY + 'px';
+
+
+  var isTouch =
+    pointerType === 'touch' ||
+    pointerType === 'pen';
+
+
+  customEyedropperLens
+    .classList.toggle(
+      'is-touch',
+      isTouch
+    );
+
+
+  /*
+   * Если палец находится высоко,
+   * круг показываем под пальцем,
+   * иначе над ним.
+   */
+  customEyedropperLens
+    .classList.toggle(
+      'is-below',
+      isTouch &&
+      clientY < 130
+    );
+
+
+  var rgb =
+    'rgb(' +
+      sample.r + ',' +
+      sample.g + ',' +
+      sample.b +
+    ')';
+
+
+  customEyedropperLens.style
+    .setProperty(
+      '--picked-color',
+      rgb
+    );
+
+
+  drawCustomEyedropperZoom(
+    sample
+  );
+
+
+  customEyedropperOverlay
+    .classList.add(
+      'has-sample'
+    );
+}
+
+
+/*
+ * Запуск пипетки.
+ */
+
+function startCustomEyedropper() {
+
+  if (customEyedropperActive) {
+    return;
+  }
+
+
+  ensureCustomEyedropper();
+
+
+  customEyedropperActive =
+    true;
+
+  customEyedropperPressed =
+    false;
+
+  customEyedropperSample =
+    null;
+
+
+  /*
+   * Окно обычного выбора цвета
+   * исчезает сразу.
+   */
+  hideCustomColorPickerForEyedropper();
+
+
+  customEyedropperOverlay
+    .classList.remove(
+      'has-sample'
+    );
+
+
+  customEyedropperOverlay.hidden =
+    false;
+}
+
+
+/*
+ * Завершение.
+ *
+ * applyColor = true:
+ * применяем выбранный цвет.
+ *
+ * applyColor = false:
+ * просто закрываем, ничего
+ * вообще не меняя.
+ */
+
+function finishCustomEyedropper(
+  applyColor
+) {
+
+  if (!customEyedropperActive) {
+    return;
+  }
+
+
+  var sample =
+    customEyedropperSample;
+
+
+  customEyedropperActive =
+    false;
+
+  customEyedropperPressed =
+    false;
+
+  customEyedropperSample =
+    null;
+
+
+  customEyedropperOverlay
+    .classList.remove(
+      'has-sample'
+    );
+
+  customEyedropperOverlay.hidden =
+    true;
+
+
+  /*
+   * Esc / pointercancel —
+   * выходим БЕЗ применения.
+   */
+  if (
+    !applyColor ||
+    !sample
+  ) {
+
+    unlockPageScrollIfPossible();
+
+    return;
+  }
+
+
+  /*
+   * Прозрачность специально
+   * НЕ меняем.
+   *
+   * Меняется только RGB.
+   */
+  customColorState.r =
+    sample.r;
+
+  customColorState.g =
+    sample.g;
+
+  customColorState.b =
+    sample.b;
+
+
+  /*
+   * Синхронизируем положение
+   * кружка в обычном color picker,
+   * чтобы при следующем открытии
+   * всё соответствовало новому цвету.
+   */
+
+  customColorState.y =
+    pickerRgbHue(
+      sample.r,
+      sample.g,
+      sample.b
+    ) / 360;
+
+
+  customColorState.x =
+    clampColor01(
+      pickerColorToX(
+        sample.r,
+        sample.g,
+        sample.b
+      )
+    );
+
+
+  syncCustomColorUI();
+
+
+  var pickedColor =
+    getCurrentPickerColor();
+
+
+  /*
+   * Только ЗДЕСЬ цвет реально
+   * применяется к обводке.
+   */
+  applyOfferOutlineColor(
+    pickedColor,
+    true
+  );
+
+
+  rememberOutlineRecentColor(
+    pickedColor
+  );
+
+
+  unlockPageScrollIfPossible();
+}
+
+
+/* ---------- кнопка пипетки ---------- */
+
+customColorEyedropper
+  .addEventListener(
+    'click',
+    function (e) {
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      startCustomEyedropper();
+    }
+  );
+
+
+/* ---------- ESC = полная отмена ---------- */
+
+document.addEventListener(
+  'keydown',
+  function (e) {
+
+    if (
+      !customEyedropperActive ||
+      e.key !== 'Escape'
+    ) {
+      return;
+    }
+
+
+    e.preventDefault();
+    e.stopPropagation();
+
+
+    /*
+     * Никакой цвет
+     * не применяется.
+     */
+    finishCustomEyedropper(
+      false
+    );
+  },
+  true
+);
+
 function hideCustomColorPickerForEyedropper() {
 
   clearTimeout(
@@ -17494,210 +19471,6 @@ document.addEventListener(
     }
   }
 );
-
-customColorNativeFallback
-  .addEventListener(
-    'input',
-    function () {
-
-      var parsed =
-        parseOutlineColor(
-          customColorNativeFallback.value
-        );
-
-
-      customColorState.r =
-        parsed.r;
-
-      customColorState.g =
-        parsed.g;
-
-      customColorState.b =
-        parsed.b;
-
-
-      /*
-       * Выбранную ранее прозрачность
-       * не сбрасываем.
-       */
-      customColorState.y =
-        pickerRgbHue(
-          parsed.r,
-          parsed.g,
-          parsed.b
-        ) / 360;
-
-
-      customColorState.x =
-        clampColor01(
-          pickerColorToX(
-            parsed.r,
-            parsed.g,
-            parsed.b
-          )
-        );
-
-
-      syncCustomColorUI();
-
-
-      commitCustomOutlineColor(
-        true
-      );
-    }
-  );
-
-
-customColorNativeFallback
-  .addEventListener(
-    'change',
-    function () {
-
-      /*
-       * После подтверждения системного
-       * цвета закрываем наше окно.
-       */
-      closeCustomColorPicker();
-    }
-  );
-
-/* ---------- пипетка ---------- */
-
-/*
- * Кнопку больше не выключаем.
- *
- * На ПК используем EyeDropper,
- * на iPhone — системный color picker.
- */
-if (!window.EyeDropper) {
-
-  customColorEyedropper
-    .classList.remove(
-      'is-disabled'
-    );
-}
-
-
-customColorEyedropper
-  .addEventListener(
-    'click',
-    async function () {
-
-
-      /*
-       * iPhone / Safari:
-       * Web EyeDropper отсутствует.
-       *
-       * Открываем системное окно цвета.
-       */
-      if (!window.EyeDropper) {
-
-        customColorNativeFallback.value =
-          pickerRgbToHex(
-            customColorState.r,
-            customColorState.g,
-            customColorState.b
-          );
-
-
-        /*
-         * showPicker предпочтительнее,
-         * но оставляем click() как fallback.
-         */
-        if (
-          typeof customColorNativeFallback
-            .showPicker === 'function'
-        ) {
-
-          try {
-
-            customColorNativeFallback
-              .showPicker();
-
-          } catch (err) {
-
-            customColorNativeFallback
-              .click();
-          }
-
-        } else {
-
-          customColorNativeFallback
-            .click();
-        }
-
-
-        return;
-      }
-
-
-      /*
-       * ПК с поддержкой EyeDropper —
-       * всё остаётся как раньше.
-       */
-      hideCustomColorPickerForEyedropper();
-
-
-      try {
-
-        var result =
-          await new EyeDropper()
-            .open();
-
-
-        var parsed =
-          parseOutlineColor(
-            result.sRGBHex
-          );
-
-
-        customColorState.r =
-          parsed.r;
-
-        customColorState.g =
-          parsed.g;
-
-        customColorState.b =
-          parsed.b;
-
-
-        /*
-         * Прозрачность оставляем ту,
-         * которую пользователь выставил
-         * до нажатия на пипетку.
-         */
-        var pickedColor =
-          getCurrentPickerColor();
-
-
-        /*
-         * Применяем цвет сразу.
-         * Окно после этого НЕ открываем.
-         */
-        applyOfferOutlineColor(
-          pickedColor,
-          true
-        );
-
-
-        /*
-         * Новый цвет становится
-         * первым слева в истории.
-         */
-        rememberOutlineRecentColor(
-          pickedColor
-        );
-
-      } catch (err) {
-
-        /*
-         * Даже если пользователь
-         * отменил пипетку —
-         * окно остаётся закрытым.
-         */
-      }
-    }
-  );
 
 priceList.addEventListener('click', function (e) {
 
@@ -18620,6 +20393,230 @@ function renderFontStrip() {
   });
 }
 
+function renderSideNickFontStrip() {
+
+  if (!sideNickFontStrip) return;
+
+  sideNickFontStrip.innerHTML = '';
+
+  var selectedFamily =
+    window.layerState.sideNickFont ||
+    window.layerState.nicknameFont;
+
+  var swatchW = 200;
+  var swatchH = 100;
+
+  Promise.allSettled(
+    FONT_CATALOG.map(function (f) {
+      return document.fonts.load(
+        "40px '" + f.family + "'"
+      );
+    })
+  ).then(function () {
+
+    FONT_CATALOG.forEach(function (fontDef) {
+
+      var btn =
+        document.createElement('button');
+
+      btn.type = 'button';
+
+      btn.className =
+        'style-strip__item' +
+        (
+          fontDef.family === selectedFamily
+            ? ' is-selected'
+            : ''
+        );
+
+      btn.dataset.family =
+        fontDef.family;
+
+      var swatchCanvas =
+        document.createElement('canvas');
+
+      swatchCanvas.width =
+        swatchW;
+
+      swatchCanvas.height =
+        swatchH;
+
+      var sctx =
+        swatchCanvas.getContext('2d');
+
+      sctx.fillStyle =
+        getComputedStyle(document.documentElement)
+          .getPropertyValue('--surface-soft');
+
+      sctx.fillRect(
+        0,
+        0,
+        swatchW,
+        swatchH
+      );
+
+      var previewText =
+        'ARTZA';
+/*
+ * Эталонная область превью.
+ * Всегда считаем её по одному
+ * и тому же шрифту, чтобы разные
+ * шрифты визуально были одного размера.
+ */
+var templateMetrics =
+  getNicknameMetrics(
+    SIDE_NICK_TEMPLATE_FONT,
+    previewText
+  );
+
+var previewTargetHeight =
+  swatchH * 0.34;
+
+var templateFontSize =
+  templateMetrics.testSize *
+  (
+    previewTargetHeight /
+    templateMetrics.height
+  );
+
+var templateWidth =
+  templateMetrics.width *
+  (
+    templateFontSize /
+    templateMetrics.testSize
+  );
+
+
+  /*
+  * Теперь выбранный шрифт
+  * растягиваем под эталонную ширину.
+  */
+  var metrics =
+    getNicknameMetrics(
+      fontDef.family,
+      previewText
+    );
+
+  var previewFontSize =
+    metrics.testSize *
+    (
+      templateWidth /
+      metrics.width
+    );
+
+
+  /*
+  * Если шрифт высокий —
+  * автоматически немного
+  * деформируем его по вертикали.
+  */
+  var previewNaturalHeight =
+    metrics.height *
+    (
+      previewFontSize /
+      metrics.testSize
+    );
+
+  var previewScaleY = 1;
+
+  if (
+    previewNaturalHeight >
+    previewTargetHeight
+  ) {
+
+    var idealPreviewScaleY =
+      previewTargetHeight /
+      previewNaturalHeight;
+
+    previewScaleY =
+      1 -
+      (
+        1 -
+        idealPreviewScaleY
+      ) *
+      0.6;
+  }
+
+
+  sctx.save();
+
+  sctx.translate(
+    swatchW / 2,
+    swatchH / 2
+  );
+
+  sctx.transform(
+    1,
+    0,
+    SIDE_NICK_SKEW,
+    previewScaleY,
+    0,
+    0
+  );
+      sctx.textAlign = 'center';
+      sctx.textBaseline = 'middle';
+      sctx.font =
+        "700 " +
+        previewFontSize +
+        "px '" +
+        fontDef.family +
+        "', sans-serif";
+      sctx.fillStyle =
+        getComputedStyle(document.documentElement)
+          .getPropertyValue('--text');
+      sctx.fillText(
+        previewText,
+        0,
+        0
+      );
+      sctx.restore();
+
+      btn.appendChild(
+        swatchCanvas
+      );
+
+      sideNickFontStrip.appendChild(
+        btn
+      );
+    });
+  });
+}
+
+sideNickFontStrip.addEventListener(
+  'click',
+  function (e) {
+
+    var btn =
+      e.target.closest(
+        '.style-strip__item'
+      );
+
+    if (!btn) return;
+
+    window.layerState.sideNickFont =
+      btn.dataset.family;
+
+    saveDB({
+      sideNickFontFamily:
+        btn.dataset.family
+    });
+
+    sideNickFontStrip
+      .querySelectorAll('.style-strip__item')
+      .forEach(function (el) {
+        el.classList.remove('is-selected');
+      });
+
+    btn.classList.add('is-selected');
+
+    drawResult(
+      resultCanvas.getContext('2d'),
+      resultCanvas.width,
+      resultCanvas.height
+    );
+  }
+);
+
 fontStrip.addEventListener('click', function (e) {
   var btn = e.target.closest('.style-strip__item');
   if (!btn) return;
@@ -18633,7 +20630,8 @@ fontStrip.addEventListener('click', function (e) {
   btn.classList.add('is-selected');
 
   drawResult(resultCanvas.getContext('2d'), resultCanvas.width, resultCanvas.height);
-  renderStyleStrip(); // превью стилей должны обновиться под новый шрифт
+  renderStyleStrip();
+  renderSideNickFontStrip();
 });
 
 function disableHoverOnTouchDevices() {
