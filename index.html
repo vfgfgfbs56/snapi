@@ -6373,7 +6373,48 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
               data-delta="5"
               aria-label="Увеличить прозрачность"
             >+</button>
-            </div>
+          </div>
+
+          <div class="price-row detailing-opacity-row" id="starsLayerRow">
+
+            <button
+              type="button"
+              class="ios-icon-btn ios-eye-icon"
+              id="starsEyeBtn"
+              aria-label="Скрыть звёзды"
+            ></button>
+
+            <span class="price-row__label price-row__label--fixed">
+              Звёзды
+            </span>
+
+            <button
+              type="button"
+              class="nickname-adjust__btn"
+              data-target="starsOpacityRange"
+              data-delta="-5"
+              aria-label="Уменьшить прозрачность звёзд"
+            >−</button>
+
+            <input
+              type="range"
+              class="price-row__opacity"
+              id="starsOpacityRange"
+              min="0"
+              max="100"
+              step="1"
+              value="86"
+            >
+
+            <button
+              type="button"
+              class="nickname-adjust__btn"
+              data-target="starsOpacityRange"
+              data-delta="5"
+              aria-label="Увеличить прозрачность звёзд"
+            >+</button>
+
+          </div>
 
           <div class="price-row detailing-opacity-row" id="lightLayerRow">
 
@@ -7847,6 +7888,7 @@ colorPresets.addEventListener(
       dotsEnabled: true,
       lightEnabled: false,
       raysEnabled: true,
+      starsEnabled: true,
       sideNickEnabled: true
     });
 
@@ -7854,6 +7896,7 @@ colorPresets.addEventListener(
       window.layerState.dotsEnabled = true;
       window.layerState.lightEnabled = false;
       window.layerState.raysEnabled = true;
+      window.layerState.starsEnabled = true;
       window.layerState.sideNickEnabled = true;
     }
 
@@ -7905,6 +7948,7 @@ saveDB({
 
 enableDotsLayer();
 enableRaysLayer();
+enableStarsLayer();
 enableSideNickLayer();
 
 if (window.layerState) {
@@ -8024,7 +8068,8 @@ function applyUploadedBackgroundFile(file) {
         effectsEnabled: false,
         dotsEnabled: false,
         lightEnabled: false,
-        raysEnabled: false
+        raysEnabled: false,
+        starsEnabled: false
       });
 
 
@@ -8032,6 +8077,7 @@ function applyUploadedBackgroundFile(file) {
         window.layerState.dotsEnabled = false;
         window.layerState.lightEnabled = false;
         window.layerState.raysEnabled = false;
+        window.layerState.starsEnabled = false;
       }
 
 
@@ -9271,9 +9317,11 @@ function syncEffectsCheckboxDefault() {
       !!db.effectsEnabled;
 
     if (!effectsCheckbox.checked) {
+
       disableDotsLayer();
       disableLightLayer();
       disableRaysLayer();
+      disableStarsLayer();
       disableSideNickLayer();
     }
 
@@ -9368,6 +9416,57 @@ function enableRaysLayer() {
   }
 }
 
+function disableStarsLayer() {
+
+  saveDB({
+    starsEnabled: false
+  });
+
+  if (window.layerState) {
+    window.layerState.starsEnabled =
+      false;
+  }
+
+  if (
+    window.layerState &&
+    typeof detailingPanel !== 'undefined' &&
+    detailingPanel
+  ) {
+    updateDetailingPanel();
+  }
+
+  if (
+    window.layerState &&
+    typeof resultPage !== 'undefined' &&
+    resultPage &&
+    !resultPage.hidden
+  ) {
+    drawResult(
+      resultCanvas.getContext('2d'),
+      resultCanvas.width,
+      resultCanvas.height
+    );
+  }
+}
+
+
+function enableStarsLayer() {
+
+  if (!isStarsLayerAllowed()) {
+    disableStarsLayer();
+    return;
+  }
+
+  saveDB({
+    starsEnabled: true
+  });
+
+  if (window.layerState) {
+    window.layerState.starsEnabled =
+      true;
+  }
+}
+
 effectsCheckbox.addEventListener(
   'change',
   function () {
@@ -9393,13 +9492,10 @@ effectsCheckbox.addEventListener(
 
   if (!checked) {
 
-    /*
-    * Общая галочка OFF →
-    * вся детализация выключена.
-    */
     disableDotsLayer();
     disableLightLayer();
     disableRaysLayer();
+    disableStarsLayer();
     disableSideNickLayer();
 
   } else {
@@ -9427,22 +9523,17 @@ effectsCheckbox.addEventListener(
         enableLightLayer();
       }
 
-
-      /*
-       * Лучи:
-       * на фоне с устройства запрещены.
-       *
-       * На 108 и круглом фоне работают.
-       */
       if (
         db.selectedBgSource === 'upload'
       ) {
 
         disableRaysLayer();
+        disableStarsLayer();
 
       } else {
 
         enableRaysLayer();
+        enableStarsLayer();
       }
     }
 
@@ -9815,13 +9906,15 @@ screenDropArea.addEventListener('drop', function (e) {
         effectsEnabled: false,
         dotsEnabled: false,
         lightEnabled: false,
-        raysEnabled: false
+        raysEnabled: false,
+        starsEnabled: false
       });
 
       if (window.layerState) {
         window.layerState.dotsEnabled = false;
         window.layerState.lightEnabled = false;
         window.layerState.raysEnabled = false;
+        window.layerState.starsEnabled = false;
       }
 
       syncEffectsCheckboxDefault();
@@ -10430,6 +10523,19 @@ raysEnabled:
 raysOpacity:
   loadDB().raysOpacity !== undefined
     ? Number(loadDB().raysOpacity)
+    : 0.86,
+
+starsEnabled:
+  loadDB().starsEnabled !== undefined
+    ? !!loadDB().starsEnabled
+    : (
+        loadDB().selectedBgSource !== 'upload' &&
+        !!loadDB().effectsEnabled
+      ),
+
+starsOpacity:
+  loadDB().starsOpacity !== undefined
+    ? Number(loadDB().starsOpacity)
     : 0.86
 };
 
@@ -10632,6 +10738,12 @@ function restoreUnsavedResult(work) {
     raysOpacity:
       work.state.raysOpacity,
 
+    starsEnabled:
+      work.state.starsEnabled,
+
+    starsOpacity:
+      work.state.starsOpacity,
+
     sizeSelection:
       work.state.sizeSelection
   });
@@ -10678,6 +10790,20 @@ if (
 ) {
   window.layerState.raysOpacity =
     Number(work.state.raysOpacity);
+}
+
+if (
+  work.state.starsEnabled !== undefined
+) {
+  window.layerState.starsEnabled =
+    !!work.state.starsEnabled;
+}
+
+if (
+  work.state.starsOpacity !== undefined
+) {
+  window.layerState.starsOpacity =
+    Number(work.state.starsOpacity);
 }
 
 if (
@@ -12441,6 +12567,12 @@ function collectRecoveryState() {
       raysOpacity:
         Number(window.layerState.raysOpacity),
 
+      starsEnabled:
+        !!window.layerState.starsEnabled,
+
+      starsOpacity:
+        Number(window.layerState.starsOpacity),
+
       sideNickEnabled:
         !!window.layerState.sideNickEnabled,
 
@@ -13971,6 +14103,142 @@ function drawRaysLayer(
   ctx.restore();
 }
 
+/* =========================================================
+   ЗВЁЗДЫ
+   ========================================================= */
+
+var starsImage = null;
+var starsImageLoading = false;
+
+
+/*
+ * Условия доступности всегда
+ * такие же, как у Лучей.
+ */
+function isStarsLayerAllowed() {
+  return isRaysLayerAllowed();
+}
+
+
+function isStarsLayerActive() {
+  return (
+    isStarsLayerAllowed() &&
+    !!window.layerState.starsEnabled
+  );
+}
+
+
+function ensureStarsImage(onLoaded) {
+
+  if (starsImage) {
+    return;
+  }
+
+  if (starsImageLoading) {
+    return;
+  }
+
+  starsImageLoading = true;
+
+  loadImage('work/stars.png')
+    .then(function (img) {
+
+      starsImage = img;
+      starsImageLoading = false;
+
+      if (onLoaded) {
+        onLoaded(img);
+      }
+    })
+    .catch(function (err) {
+
+      starsImageLoading = false;
+
+      console.warn(
+        'Не удалось загрузить work/stars.png',
+        err
+      );
+    });
+}
+
+
+function drawStarsLayer(
+  ctx,
+  canvasW,
+  canvasH
+) {
+
+  if (!isStarsLayerActive()) {
+    return;
+  }
+
+  var opacity =
+    Number(
+      window.layerState.starsOpacity
+    );
+
+  if (opacity <= 0) {
+    return;
+  }
+
+  ensureStarsImage(function () {
+
+    drawResult(
+      ctx,
+      canvasW,
+      canvasH
+    );
+  });
+
+  if (!starsImage) {
+    return;
+  }
+
+  /*
+   * Масштабируем как Лучи:
+   * полностью покрываем работу
+   * с сохранением пропорций.
+   */
+  var scale = Math.max(
+    canvasW / starsImage.width,
+    canvasH / starsImage.height
+  );
+
+  var drawW =
+    starsImage.width * scale;
+
+  var drawH =
+    starsImage.height * scale;
+
+  var x =
+    (canvasW - drawW) / 2;
+
+  var y =
+    (canvasH - drawH) / 2;
+
+  ctx.save();
+
+  ctx.globalAlpha =
+    opacity;
+
+  /*
+   * Такой же режим,
+   * как у Лучей.
+   */
+  ctx.globalCompositeOperation =
+    'overlay';
+
+  ctx.drawImage(
+    starsImage,
+    x,
+    y,
+    drawW,
+    drawH
+  );
+
+  ctx.restore();
+}
+
 function drawResult(ctx, canvasW, canvasH) {
   ctx.clearRect(0, 0, canvasW, canvasH);
 
@@ -14007,14 +14275,17 @@ function drawResult(ctx, canvasW, canvasH) {
   );
 
 
-  /* Лучи поверх света */
-
   drawRaysLayer(
     ctx,
     canvasW,
     canvasH
   );
 
+  drawStarsLayer(
+    ctx,
+    canvasW,
+    canvasH
+  );
 
   /* Точки оставляем сверху,
     чтобы они были чёткими */
@@ -15994,6 +16265,21 @@ var dotsOpacityRange =
     'dotsOpacityRange'
   );
 
+  var starsLayerRow =
+  document.getElementById(
+    'starsLayerRow'
+  );
+
+var starsEyeBtn =
+  document.getElementById(
+    'starsEyeBtn'
+  );
+
+var starsOpacityRange =
+  document.getElementById(
+    'starsOpacityRange'
+  );
+
 
 var lightLayerRow =
   document.getElementById(
@@ -16195,6 +16481,42 @@ function updateDetailingPanel() {
       100
     );
 
+    /* ---------- звёзды ---------- */
+
+starsEyeBtn.innerHTML =
+  getEyeSVG();
+
+var starsEnabled =
+  !!window.layerState.starsEnabled;
+
+starsEyeBtn.classList.toggle(
+  'hidden',
+  !starsEnabled
+);
+
+starsEyeBtn.disabled =
+  false;
+
+starsEyeBtn.setAttribute(
+  'aria-label',
+  starsEnabled
+    ? 'Скрыть звёзды'
+    : 'Показать звёзды'
+);
+
+starsLayerRow.classList.toggle(
+  'is-off',
+  !starsEnabled
+);
+
+starsOpacityRange.disabled =
+  !starsEnabled;
+
+starsOpacityRange.value =
+  Math.round(
+    window.layerState.starsOpacity *
+    100
+  );
 
   /* ---------- свет ---------- */
 
@@ -16407,6 +16729,72 @@ dotsOpacityRange.addEventListener('input', function () {
   saveDB({ dotsOpacity: window.layerState.dotsOpacity });
   drawResult(resultCanvas.getContext('2d'), resultCanvas.width, resultCanvas.height);
 });
+
+starsEyeBtn.addEventListener(
+  'click',
+  function () {
+
+    window.layerState.starsEnabled =
+      !window.layerState.starsEnabled;
+
+    saveDB({
+      starsEnabled:
+        window.layerState.starsEnabled
+    });
+
+    var enabled =
+      window.layerState.starsEnabled;
+
+    starsEyeBtn.classList.toggle(
+      'hidden',
+      !enabled
+    );
+
+    starsEyeBtn.setAttribute(
+      'aria-label',
+      enabled
+        ? 'Скрыть звёзды'
+        : 'Показать звёзды'
+    );
+
+    starsLayerRow.classList.toggle(
+      'is-off',
+      !enabled
+    );
+
+    starsOpacityRange.disabled =
+      !enabled;
+
+    drawResult(
+      resultCanvas.getContext('2d'),
+      resultCanvas.width,
+      resultCanvas.height
+    );
+  }
+);
+
+
+starsOpacityRange.addEventListener(
+  'input',
+  function () {
+
+    window.layerState.starsOpacity =
+      Number(
+        starsOpacityRange.value
+      ) / 100;
+
+    saveDB({
+      starsOpacity:
+        window.layerState.starsOpacity
+    });
+
+    drawResult(
+      resultCanvas.getContext('2d'),
+      resultCanvas.width,
+      resultCanvas.height
+    );
+  }
+);
 
 lightEyeBtn.addEventListener(
   'click',
@@ -16629,6 +17017,11 @@ function handleDetailingOpacityStep(e) {
 
 
 dotsLayerRow.addEventListener(
+  'click',
+  handleDetailingOpacityStep
+);
+
+starsLayerRow.addEventListener(
   'click',
   handleDetailingOpacityStep
 );
