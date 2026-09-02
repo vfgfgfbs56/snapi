@@ -14758,32 +14758,36 @@ var scaleY =
       canvasH
     );
 
-  ctx.save();
+  /*
+  * Сначала рисуем все маленькие ники
+  * на отдельном прозрачном слое.
+  */
+  var sideNickCanvas =
+    document.createElement('canvas');
 
-  ctx.globalAlpha =
-    Math.max(
-      0,
-      Math.min(
-        1,
-        Number(window.layerState.sideNickOpacity) || 0
-      )
-    );
+  sideNickCanvas.width =
+    canvasW;
 
-  ctx.globalCompositeOperation =
-    'overlay';
+  sideNickCanvas.height =
+    canvasH;
 
-  ctx.fillStyle =
+  var sideCtx =
+    sideNickCanvas.getContext('2d');
+
+
+  sideCtx.fillStyle =
     fillColor;
 
-  ctx.textBaseline =
+  sideCtx.textBaseline =
     'middle';
 
-  ctx.font =
+  sideCtx.font =
     "700 " +
     fontSize +
     "px '" +
     fontFamily +
     "', sans-serif";
+
 
   SIDE_NICK_POSITIONS.forEach(function (pos) {
 
@@ -14793,10 +14797,14 @@ var scaleY =
     var y =
       canvasH * pos.y;
 
-    ctx.save();
+    sideCtx.save();
 
-    ctx.translate(x, y);
-    ctx.transform(
+    sideCtx.translate(
+      x,
+      y
+    );
+
+    sideCtx.transform(
       1,
       0,
       SIDE_NICK_SKEW,
@@ -14805,17 +14813,50 @@ var scaleY =
       0
     );
 
-    ctx.textAlign =
+    sideCtx.textAlign =
       pos.align;
 
-    ctx.fillText(
+    sideCtx.fillText(
       text,
       0,
       0
     );
 
-    ctx.restore();
+    sideCtx.restore();
   });
+
+
+  /*
+  * А теперь весь слой с никами
+  * накладываем на уже готовый фон
+  * именно режимом "Перекрытие".
+  *
+  * Так одинаково работает и:
+  * - на готовых фонах;
+  * - на фоне с устройства;
+  * - на цветном круговом фоне.
+  */
+  ctx.save();
+
+  ctx.globalAlpha =
+    Math.max(
+      0,
+      Math.min(
+        1,
+        Number(
+          window.layerState.sideNickOpacity
+        ) || 0
+      )
+    );
+
+  ctx.globalCompositeOperation =
+    'overlay';
+
+  ctx.drawImage(
+    sideNickCanvas,
+    0,
+    0
+  );
 
   ctx.restore();
 }
