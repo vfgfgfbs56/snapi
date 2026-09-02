@@ -2121,6 +2121,81 @@ body.download-scroll-lock {
   box-sizing: border-box;
 }
 
+.additional-text-input:focus {
+  box-shadow:
+    0 0 0 2px var(--accent);
+}
+
+.additional-text-input::placeholder {
+  color: var(--text-faint);
+}
+
+.additional-text-modal__input {
+  width: 100%;
+  height: 50px;
+
+  appearance: none;
+
+  margin: 8px 0 22px;
+  padding: 0 16px;
+
+  border: none;
+  outline: none;
+  border-radius: 14px;
+
+  background: var(--surface-soft);
+  color: var(--text);
+
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.additional-text-modal__input:focus {
+  box-shadow:
+    0 0 0 2px var(--accent);
+}
+
+.additional-text-modal__input::placeholder {
+  color: var(--text-faint);
+}
+
+
+/*
+ * Попытка написать больше
+ * 26 символов.
+ */
+.additional-text-modal__input.is-limit-shaking {
+  animation:
+    additionalTextLimitShake
+    .28s
+    ease;
+}
+
+@keyframes additionalTextLimitShake {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  20% {
+    transform: translateX(-7px);
+  }
+
+  40% {
+    transform: translateX(7px);
+  }
+
+  60% {
+    transform: translateX(-5px);
+  }
+
+  80% {
+    transform: translateX(5px);
+  }
+}
+
 .nickname-panel {
   background: var(--surface);
   border-radius: var(--radius-lg);
@@ -6325,6 +6400,348 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
           </div>
         </div>
       </section>
+
+      <button
+        type="button"
+        class="btn-secondary"
+        id="additionalTextAddBtn"
+      >
+        Добавить доп текст
+      </button>
+
+      <section
+        class="nickname-panel"
+        id="additionalTextPanel"
+        hidden
+      >
+
+        <div
+          class="nickname-panel__header"
+          id="additionalTextPanelHeader"
+        >
+
+          <span class="nickname-panel__title">
+            Дополнительный текст
+          </span>
+
+          <div class="nickname-panel__controls">
+
+            <button
+              type="button"
+              class="nickname-switch"
+              id="additionalTextEnableSwitch"
+              aria-label="Включить/выключить дополнительный текст"
+              aria-pressed="false"
+            >
+              <span class="nickname-switch__thumb"></span>
+            </button>
+
+            <span class="nickname-panel__chevron">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M6 9l6 6 6-6"></path>
+              </svg>
+            </span>
+
+          </div>
+        </div>
+
+
+        <div
+          class="collapse-body"
+          id="additionalTextPanelBody"
+        >
+
+          <div class="nickname-panel__body-inner">
+
+            <button
+              type="button"
+              class="nickname-position-btn"
+              id="additionalTextEditBtn"
+            >
+              Изменить текст
+            </button>
+
+            <button
+              type="button"
+              class="nickname-position-btn"
+              id="additionalTextPositionBtn"
+            >
+
+              <svg
+                class="nickname-position-btn__icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M6 9l6 6 6-6"></path>
+              </svg>
+
+              <span id="additionalTextPositionBtnText">
+                Перенести текст вниз
+              </span>
+
+            </button>
+
+            <div
+              class="sub-panel"
+              id="additionalTextTransformSubPanel"
+            >
+
+              <button
+                type="button"
+                class="sub-panel__header"
+                id="additionalTextTransformSubPanelToggle"
+              >
+
+                <span class="sub-panel__title">
+                  Размер и положение
+                </span>
+
+                <span class="sub-panel__chevron">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M6 9l6 6 6-6"></path>
+                  </svg>
+                </span>
+
+              </button>
+
+
+              <div
+                class="collapse-body"
+                id="additionalTextTransformSubPanelBody"
+              >
+
+                <div
+                  class="nickname-adjust"
+                  id="additionalTextTransformControls"
+                >
+
+
+                  <!-- Размер -->
+
+                  <div class="nickname-adjust__row">
+
+                    <span class="nickname-adjust__side">
+                      Меньше
+                    </span>
+
+                    <button
+                      type="button"
+                      class="nickname-adjust__btn"
+                      data-target="additionalTextSizeRange"
+                      data-delta="-5"
+                    >−</button>
+
+                    <input
+                      type="range"
+                      id="additionalTextSizeRange"
+                      min="60"
+                      max="160"
+                      step="1"
+                      value="100"
+                    >
+
+                    <button
+                      type="button"
+                      class="nickname-adjust__btn"
+                      data-target="additionalTextSizeRange"
+                      data-delta="5"
+                    >+</button>
+
+                    <span class="nickname-adjust__side">
+                      Больше
+                    </span>
+
+                  </div>
+
+
+                  <!-- X -->
+
+                  <div class="nickname-adjust__row">
+
+                    <span class="nickname-adjust__side">
+                      Влево
+                    </span>
+
+                    <button
+                      type="button"
+                      class="nickname-adjust__btn"
+                      data-target="additionalTextXRange"
+                      data-delta="-1"
+                    >−</button>
+
+                    <input
+                      type="range"
+                      id="additionalTextXRange"
+                      min="-25"
+                      max="25"
+                      step="1"
+                      value="0"
+                    >
+
+                    <button
+                      type="button"
+                      class="nickname-adjust__btn"
+                      data-target="additionalTextXRange"
+                      data-delta="1"
+                    >+</button>
+
+                    <span class="nickname-adjust__side">
+                      Вправо
+                    </span>
+
+                  </div>
+
+
+                  <!-- Y -->
+
+                  <div class="nickname-adjust__row">
+
+                    <span class="nickname-adjust__side">
+                      Вниз
+                    </span>
+
+                    <button
+                      type="button"
+                      class="nickname-adjust__btn"
+                      data-target="additionalTextYRange"
+                      data-delta="-3"
+                    >−</button>
+
+                    <input
+                      type="range"
+                      id="additionalTextYRange"
+                      min="-35"
+                      max="35"
+                      step="1"
+                      value="0"
+                    >
+
+                    <button
+                      type="button"
+                      class="nickname-adjust__btn"
+                      data-target="additionalTextYRange"
+                      data-delta="3"
+                    >+</button>
+
+                    <span class="nickname-adjust__side">
+                      Вверх
+                    </span>
+
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="sub-panel"
+              id="additionalTextStyleSubPanel"
+            >
+
+              <button
+                type="button"
+                class="sub-panel__header"
+                id="additionalTextStyleSubPanelToggle"
+              >
+
+                <span class="sub-panel__title">
+                  Стиль текста
+                </span>
+
+                <span class="sub-panel__chevron">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M6 9l6 6 6-6"></path>
+                  </svg>
+                </span>
+
+              </button>
+
+              <div
+                class="collapse-body"
+                id="additionalTextStyleSubPanelBody"
+              >
+                <div
+                  class="style-strip"
+                  id="additionalTextStyleStrip"
+                ></div>
+              </div>
+
+            </div>
+
+
+            <div
+              class="sub-panel"
+              id="additionalTextFontSubPanel"
+            >
+
+              <button
+                type="button"
+                class="sub-panel__header"
+                id="additionalTextFontSubPanelToggle"
+              >
+
+                <span class="sub-panel__title">
+                  Шрифт текста
+                </span>
+
+                <span class="sub-panel__chevron">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M6 9l6 6 6-6"></path>
+                  </svg>
+                </span>
+
+              </button>
+
+              <div
+                class="collapse-body"
+                id="additionalTextFontSubPanelBody"
+              >
+                <div
+                  class="style-strip"
+                  id="additionalTextFontStrip"
+                ></div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+      </section>
+
+
       <section class="nickname-panel" id="detailingPanel" hidden>
         <div class="nickname-panel__header" id="detailingPanelHeader">
           <span class="nickname-panel__title">Детализация</span>
@@ -6721,6 +7138,58 @@ c-8 -8 -11 -7 -11 4 0 20 13 34 18 19 3 -7 -1 -17 -7 -23z m-4 -49 c-3 -8 -6
         id="downloadWithColorCorrection"
       >
         Да
+      </button>
+
+    </div>
+
+  </div>
+</div>
+
+<div
+  class="exit-confirm-overlay"
+  id="additionalTextModal"
+  hidden
+>
+
+  <div
+    class="exit-confirm additional-text-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="additionalTextModalTitle"
+  >
+
+    <h3 id="additionalTextModalTitle">
+      Дополнительный текст
+    </h3>
+
+
+    <input
+      type="text"
+      class="additional-text-modal__input"
+      id="additionalTextModalInput"
+      maxlength="26"
+      placeholder="Введите текст"
+      autocomplete="off"
+      spellcheck="false"
+    >
+
+
+    <div class="exit-confirm__buttons">
+
+      <button
+        type="button"
+        class="exit-confirm__cancel"
+        id="additionalTextModalCancel"
+      >
+        Отмена
+      </button>
+
+      <button
+        type="button"
+        class="exit-confirm__leave"
+        id="additionalTextModalOk"
+      >
+        ОК
       </button>
 
     </div>
@@ -10472,6 +10941,8 @@ window.layerState = {
   offerPriceMax: 99999,
   nicknameFont: loadDB().nicknameFontFamily || 'SupercellMagic',
   nicknameColor: '#ffffff',
+  additionalTextFont:
+  loadDB().additionalTextFontFamily || '',
   sideNickEnabled:
     loadDB().sideNickEnabled !== undefined
       ? !!loadDB().sideNickEnabled
@@ -10547,25 +11018,38 @@ function loadResultNicknameFonts(
     window.layerState.nicknameFont ||
     'SupercellMagic';
 
-  var sideFont =
-    window.layerState.sideNickFont ||
-    mainFont;
+var sideFont =
+  window.layerState.sideNickFont ||
+  mainFont;
 
-  return Promise.allSettled([
-    document.fonts.load(
-      fontSize +
-      "px '" +
-      mainFont +
-      "'"
-    ),
+var additionalFont =
+  window.layerState.additionalTextFont ||
+  mainFont;
 
-    document.fonts.load(
-      fontSize +
-      "px '" +
-      sideFont +
-      "'"
-    )
-  ]);
+return Promise.allSettled([
+
+  document.fonts.load(
+    fontSize +
+    "px '" +
+    mainFont +
+    "'"
+  ),
+
+  document.fonts.load(
+    fontSize +
+    "px '" +
+    sideFont +
+    "'"
+  ),
+
+  document.fonts.load(
+    fontSize +
+    "px '" +
+    additionalFont +
+    "'"
+  )
+
+]);
 }
 
 var resultExitConfirm = document.getElementById('resultExitConfirm');
@@ -10717,6 +11201,32 @@ function restoreUnsavedResult(work) {
     nicknamePlacement:
       work.state.nicknamePlacement || 'top',
 
+    additionalText:
+      work.state.additionalText || '',
+
+    additionalTextEnabled:
+      work.state.additionalTextEnabled !== undefined
+        ? !!work.state.additionalTextEnabled
+        : true,
+
+    additionalTextPlacement:
+      work.state.additionalTextPlacement || '',
+
+    additionalTextStyleIndex:
+      work.state.additionalTextStyleIndex,
+
+    additionalTextFontFamily:
+      work.state.additionalTextFontFamily || '',
+
+    additionalTextManualScale:
+      work.state.additionalTextManualScale || 1,
+
+    additionalTextOffsetX:
+      work.state.additionalTextOffsetX || 0,
+
+    additionalTextOffsetY:
+      work.state.additionalTextOffsetY || 0,
+
     effectsEnabled:
       work.state.effectsEnabled,
 
@@ -10820,8 +11330,11 @@ if (
     Number(work.state.sideNickOpacity);
 }
 
-window.layerState.sideNickFont =
-  work.state.sideNickFontFamily || '';
+  window.layerState.sideNickFont =
+    work.state.sideNickFontFamily || '';
+
+  window.layerState.additionalTextFont =
+    work.state.additionalTextFontFamily || '';
 
   window.layerState.nicknameFont =
     work.state.nicknameFontFamily || 'SupercellMagic';
@@ -11001,22 +11514,26 @@ window.layerState.sideNickFont =
       });
     }
 
-    /*
-     * Сначала создаём панели.
-     */
     resetResultPanelsDefaultState();
 
     renderPricePanel();
+
     updateNicknamePanel();
+    updateAdditionalTextPanel();
     updateDetailingPanel();
+
     renderStyleStrip();
     renderFontStrip();
+
+    renderAdditionalTextStyleStrip();
+    renderAdditionalTextFontStrip();
+
     renderSideNickFontStrip();
 
     /*
-     * updateNicknamePanel() устанавливает стандартное состояние,
-     * поэтому после него возвращаем состояние ника именно этой работы.
-     */
+    * updateNicknamePanel() устанавливает стандартное состояние,
+    * поэтому после него возвращаем состояние ника именно этой работы.
+    */
     if (typeof work.nicknameEnabled === 'boolean') {
       nicknameSessionEnabled =
         work.nicknameEnabled;
@@ -12532,6 +13049,30 @@ function collectRecoveryState() {
       nicknamePlacement:
         db.nicknamePlacement || 'top',
 
+      additionalText:
+        db.additionalText || '',
+
+      additionalTextEnabled:
+        db.additionalTextEnabled !== false,
+
+      additionalTextPlacement:
+        db.additionalTextPlacement || '',
+
+      additionalTextStyleIndex:
+        db.additionalTextStyleIndex,
+
+      additionalTextFontFamily:
+        window.layerState.additionalTextFont || '',
+
+      additionalTextManualScale:
+        db.additionalTextManualScale || 1,
+
+      additionalTextOffsetX:
+        db.additionalTextOffsetX || 0,
+
+      additionalTextOffsetY:
+        db.additionalTextOffsetY || 0,
+
       offerOutlineSize:
         window.layerState.offerOutlineSize,
 
@@ -12955,6 +13496,58 @@ if (nicknameGeometry) {
   }
 }
 
+/* =========================================================
+   ДОПОЛНИТЕЛЬНЫЙ ТЕКСТ ↔ АКЦИИ
+   ========================================================= */
+
+var additionalTextGeometry =
+  getAdditionalTextGeometry(
+    canvasW,
+    canvasH
+  );
+
+
+if (additionalTextGeometry) {
+
+  var additionalTextOffersGap =
+    Math.max(
+      14,
+      canvasH * 0.022
+    );
+
+
+  if (
+    additionalTextGeometry.placement ===
+      'bottom'
+  ) {
+
+    /*
+     * Дополнительный текст снизу →
+     * акции заканчиваются выше него.
+     */
+    safeBottom =
+      Math.min(
+        safeBottom,
+
+        additionalTextGeometry.top -
+        additionalTextOffersGap
+      );
+
+  } else {
+
+    /*
+     * Дополнительный текст сверху →
+     * акции начинаются ниже него.
+     */
+    safeTop =
+      Math.max(
+        safeTop,
+
+        additionalTextGeometry.bottom +
+        additionalTextOffersGap
+      );
+  }
+}
 
 /*
  * Защита на случай очень маленькой зоны.
@@ -14308,6 +14901,12 @@ function drawResult(ctx, canvasW, canvasH) {
     canvasH
   );
 
+  drawAdditionalText(
+    ctx,
+    canvasW,
+    canvasH
+  );
+
   window.layerState.offers.forEach(function (offer) {
     if (offer.visible === false) return;
 
@@ -14538,6 +15137,362 @@ function getNicknameGeometry(
 
     styleIndex:
       db.nicknameStyleIndex || 0
+  };
+}
+
+var ADDITIONAL_TEXT_MAX_LENGTH = 26;
+
+
+function isAdditionalTextActive() {
+
+  var db = loadDB();
+
+  if (!db.additionalText) {
+    return false;
+  }
+
+  return db.additionalTextEnabled !== false;
+}
+
+
+function getAdditionalTextPlacement() {
+
+  var db = loadDB();
+
+  if (
+    db.additionalTextPlacement === 'top' ||
+    db.additionalTextPlacement === 'bottom'
+  ) {
+    return db.additionalTextPlacement;
+  }
+
+  /*
+   * Первый раз дополнительный текст
+   * автоматически ставим с другой
+   * стороны от большого ника.
+   */
+  return getNicknamePlacement() === 'top'
+    ? 'bottom'
+    : 'top';
+}
+
+
+function getAdditionalTextFont() {
+
+  return (
+    window.layerState.additionalTextFont ||
+    window.layerState.nicknameFont ||
+    'SupercellMagic'
+  );
+}
+
+
+function getAdditionalTextStyleIndex() {
+
+  var db = loadDB();
+
+  if (
+    db.additionalTextStyleIndex !== undefined
+  ) {
+    return Number(
+      db.additionalTextStyleIndex
+    ) || 0;
+  }
+
+  /*
+   * Пока свой стиль не выбирался —
+   * наследуем стиль большого ника.
+   */
+  return Number(
+    db.nicknameStyleIndex
+  ) || 0;
+}
+
+function getAdditionalTextGeometry(
+  canvasW,
+  canvasH
+) {
+
+  var db =
+    loadDB();
+
+
+  if (!isAdditionalTextActive()) {
+    return null;
+  }
+
+
+  var text =
+    String(
+      db.additionalText || ''
+    ).slice(
+      0,
+      ADDITIONAL_TEXT_MAX_LENGTH
+    );
+
+
+  if (!text) {
+    return null;
+  }
+
+/*
+ * Эталон — точно такой же,
+ * как у большого ника.
+ *
+ * Всегда считаем область
+ * через LilitaOneRus.
+ */
+var box =
+  getTemplateBox(
+    text,
+    canvasH
+  );
+
+
+var fontFamily =
+  getAdditionalTextFont();
+
+
+/*
+ * Измеряем уже выбранный шрифт.
+ */
+var metrics =
+  getNicknameMetrics(
+    fontFamily,
+    text.toUpperCase()
+  );
+
+
+/*
+ * Подгоняем выбранный шрифт
+ * под ширину LilitaOneRus.
+ *
+ * Это тот же алгоритм,
+ * что у большого ника.
+ */
+var fontSize =
+  metrics.testSize *
+  (
+    box.width /
+    metrics.width
+  );
+
+
+var naturalHeight =
+  metrics.height *
+  (
+    fontSize /
+    metrics.testSize
+  );
+
+
+var scaleY = 1;
+
+
+/*
+ * Если выбранный шрифт выше
+ * LilitaOneRus — немного
+ * сжимаем его по вертикали.
+ *
+ * Точно как у большого ника.
+ */
+if (
+  naturalHeight >
+  box.height
+) {
+
+  var idealScaleY =
+    box.height /
+    naturalHeight;
+
+
+  var COMPRESSION_SHARE =
+    0.6;
+
+
+  scaleY =
+    1 -
+    (
+      1 -
+      idealScaleY
+    ) *
+    COMPRESSION_SHARE;
+}
+
+  /*
+   * Ручной размер.
+   */
+  var manualScale =
+    Number(
+      db.additionalTextManualScale
+    ) || 1;
+
+
+  fontSize *=
+    manualScale;
+
+
+  var finalHeight =
+    naturalHeight *
+    scaleY *
+    manualScale;
+
+
+  var visualPadding =
+    Math.max(
+      3,
+      fontSize * 0.06
+    );
+
+
+  var areaHeight =
+    canvasH *
+    NICKNAME_AREA_RATIO;
+
+
+  var padding =
+    areaHeight *
+    NICKNAME_PADDING_RATIO;
+
+
+  var textSlotHeight =
+    areaHeight -
+    padding * 2;
+
+
+  var baseY =
+    padding +
+    textSlotHeight / 2;
+
+
+  var placement =
+    getAdditionalTextPlacement();
+
+
+  var y =
+    placement === 'bottom'
+      ? canvasH - baseY
+      : baseY;
+
+
+  /*
+   * Если большой ник находится
+   * на той же стороне —
+   * не накладываем тексты.
+   */
+  var nicknameGeometry =
+    getNicknameGeometry(
+      canvasW,
+      canvasH
+    );
+
+
+  if (
+    nicknameGeometry &&
+    getNicknamePlacement() ===
+      placement
+  ) {
+
+    var textGap =
+      Math.max(
+        10,
+        canvasH * 0.014
+      );
+
+
+    if (
+      placement === 'top'
+    ) {
+
+      y =
+        Math.max(
+          y,
+
+          nicknameGeometry.bottom +
+          textGap +
+          finalHeight / 2 +
+          visualPadding
+        );
+
+    } else {
+
+      y =
+        Math.min(
+          y,
+
+          nicknameGeometry.top -
+          textGap -
+          finalHeight / 2 -
+          visualPadding
+        );
+    }
+  }
+
+
+  /*
+   * Ручное положение.
+   */
+  var offsetX =
+    Number(
+      db.additionalTextOffsetX
+    ) || 0;
+
+
+  var offsetY =
+    Number(
+      db.additionalTextOffsetY
+    ) || 0;
+
+
+  var x =
+    canvasW / 2 +
+    canvasW *
+    offsetX;
+
+
+  y -=
+    canvasH *
+    offsetY;
+
+
+  return {
+
+    x:
+      x,
+
+    y:
+      y,
+
+    fontSize:
+      fontSize,
+
+    scaleY:
+      scaleY,
+
+    height:
+      finalHeight,
+
+    top:
+      y -
+      finalHeight / 2 -
+      visualPadding,
+
+    bottom:
+      y +
+      finalHeight / 2 +
+      visualPadding,
+
+    text:
+      text,
+
+    fontFamily:
+      fontFamily,
+
+    styleIndex:
+      getAdditionalTextStyleIndex(),
+
+    placement:
+      placement
   };
 }
 
@@ -14899,6 +15854,48 @@ function drawNickname(
   );
 }
 
+function drawAdditionalText(
+  ctx,
+  canvasW,
+  canvasH
+) {
+
+  var geometry =
+    getAdditionalTextGeometry(
+      canvasW,
+      canvasH
+    );
+
+  if (!geometry) {
+    return;
+  }
+
+
+  drawStyledText(
+
+    ctx,
+
+    geometry.text,
+
+    geometry.x,
+    geometry.y,
+
+    geometry.fontSize,
+
+    geometry.fontFamily,
+
+    geometry.styleIndex,
+
+    {
+      skew:
+        NICKNAME_SKEW,
+
+      scaleY:
+        geometry.scaleY
+    }
+  );
+}
+
 var downloadColorConfirm =
   document.getElementById(
     'downloadColorConfirm'
@@ -14986,6 +15983,27 @@ function resetResultPanelsDefaultState() {
     // Ник → Размер и положение — закрыт
     transformSubPanelCollapsed: true,
 
+    // Доп. текст — открыт
+    additionalTextPanelCollapsed: false,
+
+    // Доп. текст → Размер и положение — закрыто
+    additionalTextTransformSubPanelCollapsed: true,
+
+    // Доп. текст → Стиль — открыт
+    additionalTextStyleSubPanelCollapsed: false,
+
+    // Доп. текст → Шрифт — закрыт
+    additionalTextFontSubPanelCollapsed: true,
+
+    // Дополнительный текст — открыт
+    additionalTextPanelCollapsed: false,
+
+    // Доп. текст → Стиль — открыт
+    additionalTextStyleSubPanelCollapsed: false,
+
+    // Доп. текст → Шрифт — закрыт
+    additionalTextFontSubPanelCollapsed: true,
+
     // Детализация — закрыта
     detailingPanelCollapsed: true
   });
@@ -14994,6 +16012,47 @@ function resetResultPanelsDefaultState() {
 function showResultPage() {
   resultWasDownloaded = false;
   resultReturnPage = brawlPage;
+
+    /*
+  * Новая работа всегда начинается
+  * без дополнительного текста.
+  */
+  saveDB({
+
+    additionalText:
+      '',
+
+    additionalTextEnabled:
+      false,
+
+    additionalTextPlacement:
+      '',
+
+    additionalTextStyleIndex:
+      undefined,
+
+    additionalTextFontFamily:
+      '',
+
+    additionalTextManualScale:
+      1,
+
+    additionalTextOffsetX:
+      0,
+
+    additionalTextOffsetY:
+      0
+  });
+
+
+  window.layerState.additionalTextFont =
+    '';
+
+
+  layoutOffers(
+    resultCanvas.width,
+    resultCanvas.height
+  );
 
   generateSticky.classList.remove('is-visible');
   resultCanvas.classList.remove('is-ready');
@@ -15015,10 +16074,17 @@ function showResultPage() {
   resetResultPanelsDefaultState();
 
   renderPricePanel();
+
   updateNicknamePanel();
+  updateAdditionalTextPanel();
   updateDetailingPanel();
+
   renderStyleStrip();
   renderFontStrip();
+
+  renderAdditionalTextStyleStrip();
+  renderAdditionalTextFontStrip();
+
   renderSideNickFontStrip();
 }
 
@@ -15678,6 +16744,269 @@ var nicknamePanelTitle = document.getElementById('nicknamePanelTitle');
 var nicknamePanelBody = document.getElementById('nicknamePanelBody');
 var nicknameEnableSwitch = document.getElementById('nicknameEnableSwitch');
 
+var additionalTextPanel =
+  document.getElementById(
+    'additionalTextPanel'
+  );
+
+var additionalTextPanelHeader =
+  document.getElementById(
+    'additionalTextPanelHeader'
+  );
+
+var additionalTextPanelBody =
+  document.getElementById(
+    'additionalTextPanelBody'
+  );
+
+var additionalTextEnableSwitch =
+  document.getElementById(
+    'additionalTextEnableSwitch'
+  );
+
+var additionalTextAddBtn =
+  document.getElementById(
+    'additionalTextAddBtn'
+  );
+
+var additionalTextEditBtn =
+  document.getElementById(
+    'additionalTextEditBtn'
+  );
+
+
+var additionalTextModal =
+  document.getElementById(
+    'additionalTextModal'
+  );
+
+var additionalTextModalInput =
+  document.getElementById(
+    'additionalTextModalInput'
+  );
+
+var additionalTextModalCancel =
+  document.getElementById(
+    'additionalTextModalCancel'
+  );
+
+var additionalTextModalOk =
+  document.getElementById(
+    'additionalTextModalOk'
+  );
+
+
+var additionalTextTransformSubPanel =
+  document.getElementById(
+    'additionalTextTransformSubPanel'
+  );
+
+var additionalTextTransformSubPanelToggle =
+  document.getElementById(
+    'additionalTextTransformSubPanelToggle'
+  );
+
+var additionalTextTransformSubPanelBody =
+  document.getElementById(
+    'additionalTextTransformSubPanelBody'
+  );
+
+var additionalTextTransformControls =
+  document.getElementById(
+    'additionalTextTransformControls'
+  );
+
+var additionalTextSizeRange =
+  document.getElementById(
+    'additionalTextSizeRange'
+  );
+
+var additionalTextXRange =
+  document.getElementById(
+    'additionalTextXRange'
+  );
+
+var additionalTextYRange =
+  document.getElementById(
+    'additionalTextYRange'
+  );
+
+additionalTextTransformSubPanelToggle
+  .addEventListener(
+    'click',
+    function () {
+
+      var collapsed =
+        !additionalTextTransformSubPanel
+          .classList.contains(
+            'is-collapsed'
+          );
+
+
+      setCollapsed(
+        additionalTextTransformSubPanel,
+        additionalTextTransformSubPanelBody,
+        collapsed
+      );
+
+
+      saveDB({
+        additionalTextTransformSubPanelCollapsed:
+          collapsed
+      });
+    }
+  );
+
+
+function applyAdditionalTextTransformControls() {
+
+  saveDB({
+
+    additionalTextManualScale:
+      Number(
+        additionalTextSizeRange.value
+      ) / 100,
+
+    additionalTextOffsetX:
+      Number(
+        additionalTextXRange.value
+      ) / 100,
+
+    additionalTextOffsetY:
+      Number(
+        additionalTextYRange.value
+      ) / 100
+  });
+
+
+  /*
+   * Именно здесь акции мгновенно
+   * деформируются под новое место.
+   */
+  layoutOffers(
+    resultCanvas.width,
+    resultCanvas.height
+  );
+
+
+  drawResult(
+    resultCanvas.getContext('2d'),
+    resultCanvas.width,
+    resultCanvas.height
+  );
+}
+
+additionalTextTransformControls
+  .addEventListener(
+    'input',
+    function (e) {
+
+      if (
+        e.target.type !== 'range'
+      ) {
+        return;
+      }
+
+      applyAdditionalTextTransformControls();
+    }
+  );
+
+
+additionalTextTransformControls
+  .addEventListener(
+    'click',
+    function (e) {
+
+      var btn =
+        e.target.closest(
+          '.nickname-adjust__btn'
+        );
+
+      if (!btn) return;
+
+
+      var range =
+        document.getElementById(
+          btn.dataset.target
+        );
+
+      if (!range) return;
+
+
+      var next =
+        Number(range.value) +
+        Number(btn.dataset.delta);
+
+
+      next =
+        Math.max(
+          Number(range.min),
+
+          Math.min(
+            Number(range.max),
+            next
+          )
+        );
+
+
+      range.value =
+        next;
+
+
+      applyAdditionalTextTransformControls();
+    }
+  );
+
+var additionalTextPositionBtn =
+  document.getElementById(
+    'additionalTextPositionBtn'
+  );
+
+var additionalTextPositionBtnText =
+  document.getElementById(
+    'additionalTextPositionBtnText'
+  );
+
+var additionalTextStyleSubPanel =
+  document.getElementById(
+    'additionalTextStyleSubPanel'
+  );
+
+var additionalTextStyleSubPanelToggle =
+  document.getElementById(
+    'additionalTextStyleSubPanelToggle'
+  );
+
+var additionalTextStyleSubPanelBody =
+  document.getElementById(
+    'additionalTextStyleSubPanelBody'
+  );
+
+var additionalTextStyleStrip =
+  document.getElementById(
+    'additionalTextStyleStrip'
+  );
+
+var additionalTextFontSubPanel =
+  document.getElementById(
+    'additionalTextFontSubPanel'
+  );
+
+var additionalTextFontSubPanelToggle =
+  document.getElementById(
+    'additionalTextFontSubPanelToggle'
+  );
+
+var additionalTextFontSubPanelBody =
+  document.getElementById(
+    'additionalTextFontSubPanelBody'
+  );
+
+var additionalTextFontStrip =
+  document.getElementById(
+    'additionalTextFontStrip'
+  );
+
 var styleSubPanel = document.getElementById('styleSubPanel');
 var styleSubPanelToggle = document.getElementById('styleSubPanelToggle');
 var styleSubPanelBody = document.getElementById('styleSubPanelBody');
@@ -16269,6 +17598,742 @@ function updateNicknamePanel() {
   syncNicknamePositionButton();
   updateNicknameSwitchUI();
 }
+
+function syncAdditionalTextTransformControls() {
+
+  var db =
+    loadDB();
+
+
+  additionalTextSizeRange.value =
+    Math.round(
+      (
+        Number(
+          db.additionalTextManualScale
+        ) || 1
+      ) * 100
+    );
+
+
+  additionalTextXRange.value =
+    Math.round(
+      (
+        Number(
+          db.additionalTextOffsetX
+        ) || 0
+      ) * 100
+    );
+
+
+  additionalTextYRange.value =
+    Math.round(
+      (
+        Number(
+          db.additionalTextOffsetY
+        ) || 0
+      ) * 100
+    );
+}
+
+
+function updateAdditionalTextPanel() {
+
+  var db =
+    loadDB();
+
+
+  var text =
+    String(
+      db.additionalText || ''
+    ).slice(
+      0,
+      ADDITIONAL_TEXT_MAX_LENGTH
+    );
+
+
+  var hasText =
+    !!text;
+
+
+  /*
+   * Пока текста нет:
+   *
+   * показываем только кнопку
+   * "Добавить доп текст".
+   */
+  additionalTextAddBtn.hidden =
+    hasText;
+
+  additionalTextPanel.hidden =
+    !hasText;
+
+
+  if (!hasText) {
+    return;
+  }
+
+
+  var enabled =
+    db.additionalTextEnabled !== false;
+
+
+  additionalTextEnableSwitch
+    .classList.toggle(
+      'is-on',
+      enabled
+    );
+
+
+  additionalTextEnableSwitch
+    .setAttribute(
+      'aria-pressed',
+      enabled
+        ? 'true'
+        : 'false'
+    );
+
+
+  additionalTextPanel
+    .classList.toggle(
+      'is-nickname-off',
+      !enabled
+    );
+
+
+  var placement =
+    getAdditionalTextPlacement();
+
+
+  additionalTextPositionBtn
+    .classList.toggle(
+      'is-bottom',
+      placement === 'bottom'
+    );
+
+
+  additionalTextPositionBtnText.textContent =
+    placement === 'bottom'
+      ? 'Перенести текст вверх'
+      : 'Перенести текст вниз';
+
+
+  setCollapsed(
+    additionalTextPanel,
+    additionalTextPanelBody,
+    !!db.additionalTextPanelCollapsed
+  );
+
+
+  setCollapsed(
+    additionalTextTransformSubPanel,
+    additionalTextTransformSubPanelBody,
+    db.additionalTextTransformSubPanelCollapsed !== false
+  );
+
+
+  setCollapsed(
+    additionalTextStyleSubPanel,
+    additionalTextStyleSubPanelBody,
+    !!db.additionalTextStyleSubPanelCollapsed
+  );
+
+
+  setCollapsed(
+    additionalTextFontSubPanel,
+    additionalTextFontSubPanelBody,
+    db.additionalTextFontSubPanelCollapsed !== false
+  );
+
+
+  syncAdditionalTextTransformControls();
+}
+
+function shakeAdditionalTextInput() {
+
+  additionalTextModalInput
+    .classList.remove(
+      'is-limit-shaking'
+    );
+
+
+  /*
+   * Форсируем повторный запуск
+   * CSS-анимации.
+   */
+  void additionalTextModalInput.offsetWidth;
+
+
+  additionalTextModalInput
+    .classList.add(
+      'is-limit-shaking'
+    );
+}
+
+
+additionalTextModalInput.addEventListener(
+  'animationend',
+  function () {
+
+    additionalTextModalInput
+      .classList.remove(
+        'is-limit-shaking'
+      );
+  }
+);
+
+
+function openAdditionalTextModal() {
+
+  var db =
+    loadDB();
+
+
+  additionalTextModalInput.value =
+    db.additionalText || '';
+
+
+  additionalTextModal.hidden =
+    false;
+
+
+  requestAnimationFrame(
+    function () {
+
+      additionalTextModal
+        .classList.add(
+          'is-visible'
+        );
+
+
+      setTimeout(
+        function () {
+
+          additionalTextModalInput.focus();
+
+          additionalTextModalInput
+            .setSelectionRange(
+              additionalTextModalInput.value.length,
+              additionalTextModalInput.value.length
+            );
+
+        },
+        60
+      );
+    }
+  );
+}
+
+
+function closeAdditionalTextModal() {
+
+  additionalTextModal
+    .classList.remove(
+      'is-visible'
+    );
+
+
+  setTimeout(
+    function () {
+
+      if (
+        !additionalTextModal
+          .classList.contains(
+            'is-visible'
+          )
+      ) {
+        additionalTextModal.hidden =
+          true;
+      }
+
+    },
+    220
+  );
+}
+
+
+additionalTextAddBtn.addEventListener(
+  'click',
+  openAdditionalTextModal
+);
+
+
+additionalTextEditBtn.addEventListener(
+  'click',
+  openAdditionalTextModal
+);
+
+
+additionalTextModalCancel.addEventListener(
+  'click',
+  closeAdditionalTextModal
+);
+
+
+additionalTextModal.addEventListener(
+  'click',
+  function (e) {
+
+    if (
+      e.target ===
+      additionalTextModal
+    ) {
+      closeAdditionalTextModal();
+    }
+  }
+);
+
+additionalTextModalInput.addEventListener(
+  'keydown',
+  function (e) {
+
+    /*
+     * Служебные клавиши не трогаем.
+     */
+    if (
+      e.ctrlKey ||
+      e.metaKey ||
+      e.altKey ||
+      e.key.length !== 1
+    ) {
+      return;
+    }
+
+
+    var start =
+      additionalTextModalInput
+        .selectionStart || 0;
+
+    var end =
+      additionalTextModalInput
+        .selectionEnd || 0;
+
+
+    /*
+     * Если часть текста выделена,
+     * её можно заменить.
+     */
+    var currentLength =
+      additionalTextModalInput
+        .value.length -
+      (
+        end -
+        start
+      );
+
+
+    if (
+      currentLength >=
+      ADDITIONAL_TEXT_MAX_LENGTH
+    ) {
+
+      e.preventDefault();
+
+      shakeAdditionalTextInput();
+    }
+  }
+);
+
+
+/*
+ * Мобильная клавиатура.
+ */
+additionalTextModalInput.addEventListener(
+  'beforeinput',
+  function (e) {
+
+    if (
+      !e.inputType ||
+      e.inputType.indexOf(
+        'insert'
+      ) !== 0 ||
+      !e.data
+    ) {
+      return;
+    }
+
+
+    var start =
+      additionalTextModalInput
+        .selectionStart || 0;
+
+    var end =
+      additionalTextModalInput
+        .selectionEnd || 0;
+
+
+    var nextLength =
+      additionalTextModalInput
+        .value.length -
+      (
+        end -
+        start
+      ) +
+      e.data.length;
+
+
+    if (
+      nextLength >
+      ADDITIONAL_TEXT_MAX_LENGTH
+    ) {
+
+      e.preventDefault();
+
+      shakeAdditionalTextInput();
+    }
+  }
+);
+
+
+/*
+ * Вставка большого текста.
+ */
+additionalTextModalInput.addEventListener(
+  'paste',
+  function (e) {
+
+    var pasted =
+      (
+        e.clipboardData ||
+        window.clipboardData
+      ).getData('text');
+
+
+    var start =
+      additionalTextModalInput
+        .selectionStart || 0;
+
+    var end =
+      additionalTextModalInput
+        .selectionEnd || 0;
+
+
+    var baseLength =
+      additionalTextModalInput
+        .value.length -
+      (
+        end -
+        start
+      );
+
+
+    if (
+      baseLength +
+      pasted.length <=
+      ADDITIONAL_TEXT_MAX_LENGTH
+    ) {
+      return;
+    }
+
+
+    e.preventDefault();
+
+
+    var available =
+      Math.max(
+        0,
+        ADDITIONAL_TEXT_MAX_LENGTH -
+        baseLength
+      );
+
+
+    additionalTextModalInput
+      .setRangeText(
+        pasted.slice(
+          0,
+          available
+        ),
+        start,
+        end,
+        'end'
+      );
+
+
+    shakeAdditionalTextInput();
+  }
+);
+
+function saveAdditionalTextFromModal() {
+
+  var text =
+    String(
+      additionalTextModalInput.value ||
+      ''
+    )
+      .trim()
+      .slice(
+        0,
+        ADDITIONAL_TEXT_MAX_LENGTH
+      );
+
+
+  if (!text) {
+
+    additionalTextModalInput.focus();
+    shakeAdditionalTextInput();
+
+    return;
+  }
+
+
+  var db =
+    loadDB();
+
+
+  var isNew =
+    !db.additionalText;
+
+
+  var data = {
+
+    additionalText:
+      text,
+
+    additionalTextEnabled:
+      true
+  };
+
+
+  /*
+   * Только при первом создании.
+   */
+  if (isNew) {
+
+    data.additionalTextPlacement =
+      getNicknamePlacement() === 'top'
+        ? 'bottom'
+        : 'top';
+
+
+    data.additionalTextManualScale =
+      1;
+
+    data.additionalTextOffsetX =
+      0;
+
+    data.additionalTextOffsetY =
+      0;
+  }
+
+
+  saveDB(data);
+
+
+  closeAdditionalTextModal();
+
+
+  updateAdditionalTextPanel();
+
+  renderAdditionalTextStyleStrip();
+  renderAdditionalTextFontStrip();
+
+
+  /*
+   * Сразу освобождаем место
+   * между текстами под акции.
+   */
+  layoutOffers(
+    resultCanvas.width,
+    resultCanvas.height
+  );
+
+
+  drawResult(
+    resultCanvas.getContext('2d'),
+    resultCanvas.width,
+    resultCanvas.height
+  );
+}
+
+
+additionalTextModalOk.addEventListener(
+  'click',
+  saveAdditionalTextFromModal
+);
+
+
+additionalTextModalInput.addEventListener(
+  'keydown',
+  function (e) {
+
+    if (e.key === 'Enter') {
+
+      e.preventDefault();
+
+      saveAdditionalTextFromModal();
+    }
+
+
+    if (e.key === 'Escape') {
+
+      e.preventDefault();
+
+      closeAdditionalTextModal();
+    }
+  }
+);
+
+additionalTextEnableSwitch.addEventListener(
+  'click',
+  function (e) {
+
+    e.stopPropagation();
+
+    var db =
+      loadDB();
+
+    if (!db.additionalText) {
+      return;
+    }
+
+    var enabled =
+      db.additionalTextEnabled !== false;
+
+    saveDB({
+      additionalTextEnabled:
+        !enabled
+    });
+
+    updateAdditionalTextPanel();
+
+    layoutOffers(
+      resultCanvas.width,
+      resultCanvas.height
+    );
+
+    drawResult(
+      resultCanvas.getContext('2d'),
+      resultCanvas.width,
+      resultCanvas.height
+    );
+  }
+);
+
+additionalTextPositionBtn.addEventListener(
+  'click',
+  function () {
+
+    var nextPlacement =
+      getAdditionalTextPlacement() ===
+        'bottom'
+        ? 'top'
+        : 'bottom';
+
+
+    saveDB({
+
+      additionalTextPlacement:
+        nextPlacement,
+
+      /*
+      * При глобальном переносе
+      * сбрасываем только ручной Y.
+      */
+      additionalTextOffsetY:
+        0
+    });
+
+
+    syncAdditionalTextTransformControls();
+
+
+    updateAdditionalTextPanel();
+
+    /*
+     * Мгновенно пересчитываем акции.
+     * Никакой анимации.
+     */
+    layoutOffers(
+      resultCanvas.width,
+      resultCanvas.height
+    );
+
+    drawResult(
+      resultCanvas.getContext('2d'),
+      resultCanvas.width,
+      resultCanvas.height
+    );
+  }
+);
+
+additionalTextPanelHeader.addEventListener(
+  'click',
+  function (e) {
+
+    if (
+      e.target.closest(
+        '#additionalTextEnableSwitch'
+      )
+    ) {
+      return;
+    }
+
+    var collapsed =
+      !additionalTextPanel
+        .classList.contains(
+          'is-collapsed'
+        );
+
+    setCollapsed(
+      additionalTextPanel,
+      additionalTextPanelBody,
+      collapsed
+    );
+
+    saveDB({
+      additionalTextPanelCollapsed:
+        collapsed
+    });
+  }
+);
+
+additionalTextStyleSubPanelToggle
+  .addEventListener(
+    'click',
+    function () {
+
+      var collapsed =
+        !additionalTextStyleSubPanel
+          .classList.contains(
+            'is-collapsed'
+          );
+
+      setCollapsed(
+        additionalTextStyleSubPanel,
+        additionalTextStyleSubPanelBody,
+        collapsed
+      );
+
+      saveDB({
+        additionalTextStyleSubPanelCollapsed:
+          collapsed
+      });
+    }
+  );
+
+
+additionalTextFontSubPanelToggle
+  .addEventListener(
+    'click',
+    function () {
+
+      var collapsed =
+        !additionalTextFontSubPanel
+          .classList.contains(
+            'is-collapsed'
+          );
+
+      setCollapsed(
+        additionalTextFontSubPanel,
+        additionalTextFontSubPanelBody,
+        collapsed
+      );
+
+      saveDB({
+        additionalTextFontSubPanelCollapsed:
+          collapsed
+      });
+    }
+  );
 
 // клик по шапке сворачивает панель, но не если попали в переключатель
 nicknamePanelHeader.addEventListener('click', function (e) {
@@ -20655,7 +22720,7 @@ var styleStripSection = document.getElementById('styleStripSection');
 var styleStrip = document.getElementById('styleStrip');
 
 var STYLE_PREVIEW_TEXT = 'TEXT';
-var PREVIEW_HEIGHT_RATIO = 0.35;   // было 0.5, теперь на 30% меньше
+var PREVIEW_HEIGHT_RATIO = 0.35;   
 var PREVIEW_MAX_WIDTH_RATIO = 0.82;
 
 function renderStyleStrip() {
@@ -20710,6 +22775,171 @@ function renderStyleStrip() {
     });
   });
 }
+
+function renderAdditionalTextStyleStrip() {
+
+  if (!additionalTextStyleStrip) {
+    return;
+  }
+
+  additionalTextStyleStrip.innerHTML =
+    '';
+
+  var selectedIndex =
+    getAdditionalTextStyleIndex();
+
+  var fontFamily =
+    getAdditionalTextFont();
+
+  var swatchW = 240;
+  var swatchH = 130;
+
+
+  document.fonts
+    .load(
+      "40px '" +
+      fontFamily +
+      "'"
+    )
+    .finally(function () {
+
+      TEXT_STYLES.forEach(
+        function (style, index) {
+
+          var btn =
+            document.createElement(
+              'button'
+            );
+
+          btn.type =
+            'button';
+
+          btn.className =
+            'style-strip__item' +
+            (
+              index === selectedIndex
+                ? ' is-selected'
+                : ''
+            );
+
+          btn.dataset.index =
+            index;
+
+
+          var canvas =
+            document.createElement(
+              'canvas'
+            );
+
+          canvas.width =
+            swatchW;
+
+          canvas.height =
+            swatchH;
+
+
+          var ctx =
+            canvas.getContext('2d');
+
+
+          ctx.fillStyle =
+            getComputedStyle(
+              document.documentElement
+            ).getPropertyValue(
+              '--surface-soft'
+            );
+
+          ctx.fillRect(
+            0,
+            0,
+            swatchW,
+            swatchH
+          );
+
+
+          var metrics =
+            getNicknameMetrics(
+              fontFamily,
+              STYLE_PREVIEW_TEXT
+            );
+
+
+          var previewFontSize =
+            metrics.testSize *
+            (
+              (
+                swatchH *
+                PREVIEW_HEIGHT_RATIO
+              ) /
+              metrics.height
+            );
+
+
+          drawStyledText(
+            ctx,
+            STYLE_PREVIEW_TEXT,
+
+            swatchW / 2,
+            swatchH / 2,
+
+            previewFontSize,
+
+            fontFamily,
+
+            index,
+
+            {
+              skew:
+                NICKNAME_SKEW,
+
+              shadowScale:
+                0.8
+            }
+          );
+
+
+          btn.appendChild(
+            canvas
+          );
+
+          additionalTextStyleStrip
+            .appendChild(
+              btn
+            );
+        }
+      );
+    });
+}
+
+additionalTextStyleStrip.addEventListener(
+  'click',
+  function (e) {
+
+    var btn =
+      e.target.closest(
+        '.style-strip__item'
+      );
+
+    if (!btn) return;
+
+
+    saveDB({
+      additionalTextStyleIndex:
+        Number(
+          btn.dataset.index
+        )
+    });
+
+
+    renderAdditionalTextStyleStrip();
+
+    drawResult(
+      resultCanvas.getContext('2d'),
+      resultCanvas.width,
+      resultCanvas.height
+    );
+  }
+);
 
 styleStrip.addEventListener('click', function (e) {
   var btn = e.target.closest('.style-strip__item');
@@ -20826,6 +23056,212 @@ function renderFontStrip() {
     });
   });
 }
+
+function renderAdditionalTextFontStrip() {
+
+  if (!additionalTextFontStrip) {
+    return;
+  }
+
+  additionalTextFontStrip.innerHTML =
+    '';
+
+
+  var selectedFamily =
+    getAdditionalTextFont();
+
+  var swatchW = 200;
+  var swatchH = 100;
+
+
+  Promise.allSettled(
+    FONT_CATALOG.map(
+      function (font) {
+
+        return document.fonts.load(
+          "40px '" +
+          font.family +
+          "'"
+        );
+      }
+    )
+  ).then(function () {
+
+    FONT_CATALOG.forEach(
+      function (fontDef) {
+
+        var btn =
+          document.createElement(
+            'button'
+          );
+
+        btn.type =
+          'button';
+
+        btn.className =
+          'style-strip__item' +
+          (
+            fontDef.family ===
+              selectedFamily
+              ? ' is-selected'
+              : ''
+          );
+
+        btn.dataset.family =
+          fontDef.family;
+
+
+        var canvas =
+          document.createElement(
+            'canvas'
+          );
+
+        canvas.width =
+          swatchW;
+
+        canvas.height =
+          swatchH;
+
+
+        var ctx =
+          canvas.getContext('2d');
+
+
+        ctx.fillStyle =
+          getComputedStyle(
+            document.documentElement
+          ).getPropertyValue(
+            '--surface-soft'
+          );
+
+        ctx.fillRect(
+          0,
+          0,
+          swatchW,
+          swatchH
+        );
+
+
+        var metrics =
+          getNicknameMetrics(
+            fontDef.family,
+            STYLE_PREVIEW_TEXT
+          );
+
+
+        var previewFontSize =
+          metrics.testSize *
+          (
+            (
+              swatchH *
+              PREVIEW_HEIGHT_RATIO
+            ) /
+            metrics.height
+          );
+
+
+        ctx.save();
+
+        ctx.translate(
+          swatchW / 2,
+          swatchH / 2
+        );
+
+        ctx.transform(
+          1,
+          0,
+          NICKNAME_SKEW,
+          1,
+          0,
+          0
+        );
+
+        ctx.textAlign =
+          'center';
+
+        ctx.textBaseline =
+          'middle';
+
+        ctx.font =
+          previewFontSize +
+          "px '" +
+          fontDef.family +
+          "', sans-serif";
+
+        ctx.fillStyle =
+          getComputedStyle(
+            document.documentElement
+          ).getPropertyValue(
+            '--text'
+          );
+
+        ctx.fillText(
+          STYLE_PREVIEW_TEXT,
+          0,
+          0
+        );
+
+        ctx.restore();
+
+
+        btn.appendChild(
+          canvas
+        );
+
+        additionalTextFontStrip
+          .appendChild(
+            btn
+          );
+      }
+    );
+  });
+}
+
+additionalTextFontStrip.addEventListener(
+  'click',
+  function (e) {
+
+    var btn =
+      e.target.closest(
+        '.style-strip__item'
+      );
+
+    if (!btn) return;
+
+
+    window.layerState
+      .additionalTextFont =
+        btn.dataset.family;
+
+
+    saveDB({
+      additionalTextFontFamily:
+        btn.dataset.family
+    });
+
+
+    renderAdditionalTextFontStrip();
+    renderAdditionalTextStyleStrip();
+
+
+    /*
+     * Разные шрифты нормализуются,
+     * но геометрию всё равно
+     * пересчитываем.
+     */
+    layoutOffers(
+      resultCanvas.width,
+      resultCanvas.height
+    );
+
+
+    drawResult(
+      resultCanvas.getContext('2d'),
+      resultCanvas.width,
+      resultCanvas.height
+    );
+  }
+);
 
 function renderSideNickFontStrip() {
 
