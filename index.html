@@ -11141,7 +11141,7 @@ if (
         if (work.prices[index] === undefined) return;
 
         var raw = String(work.prices[index] || '');
-        var newPrice = raw === '' ? 'FREE' : raw;
+        var newPrice = raw.toUpperCase() === 'FREE' ? '' : raw;
 
         window.redrawCardPrice(
           offer.ref,
@@ -18214,7 +18214,7 @@ offers.forEach(function (offer, index) {
     input.maxLength = String(window.layerState.offerPriceMax).length; // 5
     input.className = 'price-row__input';
     input.dataset.offerIndex = index;
-    input.placeholder = 'FREE';
+    input.placeholder = '';
     input.value =
       (offer.ref.price && offer.ref.price !== 'FREE')
         ? offer.ref.price
@@ -18296,9 +18296,9 @@ function redrawAllOfferPrices() {
 
     var price =
       offer.ref.price &&
-      offer.ref.price !== ''
+      offer.ref.price !== 'FREE'
         ? offer.ref.price
-        : 'FREE';
+        : '';
 
     window.redrawCardPrice(
       offer.ref,
@@ -18319,7 +18319,7 @@ function applyPriceToOffer(index, rawValue) {
   if (!offer) return;
 
   var value = rawValue.trim();
-  var newPrice = value === '' ? 'FREE' : value;
+  var newPrice = value;
 
   window.redrawCardPrice(
     offer.ref,
