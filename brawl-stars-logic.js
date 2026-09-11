@@ -25,7 +25,7 @@
 
   const DEFAULT_OPTIONS = Object.freeze({
     maxFiles: 6,
-    replacementPrice: 'FREE',
+    replacementPrice: '',
     priceScale: 1,
     priceScale: 1,
     priceFontFamily: 'LilitaOneRus',
