@@ -1534,12 +1534,11 @@ function alphaBoxFilter(integral, mask, w, h, radius) {
 
   global.BrawlStarsCutter = api;
 
-  // Preserve the requested entry-point names for direct integration.
-  if (!global.processImages) global.processImages = processImages;
-  if (!global.runMagicLogic) global.runMagicLogic = runMagicLogic;
-  if (!global.autoReplacePrice) global.autoReplacePrice = autoReplacePrice;
-  if (!global.drawPriceText) global.drawPriceText = drawPriceText;
-  if (!global.redrawCardPrice) global.redrawCardPrice = redrawCardPrice;
+  global.processImages = processImages;
+  global.runMagicLogic = runMagicLogic;
+  global.autoReplacePrice = autoReplacePrice;
+  global.drawPriceText = drawPriceText;
+  global.redrawCardPrice = redrawCardPrice;
 
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = api;
