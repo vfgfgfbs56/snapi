@@ -10335,8 +10335,8 @@ function getOffersBottomRatio() {
 }
 
 var TEXT_STYLES = [
-  { grad:['#e59921','#f6e63a','#e59921'], emboss:'#f2fea1', embossThickness:0.05, shadow:'#7b360e' },
-  { grad:['#cacaca','#ffffff','#cacaca'], emboss:'#ffffff', embossThickness:0.05, shadow:'#3b3b3b' },
+{ grad:['#e59921','#f6e63a','#e59921'], emboss:'#f2fea1', embossThickness:0.05, shadow:'#7b360e' },
+{ grad:['#e59921','#f6e63a','#e59921'], emboss:'#f2fea1', embossThickness:0.05, shadow:'#7b360e', shadowOuter:'#491c00' },  { grad:['#cacaca','#ffffff','#cacaca'], emboss:'#ffffff', embossThickness:0.05, shadow:'#3b3b3b' },
   { isClassic: true, grad: ['#ffba00', '#fcff00', '#ffba00'], inner: '#fcff00' },
   { grad: ['#ff9600', '#ffde00', '#ff9600'], inner: '#ffde00', shadow: '#000000', outer: '#000000' },
   { grad: ['#d90646', '#ff2a6b', '#d90646'], inner: '#ff2a6b', shadow: '#000000', outer: '#000000' },
@@ -10435,6 +10435,25 @@ function drawStyledText(
         for (let i = shadowDepth; i >= 0; i--) {
             textCtx.strokeText(text, 0, i);
         }
+    } else if (style.shadowOuter) {
+        textCtx.lineWidth = fontSize * 0.12;
+        textCtx.strokeStyle = style.shadowOuter;
+
+        for (let i = shadowDepth; i >= 0; i--) {
+            textCtx.strokeText(text, 0, i);
+        }
+
+        textCtx.fillStyle = style.shadow;
+        textCtx.strokeStyle = style.shadow;
+        textCtx.lineWidth = fontSize * 0.0154;
+
+        const extrusionStep = 0.25;
+
+        for (let i = shadowDepth; i > 0; i -= extrusionStep) {
+            textCtx.fillText(text, 0, i);
+            textCtx.strokeText(text, 0, i);
+        }
+
     } else if (style.outer2) {
         textCtx.lineWidth = fontSize * 0.18;
         textCtx.strokeStyle = style.outer2;
@@ -10524,15 +10543,29 @@ function drawStyledText(
     fillCtx.fillStyle = gradient;
     fillCtx.fillText(text, 0, 0);
 
-    drawSharpEmboss(
-        fillCtx,
-        text,
-        fontSize,
-        style,
-        gradient
-    );
+  drawSharpEmboss(
+      fillCtx,
+      text,
+      fontSize,
+      style,
+      gradient
+  );
 
-    if (style.inner) {
+  if (style.topOutline) {
+      fillCtx.save();
+
+      fillCtx.globalCompositeOperation = 'source-over';
+      fillCtx.lineWidth = fontSize * 0.035;
+      fillCtx.strokeStyle = style.topOutline;
+      fillCtx.lineJoin = 'round';
+      fillCtx.lineCap = 'round';
+
+      fillCtx.strokeText(text, 0, 0);
+
+      fillCtx.restore();
+  }
+
+  if (style.inner) {
         fillCtx.globalCompositeOperation = 'source-atop';
 
         fillCtx.lineWidth = fontSize * 0.06;
